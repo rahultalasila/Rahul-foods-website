@@ -4,23 +4,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rahul Foods — Fine Dining & Delivery</title>
-  <meta name="description" content="Rahul Foods — exquisite fine dining and delivery in Mumbai. Order online, reserve a table, or explore our signature menu." />
+  <meta name="description" content="Rahul Foods — exquisite fine dining and delivery in Vijayawada. Order online, reserve a table, or explore our signature menu." />
   <meta property="og:title" content="Rahul Foods — Fine Dining & Delivery" />
-  <meta property="og:description" content="Exquisite fine dining and delivery in Mumbai. Order online or reserve a table." />
+  <meta property="og:description" content="Exquisite fine dining and delivery in Vijayawada. Order online or reserve a table." />
   <meta property="og:type" content="website" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%231a1a2e'/%3E%3Ctext x='50' y='62' font-size='52' text-anchor='middle' font-family='Georgia,serif' fill='%23c8a96e'%3ER%3C/text%3E%3C/svg%3E" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%23c0392b'/%3E%3Ctext x='50' y='62' font-size='52' text-anchor='middle' font-family='Georgia,serif' fill='%23c8a96e'%3ER%3C/text%3E%3C/svg%3E" />
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    (function(){ emailjs.init({ publicKey: "F3yhH_TVKN_Sw1io8" }); })();
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body { font-family: 'Georgia', serif; background: #f9f8f5; color: #1a1a2e; overflow-x: hidden; }
-    #root.dark-mode { filter: invert(1) hue-rotate(180deg); background:#1a1a2e; }
+    body { font-family: 'Georgia', serif; background: #fff; color: #1c1c1c; overflow-x: hidden; }
+    #root.dark-mode { filter: invert(1) hue-rotate(180deg); background:#1c1c1c; }
     #root.dark-mode img, #root.dark-mode video, #root.dark-mode canvas, #root.dark-mode iframe { filter: invert(1) hue-rotate(180deg); }
-    .theme-toggle { position:fixed; bottom:28px; left:28px; z-index:350; width:48px; height:48px; border-radius:50%; background:#1a1a2e; border:2px solid #c8a96e; color:#fff; font-size:20px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 18px rgba(0,0,0,0.25); transition:transform 0.25s; }
+    .theme-toggle { position:fixed; bottom:28px; left:28px; z-index:350; width:48px; height:48px; border-radius:50%; background:#c0392b; border:2px solid #c8a96e; color:#fff; font-size:20px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 18px rgba(192,57,43,0.35); transition:transform 0.25s; }
     .theme-toggle:hover { transform:scale(1.1); opacity:1 !important; }
     #root.dark-mode .theme-toggle { filter:invert(1) hue-rotate(180deg); }
     @keyframes pageFadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
@@ -49,7 +52,7 @@
     .dish-card-img-overlay span { color:#fff; font-family:sans-serif; font-size:11px; letter-spacing:2px; font-weight:700; text-transform:uppercase; opacity:0; transition:opacity 0.3s; }
     .dish-card-img-wrap:hover .dish-card-img-overlay span { opacity:1; }
     .dish-card-body { padding:16px 18px 18px; display:flex; flex-direction:column; flex:1; }
-    .dish-card-name { font-size:15px; color:#1a1a2e; margin-bottom:4px; cursor:pointer; }
+    .dish-card-name { font-size:15px; color:#1c1c1c; margin-bottom:4px; cursor:pointer; }
     .dish-card-name:hover { color:#c8a96e; }
     .dish-card-stars { display:flex; align-items:center; gap:5px; margin-bottom:6px; }
     .dish-card-desc { color:#bbb; font-size:11px; font-family:sans-serif; font-style:italic; line-height:1.6; flex:1; }
@@ -58,12 +61,12 @@
     .dish-card-price-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
     .dish-card-price { font-size:20px; color:#c8a96e; font-family:sans-serif; font-weight:700; }
     .dish-card-btn-row { display:flex; align-items:center; gap:8px; }
-    .add-btn { flex:1; padding:9px 0; background:#1a1a2e; color:#fff; border:none; font-size:11px; letter-spacing:1.5px; font-family:sans-serif; font-weight:700; text-transform:uppercase; border-radius:3px; transition:background 0.2s; }
+    .add-btn { flex:1; padding:9px 0; background:#c0392b; color:#fff; border:none; font-size:11px; letter-spacing:1.5px; font-family:sans-serif; font-weight:700; text-transform:uppercase; border-radius:3px; transition:background 0.2s; }
     .add-btn:hover { background:#c8a96e !important; opacity:1 !important; }
     .qty-control { display:flex; align-items:center; flex:1; background:#f9f8f5; border-radius:3px; overflow:hidden; border:1px solid #e8e2d8; }
-    .qty-btn { width:36px; height:36px; border:none; background:transparent; color:#1a1a2e; font-size:20px; font-weight:700; display:flex; align-items:center; justify-content:center; transition:background 0.15s; flex-shrink:0; }
+    .qty-btn { width:36px; height:36px; border:none; background:transparent; color:#1c1c1c; font-size:20px; font-weight:700; display:flex; align-items:center; justify-content:center; transition:background 0.15s; flex-shrink:0; }
     .qty-btn:hover { background:#c8a96e !important; color:#fff !important; opacity:1 !important; }
-    .qty-num { flex:1; text-align:center; font-size:14px; font-family:sans-serif; font-weight:700; color:#1a1a2e; }
+    .qty-num { flex:1; text-align:center; font-size:14px; font-family:sans-serif; font-weight:700; color:#1c1c1c; }
     .del-btn { width:36px; height:36px; border-radius:3px; border:1px solid #e8e2d8; background:#fff5f5; color:#e05555; font-size:15px; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
     .del-btn:hover { background:#e05555 !important; color:#fff !important; border-color:#e05555 !important; opacity:1 !important; }
     .del-btn-full { padding:8px 14px; border:1px solid #e05555; background:transparent; color:#e05555; font-size:11px; letter-spacing:1px; font-family:sans-serif; font-weight:700; border-radius:3px; transition:all 0.2s; }
@@ -84,7 +87,7 @@
     .pay-radio-dot { width:8px; height:8px; border-radius:50%; background:#c8a96e; }
     .pay-icon { font-size:24px; width:36px; text-align:center; flex-shrink:0; }
     .pay-label { font-family:sans-serif; }
-    .pay-label-title { font-size:13px; font-weight:700; color:#1a1a2e; }
+    .pay-label-title { font-size:13px; font-weight:700; color:#1c1c1c; }
     .pay-label-sub { font-size:11px; color:#aaa; margin-top:2px; }
     .pay-extra { margin-top:14px; padding:18px; background:#f9f8f5; border-radius:6px; border:1px solid #f0ece4; }
 
@@ -119,10 +122,20 @@
     .whatsapp-btn { position:fixed; bottom:28px; right:28px; z-index:350; width:56px; height:56px; background:#25D366; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px; box-shadow:0 4px 18px rgba(37,211,102,0.45); transition:all 0.25s; text-decoration:none; cursor:pointer; border:none; }
     .whatsapp-btn:hover { transform:scale(1.13); box-shadow:0 6px 28px rgba(37,211,102,0.55); opacity:1 !important; }
     @media(max-width:700px){ .whatsapp-btn{ bottom:84px; } }
+    @media(max-width:900px){
+      .cart-grid{ grid-template-columns:1fr !important; }
+      .cart-page-pad{ padding:30px 16px !important; }
+    }
+    @media(max-width:700px){
+      section{ padding:40px 20px !important; }
+      .rf-grid2, .rf-grid3{ grid-template-columns:1fr !important; }
+      .page-banner{ padding:100px 20px 50px !important; }
+      .page-banner-title{ font-size:32px !important; }
+    }
 
     /* Search bar */
     .search-wrap { max-width:500px; margin:0 auto 40px; position:relative; }
-    .search-input { width:100%; padding:14px 44px 14px 18px; border:1px solid #e0d9ce; border-radius:30px; font-family:sans-serif; font-size:14px; color:#1a1a2e; background:#fff; box-shadow:0 2px 12px rgba(0,0,0,0.06); transition:border-color 0.2s,box-shadow 0.2s; }
+    .search-input { width:100%; padding:14px 44px 14px 18px; border:1px solid #e0d9ce; border-radius:30px; font-family:sans-serif; font-size:14px; color:#1c1c1c; background:#fff; box-shadow:0 2px 12px rgba(0,0,0,0.06); transition:border-color 0.2s,box-shadow 0.2s; }
     .search-input:focus { border-color:#c8a96e !important; box-shadow:0 2px 20px rgba(200,169,110,0.2); outline:none; }
     .search-clear { position:absolute; right:14px; top:50%; transform:translateY(-50%); background:none; border:none; color:#bbb; font-size:18px; cursor:pointer; padding:0; }
     .search-clear:hover { color:#e05555 !important; opacity:1 !important; }
@@ -137,7 +150,7 @@
     .track-connector { width:2px; height:40px; background:#f0ece4; margin:4px 0; transition:background 0.5s; }
     .track-connector.done { background:#c8a96e; }
     .track-info { padding-top:6px; font-family:sans-serif; padding-bottom:32px; }
-    .track-title { font-size:14px; font-weight:700; color:#1a1a2e; margin-bottom:3px; }
+    .track-title { font-size:14px; font-weight:700; color:#1c1c1c; margin-bottom:3px; }
     .track-title.active { color:#c8a96e; }
     .track-title.pending { color:#bbb; }
     .track-sub { font-size:12px; color:#aaa; }
@@ -148,7 +161,7 @@
 
     /* FAQ accordion */
     .faq-item { border-bottom:1px solid #f0ece4; }
-    .faq-question { width:100%; text-align:left; padding:20px 4px; background:none; border:none; display:flex; justify-content:space-between; align-items:center; font-family:sans-serif; font-size:14px; font-weight:700; color:#1a1a2e; }
+    .faq-question { width:100%; text-align:left; padding:20px 4px; background:none; border:none; display:flex; justify-content:space-between; align-items:center; font-family:sans-serif; font-size:14px; font-weight:700; color:#1c1c1c; }
     .faq-answer { padding:0 4px 20px; color:#888; font-family:sans-serif; font-size:13px; line-height:1.9; }
     .faq-icon { color:#c8a96e; font-size:18px; transition:transform 0.25s; flex-shrink:0; }
     .faq-icon.open { transform:rotate(45deg); }
@@ -165,7 +178,7 @@
     /* Sticky mobile reserve bar */
     .sticky-reserve { display:none; }
     @media(max-width:700px){
-      .sticky-reserve { display:flex; position:fixed; bottom:0; left:0; right:0; z-index:340; background:#1a1a2e; padding:14px 20px; align-items:center; justify-content:space-between; box-shadow:0 -4px 20px rgba(0,0,0,0.25); }
+      .sticky-reserve { display:flex; position:fixed; bottom:0; left:0; right:0; z-index:340; background:#c0392b; padding:14px 20px; align-items:center; justify-content:space-between; box-shadow:0 -4px 20px rgba(192,57,43,0.35); }
     }
 
     /* Navbar responsive */
@@ -187,56 +200,56 @@
 <div id="root"></div>
 <script type="text/babel">
   const { useState, useEffect, useRef, useCallback } = React;
-  const GOLD="#c8a96e", DARK="#0f0f1a", MID="#1a1a2e";
+  const GOLD="#c8a96e", DARK="#c0392b", MID="#1c1c1c";
 
   const SUPABASE_URL = "https://nfwdwzqzygbvxysnkmwq.supabase.co";
   const SUPABASE_KEY = "sb_publishable_FKEYf4ZbfQeBV1Vl6QuYYg_rpzbMbEU";
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  const DELIVERY_FEE = 5;
+  const DELIVERY_FEE = 99;
   const IMG = id => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=700&q=80`;
   const FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='300'%3E%3Crect width='500' height='300' fill='%23f0ece4'/%3E%3Ctext x='50%25' y='50%25' font-size='48' text-anchor='middle' dy='.3em'%3E%F0%9F%8D%BD%3C/text%3E%3C/svg%3E";
 
   const PROMO_CODES = {
     "RAHUL10":  { type:"percent",   value:10,  label:"10% off" },
     "WELCOME20":{ type:"percent",   value:20,  label:"20% off" },
-    "FREESHIP": { type:"freeship",  value:5,   label:"Free delivery" },
-    "FEAST50":  { type:"flat",      value:50,  label:"$50 flat off" },
+    "FREESHIP": { type:"freeship",  value:99,  label:"Free delivery" },
+    "FEAST50":  { type:"flat",      value:500, label:"₹500 flat off" },
   };
 
   const menuData = {
     Starters: [
-      { name:"Truffle Mushroom Bruschetta", desc:"Wild mushrooms, truffle oil, toasted sourdough", price:"$18", img:IMG("photo-1572695157366-5e585ab2b69f"), tag:"Chef's Pick", rating:4.8, reviews:142 },
-      { name:"Pan Seared Scallops",         desc:"Cauliflower purée, crispy capers, lemon butter",  price:"$24", img:IMG("photo-1559410545-0bdcd187e0a6"), rating:4.9, reviews:218 },
-      { name:"Burrata & Heirloom Tomatoes", desc:"Fresh burrata, basil oil, sea salt flakes",        price:"$22", img:IMG("photo-1608897013039-887f21d8c804"), rating:4.7, reviews:97 },
-      { name:"Foie Gras Terrine",           desc:"Brioche toast, fig jam, micro herbs",              price:"$28", img:IMG("photo-1547592180-85f173990554"), tag:"Signature", rating:4.6, reviews:64 },
-      { name:"Smoked Salmon Tartare",       desc:"Cucumber gel, dill crème fraîche, rye crisp",     price:"$21", img:IMG("photo-1519708227418-c8fd9a32b7a2"), rating:4.7, reviews:113 },
+      { name:"Truffle Mushroom Bruschetta", desc:"Wild mushrooms, truffle oil, toasted sourdough", price:"₹1499", img:IMG("photo-1572695157366-5e585ab2b69f"), tag:"Chef's Pick", rating:4.8, reviews:142 },
+      { name:"Pan Seared Scallops",         desc:"Cauliflower purée, crispy capers, lemon butter",  price:"₹1999", img:IMG("photo-1559410545-0bdcd187e0a6"), rating:4.9, reviews:218 },
+      { name:"Burrata & Heirloom Tomatoes", desc:"Fresh burrata, basil oil, sea salt flakes",        price:"₹1849", img:IMG("photo-1608897013039-887f21d8c804"), rating:4.7, reviews:97 },
+      { name:"Foie Gras Terrine",           desc:"Brioche toast, fig jam, micro herbs",              price:"₹2349", img:IMG("photo-1547592180-85f173990554"), tag:"Signature", rating:4.6, reviews:64 },
+      { name:"Smoked Salmon Tartare",       desc:"Cucumber gel, dill crème fraîche, rye crisp",     price:"₹1749", img:IMG("photo-1519708227418-c8fd9a32b7a2"), rating:4.7, reviews:113 },
     ],
     "Main Course": [
-      { name:"Grilled Tenderloin Steak",  desc:"200g prime beef, seasonal vegetables, red wine jus", price:"$52", img:IMG("photo-1558030006-450675393462"), tag:"Best Seller", rating:4.9, reviews:387 },
-      { name:"Lobster Thermidor",         desc:"Half lobster, cognac cream sauce, gruyère",          price:"$65", img:IMG("photo-1559339352-11d035aa65de"), tag:"Signature",   rating:4.8, reviews:201 },
-      { name:"Duck Confit",               desc:"Slow cooked duck leg, cherry sauce, pommes sarladaises", price:"$48", img:IMG("photo-1600803907087-f56d462fd26b"), rating:4.7, reviews:155 },
-      { name:"Vegetarian Wellington",     desc:"Roasted vegetables, mushroom duxelles, puff pastry", price:"$38", img:IMG("photo-1476718406336-bb5a9690ee2a"), tag:"Veg",       rating:4.6, reviews:88 },
-      { name:"Pan Roasted Sea Bass",      desc:"Mediterranean sea bass, ratatouille, saffron sauce", price:"$44", img:IMG("photo-1519984388953-d2406bc725e1"), rating:4.8, reviews:174 },
-      { name:"Rack of Lamb",              desc:"Herb crusted, garlic jus, dauphinoise potatoes",     price:"$58", img:IMG("photo-1544025162-d76538645703"), tag:"Chef's Pick",  rating:4.9, reviews:263 },
+      { name:"Grilled Tenderloin Steak",  desc:"200g prime beef, seasonal vegetables, red wine jus", price:"₹4349", img:IMG("photo-1558030006-450675393462"), tag:"Best Seller", rating:4.9, reviews:387 },
+      { name:"Lobster Thermidor",         desc:"Half lobster, cognac cream sauce, gruyère",          price:"₹5449", img:IMG("photo-1559339352-11d035aa65de"), tag:"Signature",   rating:4.8, reviews:201 },
+      { name:"Duck Confit",               desc:"Slow cooked duck leg, cherry sauce, pommes sarladaises", price:"₹3999", img:IMG("photo-1600803907087-f56d462fd26b"), rating:4.7, reviews:155 },
+      { name:"Vegetarian Wellington",     desc:"Roasted vegetables, mushroom duxelles, puff pastry", price:"₹3199", img:IMG("photo-1476718406336-bb5a9690ee2a"), tag:"Veg",       rating:4.6, reviews:88 },
+      { name:"Pan Roasted Sea Bass",      desc:"Mediterranean sea bass, ratatouille, saffron sauce", price:"₹3699", img:IMG("photo-1519984388953-d2406bc725e1"), rating:4.8, reviews:174 },
+      { name:"Rack of Lamb",              desc:"Herb crusted, garlic jus, dauphinoise potatoes",     price:"₹4849", img:IMG("photo-1544025162-d76538645703"), tag:"Chef's Pick",  rating:4.9, reviews:263 },
     ],
     Desserts: [
-      { name:"Warm Chocolate Fondant", desc:"Valrhona chocolate, vanilla ice cream, cocoa soil",     price:"$16", img:IMG("photo-1578985545062-69928b1d9587"), tag:"Best Seller", rating:4.9, reviews:342 },
-      { name:"Classic Crème Brûlée",   desc:"Madagascar vanilla, caramelised sugar crust",           price:"$14", img:IMG("photo-1470124182917-cc6e71b22ecc"), rating:4.8, reviews:198 },
-      { name:"Mango Panna Cotta",      desc:"Alphonso mango, coconut cream, passionfruit coulis",    price:"$15", img:IMG("photo-1488477181946-6428a0291777"), rating:4.7, reviews:122 },
-      { name:"Artisan Cheese Board",   desc:"Three curated cheeses, honey, seasonal fruit, crackers",price:"$19", img:IMG("photo-1452195100486-9cc805987862"), rating:4.5, reviews:76 },
-      { name:"Tarte Tatin",            desc:"Caramelised apple, puff pastry, calvados cream",        price:"$15", img:IMG("photo-1562440499-64c9a111f713"), rating:4.6, reviews:91 },
+      { name:"Warm Chocolate Fondant", desc:"Valrhona chocolate, vanilla ice cream, cocoa soil",     price:"₹1349", img:IMG("photo-1578985545062-69928b1d9587"), tag:"Best Seller", rating:4.9, reviews:342 },
+      { name:"Classic Crème Brûlée",   desc:"Madagascar vanilla, caramelised sugar crust",           price:"₹1199", img:IMG("photo-1470124182917-cc6e71b22ecc"), rating:4.8, reviews:198 },
+      { name:"Mango Panna Cotta",      desc:"Alphonso mango, coconut cream, passionfruit coulis",    price:"₹1249", img:IMG("photo-1488477181946-6428a0291777"), rating:4.7, reviews:122 },
+      { name:"Artisan Cheese Board",   desc:"Three curated cheeses, honey, seasonal fruit, crackers",price:"₹1599", img:IMG("photo-1452195100486-9cc805987862"), rating:4.5, reviews:76 },
+      { name:"Tarte Tatin",            desc:"Caramelised apple, puff pastry, calvados cream",        price:"₹1249", img:IMG("photo-1562440499-64c9a111f713"), rating:4.6, reviews:91 },
     ],
     Beverages: [
-      { name:"Sparkling Water",     desc:"San Pellegrino 750ml",                     price:"$8",  img:IMG("photo-1559839914-17aae19cec71"), rating:4.4, reviews:32 },
-      { name:"House Red Wine",      desc:"Curated Bordeaux selection (glass)",        price:"$16", img:IMG("photo-1510812431401-41d2bd2722f3"), rating:4.7, reviews:88 },
-      { name:"House White Wine",    desc:"Crisp Chablis or Chardonnay (glass)",      price:"$14", img:IMG("photo-1474722883778-792e7990302f"), rating:4.6, reviews:71 },
-      { name:"Fresh Pressed Juice", desc:"Orange, Apple, or Mixed Berry",            price:"$12", img:IMG("photo-1534353436294-0dbd4bdac845"), rating:4.5, reviews:55 },
-      { name:"Artisan Coffee",      desc:"Espresso, Cappuccino, or Flat White",      price:"$7",  img:IMG("photo-1497515114629-f71d768fd07c"), rating:4.8, reviews:203 },
-      { name:"Mocktail of the Day", desc:"Chef's seasonal non-alcoholic creation",   price:"$11", img:IMG("photo-1513558161293-cdaf765ed2fd"), rating:4.6, reviews:66 },
+      { name:"Sparkling Water",     desc:"San Pellegrino 750ml",                     price:"₹699",  img:IMG("photo-1559839914-17aae19cec71"), rating:4.4, reviews:32 },
+      { name:"House Red Wine",      desc:"Curated Bordeaux selection (glass)",        price:"₹1349", img:IMG("photo-1510812431401-41d2bd2722f3"), rating:4.7, reviews:88 },
+      { name:"House White Wine",    desc:"Crisp Chablis or Chardonnay (glass)",      price:"₹1199", img:IMG("photo-1474722883778-792e7990302f"), rating:4.6, reviews:71 },
+      { name:"Fresh Pressed Juice", desc:"Orange, Apple, or Mixed Berry",            price:"₹999",  img:IMG("photo-1534353436294-0dbd4bdac845"), rating:4.5, reviews:55 },
+      { name:"Artisan Coffee",      desc:"Espresso, Cappuccino, or Flat White",      price:"₹599",  img:IMG("photo-1497515114629-f71d768fd07c"), rating:4.8, reviews:203 },
+      { name:"Mocktail of the Day", desc:"Chef's seasonal non-alcoholic creation",   price:"₹949",  img:IMG("photo-1513558161293-cdaf765ed2fd"), rating:4.6, reviews:66 },
     ],
   };
 
-  const getPrice = item => parseFloat(item.price.replace("$",""));
+  const getPrice = item => parseFloat(item.price.replace("₹","").replace(",",""));
 
   /* Deterministic "orders today" count based on dish name */
   const popularityCount = name => {
@@ -280,7 +293,67 @@
   }
 
   /* ── DISH MODAL ── */
-  function DishModal({dish, cart, addToCart, updateQty, onClose}) {
+  function ReviewsSection({dishName, user}) {
+    const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [rating, setRating] = useState(5);
+    const [comment, setComment] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+
+    useEffect(()=>{
+      supabase.from("reviews").select("*").eq("dish_name", dishName).order("created_at",{ascending:false}).then(({data})=>{
+        if(data) setReviews(data);
+        setLoading(false);
+      });
+    },[dishName]);
+
+    const submitReview = async () => {
+      if(!comment.trim()) return;
+      setSubmitting(true);
+      await supabase.from("reviews").insert({ dish_name:dishName, user_id:user.id, user_name:user.name, rating, comment:comment.trim() });
+      setReviews(r=>[{dish_name:dishName,user_name:user.name,rating,comment:comment.trim(),created_at:new Date().toISOString()},...r]);
+      setComment(""); setSubmitted(true); setSubmitting(false);
+    };
+
+    return (
+      <div style={{borderTop:"1px solid #f0ece4",marginTop:"20px",paddingTop:"16px"}}>
+        <h4 style={{fontFamily:"sans-serif",fontSize:"12px",fontWeight:"700",letterSpacing:"2px",color:MID,textTransform:"uppercase",marginBottom:"12px"}}>Customer Reviews</h4>
+        {loading ? <p style={{fontFamily:"sans-serif",fontSize:"12px",color:"#aaa"}}>Loading…</p> : (
+          <>
+            {reviews.length===0 && <p style={{fontFamily:"sans-serif",fontSize:"12px",color:"#bbb",marginBottom:"12px"}}>No reviews yet — be the first!</p>}
+            {reviews.slice(0,3).map((r,i)=>(
+              <div key={i} style={{marginBottom:"10px",paddingBottom:"10px",borderBottom:"1px solid #f8f5f0"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"4px"}}>
+                  <span style={{fontFamily:"sans-serif",fontSize:"12px",fontWeight:"700",color:MID}}>{r.user_name}</span>
+                  <span style={{color:"#f5b400",fontSize:"11px"}}>{"★".repeat(r.rating)}{"☆".repeat(5-r.rating)}</span>
+                </div>
+                <p style={{fontFamily:"sans-serif",fontSize:"12px",color:"#666",lineHeight:1.6}}>{r.comment}</p>
+              </div>
+            ))}
+            {user && !submitted && (
+              <div style={{marginTop:"12px",background:"#f9f8f5",padding:"14px",borderRadius:"6px"}}>
+                <p style={{fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",color:MID,marginBottom:"8px",textTransform:"uppercase",letterSpacing:"1px"}}>Leave a Review</p>
+                <div style={{display:"flex",gap:"4px",marginBottom:"8px"}}>
+                  {[1,2,3,4,5].map(s=>(
+                    <button key={s} onClick={()=>setRating(s)} style={{background:"none",border:"none",fontSize:"20px",color:s<=rating?"#f5b400":"#ddd",padding:"0"}}>{s<=rating?"★":"☆"}</button>
+                  ))}
+                </div>
+                <textarea value={comment} onChange={e=>setComment(e.target.value)} rows={2} placeholder="Share your experience…" style={{width:"100%",padding:"10px",border:"1px solid #e0d9ce",borderRadius:"4px",fontFamily:"sans-serif",fontSize:"12px",resize:"none",marginBottom:"8px"}} />
+                <button onClick={submitReview} disabled={submitting||!comment.trim()} style={{padding:"9px 20px",background:DARK,color:"#fff",border:"none",borderRadius:"3px",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",letterSpacing:"1px"}}>
+                  {submitting?"Posting…":"Post Review"}
+                </button>
+              </div>
+            )}
+            {user && submitted && <p style={{fontFamily:"sans-serif",fontSize:"12px",color:"#3a7a3a",marginTop:"8px"}}>✅ Thanks for your review!</p>}
+            {!user && <p style={{fontFamily:"sans-serif",fontSize:"11px",color:"#aaa",marginTop:"8px"}}>Sign in to leave a review.</p>}
+          </>
+        )}
+      </div>
+    );
+  }
+
+  function DishModal({dish, cart, addToCart, updateQty, onClose, user}) {
     if(!dish) return null;
     const qty = cart[dish.name]?.qty || 0;
     useEffect(()=>{
@@ -328,49 +401,19 @@
                 }
               </div>
             </div>
+            <ReviewsSection dishName={dish.name} user={user} />
           </div>
         </div>
       </div>
     );
   }
 
-  /* ── THREE.JS ── */
-  function ThreeCanvas() {
-    const ref = useRef(null);
-    useEffect(() => {
-      const canvas = ref.current; if(!canvas) return;
-      const w=canvas.offsetWidth||800, h=canvas.offsetHeight||600;
-      const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
-      renderer.setSize(w,h); renderer.setPixelRatio(Math.min(window.devicePixelRatio,2)); renderer.setClearColor(0x000000,0);
-      const scene=new THREE.Scene(), camera=new THREE.PerspectiveCamera(55,w/h,0.1,100);
-      camera.position.set(0,0,6);
-      scene.add(new THREE.AmbientLight(0xffffff,0.4));
-      const gL=new THREE.PointLight(0xc8a96e,3,25); gL.position.set(4,4,4); scene.add(gL);
-      const bL=new THREE.PointLight(0x6ab0f5,1.5,20); bL.position.set(-4,-3,2); scene.add(bL);
-      const ico=new THREE.Mesh(new THREE.IcosahedronGeometry(1.6,1),new THREE.MeshPhongMaterial({color:0x12122a,specular:0xd4aa6e,shininess:200,transparent:true,opacity:0.9})); scene.add(ico);
-      const wire=new THREE.Mesh(new THREE.IcosahedronGeometry(1.65,1),new THREE.MeshBasicMaterial({color:0xc8a96e,wireframe:true,transparent:true,opacity:0.2})); scene.add(wire);
-      const t1=new THREE.Mesh(new THREE.TorusGeometry(2.6,0.015,8,120),new THREE.MeshBasicMaterial({color:0xc8a96e,transparent:true,opacity:0.35})); t1.rotation.x=Math.PI/4; scene.add(t1);
-      const t2=new THREE.Mesh(new THREE.TorusGeometry(3.1,0.01,8,120),new THREE.MeshBasicMaterial({color:0x6ab0f5,transparent:true,opacity:0.2})); t2.rotation.x=-Math.PI/6; t2.rotation.z=Math.PI/5; scene.add(t2);
-      const og=new THREE.Group(); og.rotation.x=Math.PI/6; scene.add(og);
-      const os=[0xc8a96e,0x6ab0f5,0xffffff,0xc8a96e].map((c,i)=>{ const a=(i/4)*Math.PI*2,m=new THREE.Mesh(new THREE.SphereGeometry(0.08,12,12),new THREE.MeshPhongMaterial({color:c,emissive:c,emissiveIntensity:0.4})); m.position.set(Math.cos(a)*2.2,Math.sin(a)*2.2,0); og.add(m); return {m,a,s:0.003+i*0.001}; });
-      const pp=new Float32Array(900); for(let i=0;i<900;i++) pp[i]=(Math.random()-0.5)*14;
-      const pg=new THREE.BufferGeometry(); pg.setAttribute("position",new THREE.BufferAttribute(pp,3));
-      const pts=new THREE.Points(pg,new THREE.PointsMaterial({color:0xc8a96e,size:0.035,transparent:true,opacity:0.55})); scene.add(pts);
-      let t=0,id;
-      const anim=()=>{ id=requestAnimationFrame(anim); t+=0.005; ico.rotation.x=t*0.4; ico.rotation.y=t*0.6; wire.rotation.x=t*0.4; wire.rotation.y=t*0.6; t1.rotation.z=t*0.3; t2.rotation.y=t*0.2; os.forEach(s=>{s.a+=s.s;s.m.position.x=Math.cos(s.a)*2.2;s.m.position.y=Math.sin(s.a)*2.2;}); pts.rotation.y=t*0.05; pts.rotation.x=t*0.02; gL.position.x=Math.sin(t*0.7)*5; gL.position.y=Math.cos(t*0.5)*5; renderer.render(scene,camera); };
-      anim();
-      const onR=()=>{const nw=canvas.offsetWidth,nh=canvas.offsetHeight;renderer.setSize(nw,nh);camera.aspect=nw/nh;camera.updateProjectionMatrix();};
-      window.addEventListener("resize",onR);
-      return ()=>{cancelAnimationFrame(id);window.removeEventListener("resize",onR);renderer.dispose();};
-    },[]);
-    return <canvas ref={ref} style={{position:"absolute",inset:0,width:"100%",height:"100%",display:"block"}} />;
-  }
 
   function PageBanner({tag,title}) {
     return (
-      <div style={{background:`linear-gradient(135deg,${DARK},${MID})`,padding:"130px 60px 80px",textAlign:"center"}}>
+      <div className="page-banner" style={{background:`linear-gradient(135deg,${DARK},${MID})`,padding:"130px 60px 80px",textAlign:"center"}}>
         <p style={{color:GOLD,letterSpacing:"5px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"600",marginBottom:"16px"}}>✦ {tag} ✦</p>
-        <h1 style={{color:"#fff",fontSize:"52px",fontWeight:"300",letterSpacing:"2px",margin:"0 0 20px"}}>{title}</h1>
+        <h1 className="page-banner-title" style={{color:"#fff",fontSize:"52px",fontWeight:"300",letterSpacing:"2px",margin:"0 0 20px"}}>{title}</h1>
         <div style={{width:"60px",height:"1px",background:GOLD,margin:"0 auto"}} />
       </div>
     );
@@ -784,16 +827,32 @@
             }
           </div>
         )}
-        <section style={{height:"100vh",background:`linear-gradient(135deg,${DARK} 0%,${MID} 55%,#16213e 100%)`,display:"flex",alignItems:"center",position:"relative",overflow:"hidden"}}>
-          <ThreeCanvas />
-          <div style={{position:"absolute",inset:0,background:"linear-gradient(90deg,rgba(15,15,26,0.85) 0%,rgba(15,15,26,0.2) 60%,transparent 100%)",zIndex:1}} />
-          <div style={{position:"relative",zIndex:2,padding:"0 90px",maxWidth:"660px"}}>
-            <p style={{color:GOLD,letterSpacing:"5px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"600",marginBottom:"18px"}}>✦ FINE DINING & DELIVERY ✦</p>
-            <h1 style={{color:"#fff",fontSize:"68px",lineHeight:1.08,margin:"0 0 28px",fontWeight:"300"}}>Welcome to<br/><span style={{color:GOLD,fontWeight:"600",letterSpacing:"2px"}}>Rahul Foods</span></h1>
-            <p style={{color:"rgba(255,255,255,0.6)",fontSize:"16px",lineHeight:1.9,marginBottom:"44px",fontFamily:"sans-serif"}}>An exquisite culinary journey — dine in or order delivery to your door.</p>
-            <div style={{display:"flex",gap:"16px",flexWrap:"wrap"}}>
-              <button onClick={()=>setPage("menu")} style={{padding:"15px 44px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Order Now</button>
-              <button onClick={()=>setPage("gallery")} style={{padding:"15px 36px",background:"transparent",border:"1px solid rgba(255,255,255,0.3)",color:"rgba(255,255,255,0.75)",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"600",textTransform:"uppercase"}}>View Gallery</button>
+        <section style={{minHeight:"100vh",background:`linear-gradient(135deg,${DARK} 0%,#8e1c14 100%)`,display:"flex",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden"}}>
+          {/* Subtle decorative elements */}
+          <div style={{position:"absolute",top:"-80px",right:"-80px",width:"400px",height:"400px",borderRadius:"50%",background:"rgba(255,255,255,0.04)",pointerEvents:"none"}} />
+          <div style={{position:"absolute",bottom:"-60px",left:"-60px",width:"300px",height:"300px",borderRadius:"50%",background:"rgba(200,169,110,0.07)",pointerEvents:"none"}} />
+          <div style={{position:"absolute",inset:0,backgroundImage:"radial-gradient(rgba(255,255,255,0.04) 1px,transparent 1px)",backgroundSize:"32px 32px",pointerEvents:"none"}} />
+          <div style={{position:"relative",zIndex:2,textAlign:"center",padding:"120px 40px 80px",maxWidth:"800px"}}>
+            <div style={{display:"inline-block",background:"rgba(200,169,110,0.15)",border:`1px solid ${GOLD}44`,borderRadius:"30px",padding:"6px 20px",marginBottom:"28px"}}>
+              <span style={{color:GOLD,letterSpacing:"4px",fontSize:"10px",fontFamily:"sans-serif",fontWeight:"700"}}>✦ FINE DINING & DELIVERY ✦</span>
+            </div>
+            <h1 style={{color:"#fff",fontSize:"64px",lineHeight:1.1,margin:"0 0 24px",fontWeight:"300",letterSpacing:"-0.5px"}}>
+              Welcome to<br/><span style={{color:GOLD,fontWeight:"700"}}>Rahul Foods</span>
+            </h1>
+            <p style={{color:"rgba(255,255,255,0.65)",fontSize:"17px",lineHeight:1.9,marginBottom:"48px",fontFamily:"sans-serif",maxWidth:"540px",margin:"0 auto 48px"}}>
+              An exquisite culinary journey — dine in or order delivery to your door.
+            </p>
+            <div style={{display:"flex",gap:"16px",flexWrap:"wrap",justifyContent:"center"}}>
+              <button onClick={()=>setPage("menu")} style={{padding:"16px 48px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px"}}>Order Now</button>
+              <button onClick={()=>setPage("reserve")} style={{padding:"16px 40px",background:"transparent",border:"1px solid rgba(255,255,255,0.35)",color:"rgba(255,255,255,0.85)",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"600",textTransform:"uppercase",borderRadius:"3px"}}>Reserve a Table</button>
+            </div>
+            <div style={{display:"flex",justifyContent:"center",gap:"40px",marginTop:"60px",flexWrap:"wrap"}}>
+              {[["🍽️","Fine Dining"],["🛵","Fast Delivery"],["⭐","5-Star Rated"]].map(([icon,label])=>(
+                <div key={label} style={{textAlign:"center"}}>
+                  <div style={{fontSize:"22px",marginBottom:"6px"}}>{icon}</div>
+                  <div style={{color:"rgba(255,255,255,0.5)",fontFamily:"sans-serif",fontSize:"11px",letterSpacing:"2px",textTransform:"uppercase"}}>{label}</div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -819,7 +878,7 @@
             <h2 style={{fontSize:"42px",fontWeight:"300",margin:"0 0 20px"}}>Signature Dishes</h2>
             <div style={{width:"60px",height:"1px",background:GOLD,margin:"0 auto"}} />
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"28px",maxWidth:"1000px",margin:"0 auto 52px"}}>
+          <div className="rf-grid3" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"28px",maxWidth:"1000px",margin:"0 auto 52px"}}>
             {[menuData["Main Course"][0], menuData["Main Course"][1], menuData.Desserts[0]].map((dish,i)=>(
               <DishCard key={dish.name} item={dish} cart={cart} addToCart={addToCart} updateQty={updateQty} onOpenModal={onOpenModal} delay={i*0.1} />
             ))}
@@ -868,16 +927,33 @@
 
   /* ── MENU with SEARCH ── */
   function MenuPage({cart, addToCart, updateQty, setPage, onOpenModal}) {
-    const [cat, setCat]       = useState("Starters");
-    const [query, setQuery]   = useState("");
-    const categories          = Object.keys(menuData);
-    const cartCount           = Object.values(cart).reduce((s,{qty})=>s+qty,0);
-    const cartTotal           = Object.values(cart).reduce((s,{item,qty})=>s+getPrice(item)*qty,0);
+    const [cat, setCat]         = useState("All");
+    const [query, setQuery]     = useState("");
+    const [vegOnly, setVegOnly] = useState(false);
+    const [priceFilter, setPriceFilter] = useState("all");
+    const [filterOpen, setFilterOpen] = useState(false);
+    const [dbDishes, setDbDishes] = useState([]);
+    const categories            = ["All", ...Object.keys(menuData)];
+    const cartCount             = Object.values(cart).reduce((s,{qty})=>s+qty,0);
+    const cartTotal             = Object.values(cart).reduce((s,{item,qty})=>s+getPrice(item)*qty,0);
 
-    const allDishes = Object.values(menuData).flat();
-    const searchResults = query.trim()
-      ? allDishes.filter(d => d.name.toLowerCase().includes(query.toLowerCase()) || d.desc.toLowerCase().includes(query.toLowerCase()))
-      : null;
+    useEffect(()=>{
+      supabase.from("menu_items").select("*").eq("active",true).then(({data})=>{
+        if(data) setDbDishes(data.map(d=>({ name:d.name, desc:d.description||"", price:`$${d.price}`, img:d.image_url||FALLBACK, tag:d.tag||"", rating:d.rating||4.5, reviews:d.reviews_count||0, is_veg:d.is_veg, category:d.category })));
+      });
+    },[]);
+
+    const hardcodedDishes = Object.values(menuData).flat();
+    const allDishes = [...hardcodedDishes, ...dbDishes];
+    const VEG_TAGS = ["Veg","veg"];
+    const VEG_KEYWORDS = ["vegetarian","veg","mushroom","tomato","bruschetta","panna cotta","cheese","apple","mango","tarte"];
+
+    let filtered = cat==="All" ? allDishes : [...(menuData[cat]||[]), ...dbDishes.filter(d=>d.category===cat)];
+    if(query.trim()) filtered = filtered.filter(d => d.name.toLowerCase().includes(query.toLowerCase()) || d.desc.toLowerCase().includes(query.toLowerCase()));
+    if(vegOnly) filtered = filtered.filter(d => d.is_veg || VEG_TAGS.includes(d.tag) || VEG_KEYWORDS.some(k=>d.name.toLowerCase().includes(k)||d.desc.toLowerCase().includes(k)));
+    if(priceFilter==="low")  filtered = filtered.filter(d => getPrice(d) < 1500);
+    if(priceFilter==="mid")  filtered = filtered.filter(d => getPrice(d) >= 1500 && getPrice(d) <= 3500);
+    if(priceFilter==="high") filtered = filtered.filter(d => getPrice(d) > 3500);
 
     return (
       <div style={{paddingTop:"80px",minHeight:"100vh"}}>
@@ -889,42 +965,56 @@
             {query && <button className="search-clear" onClick={()=>setQuery("")}>✕</button>}
           </div>
 
-          {searchResults ? (
-            <>
-              <p style={{textAlign:"center",color:"#aaa",fontFamily:"sans-serif",fontSize:"13px",marginBottom:"36px"}}>
-                {searchResults.length > 0 ? `${searchResults.length} result${searchResults.length!==1?"s":""} for "${query}"` : `No dishes found for "${query}"`}
-              </p>
-              {searchResults.length > 0 && (
-                <div className="menu-grid">
-                  {searchResults.map((item,i)=>(
-                    <DishCard key={item.name} item={item} cart={cart} addToCart={addToCart} updateQty={updateQty} onOpenModal={onOpenModal} delay={i*0.06} />
+          {/* Category tabs */}
+          <div style={{display:"flex",justifyContent:"center",marginBottom:"24px"}}>
+            <div style={{display:"flex",border:"1px solid #e0d9ce",overflow:"hidden",borderRadius:"4px",flexWrap:"wrap"}}>
+              {categories.map((c,i)=>(
+                <button key={c} onClick={()=>setCat(c)} style={{padding:"13px 26px",border:"none",borderRight:i<categories.length-1?"1px solid #e0d9ce":"none",background:cat===c?DARK:"transparent",color:cat===c?"#fff":"#888",letterSpacing:"2px",fontSize:"10px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",transition:"all 0.25s"}}>{c}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Price + Veg filter */}
+          <div style={{display:"flex",justifyContent:"center",gap:"12px",marginBottom:"36px",alignItems:"center",flexWrap:"wrap"}}>
+            <div style={{position:"relative"}}>
+              <button onClick={()=>setFilterOpen(o=>!o)} style={{display:"flex",alignItems:"center",gap:"6px",padding:"10px 18px",border:`1px solid ${priceFilter!=="all"?"#c0392b":"#e0d9ce"}`,borderRadius:"4px",background:priceFilter!=="all"?DARK:"#fff",color:priceFilter!=="all"?"#fff":"#888",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",letterSpacing:"1px"}}>
+                💰 {priceFilter==="all"?"Price":"Price: "+{"low":"<₹1500","mid":"₹1500–₹3500","high":"₹3500+"}[priceFilter]} {filterOpen?"▲":"▼"}
+              </button>
+              {filterOpen && (
+                <div style={{position:"absolute",top:"44px",left:0,zIndex:100,background:"#fff",border:"1px solid #e0d9ce",borderRadius:"6px",boxShadow:"0 8px 24px rgba(0,0,0,0.1)",padding:"12px",minWidth:"180px"}}>
+                  {[["all","All Prices"],["low","Under ₹1500"],["mid","₹1500 – ₹3500"],["high","Above ₹3500"]].map(([v,l])=>(
+                    <button key={v} onClick={()=>{setPriceFilter(v);setFilterOpen(false);}} style={{display:"block",width:"100%",textAlign:"left",padding:"10px 14px",border:"none",background:priceFilter===v?"#fdf3f2":"transparent",color:priceFilter===v?DARK:"#555",fontFamily:"sans-serif",fontSize:"12px",fontWeight:priceFilter===v?"700":"400",borderRadius:"4px"}}>{l}</button>
                   ))}
                 </div>
               )}
-            </>
+            </div>
+            <button onClick={()=>setVegOnly(v=>!v)} style={{padding:"10px 16px",border:`1px solid ${vegOnly?"#3a7a3a":"#e0d9ce"}`,borderRadius:"4px",background:vegOnly?"#f0faf0":"#fff",color:vegOnly?"#3a7a3a":"#888",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",letterSpacing:"1px"}}>🌿 Veg Only</button>
+            {(priceFilter!=="all"||vegOnly) && <button onClick={()=>{setPriceFilter("all");setVegOnly(false);}} style={{padding:"10px 14px",border:"1px solid #e0d9ce",borderRadius:"4px",background:"#fff",color:"#e05555",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700"}}>✕ Clear</button>}
+          </div>
+
+          <p style={{textAlign:"center",color:"#aaa",fontFamily:"sans-serif",fontSize:"12px",marginBottom:"36px"}}>
+            {filtered.length} dish{filtered.length!==1?"es":""} {query?`for "${query}"`:""}
+          </p>
+
+          {filtered.length > 0 ? (
+            <div className="menu-grid">
+              {filtered.map((item,i)=>(
+                <DishCard key={item.name} item={item} cart={cart} addToCart={addToCart} updateQty={updateQty} onOpenModal={onOpenModal} delay={i*0.06} />
+              ))}
+            </div>
           ) : (
-            <>
-              <p style={{textAlign:"center",color:"#aaa",fontFamily:"sans-serif",fontSize:"13px",marginBottom:"40px",fontStyle:"italic"}}>All prices in USD · Tap <strong>+ Add to Cart</strong> to order</p>
-              <div style={{display:"flex",justifyContent:"center",marginBottom:"52px"}}>
-                <div style={{display:"flex",border:"1px solid #e0d9ce",overflow:"hidden",flexWrap:"wrap"}}>
-                  {categories.map((c,i)=>(
-                    <button key={c} onClick={()=>setCat(c)} style={{padding:"13px 26px",borderRight:i<categories.length-1?"1px solid #e0d9ce":"none",border:"none",background:cat===c?GOLD:"transparent",color:cat===c?"#fff":"#888",letterSpacing:"2px",fontSize:"10px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",transition:"all 0.25s"}}>{c}</button>
-                  ))}
-                </div>
-              </div>
-              <div className="menu-grid">
-                {menuData[cat].map((item,i)=>(
-                  <DishCard key={item.name} item={item} cart={cart} addToCart={addToCart} updateQty={updateQty} onOpenModal={onOpenModal} delay={i*0.07} />
-                ))}
-              </div>
-            </>
+            <div style={{textAlign:"center",padding:"60px",color:"#aaa",fontFamily:"sans-serif"}}>
+              <div style={{fontSize:"48px",marginBottom:"16px"}}>🍽️</div>
+              <p style={{fontSize:"15px"}}>No dishes match your filters.</p>
+              <button onClick={()=>{setQuery("");setCat("All");setVegOnly(false);setPriceFilter("all");}} style={{marginTop:"20px",padding:"10px 28px",background:GOLD,color:"#fff",border:"none",borderRadius:"3px",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",letterSpacing:"2px"}}>Clear Filters</button>
+            </div>
           )}
         </div>
         {cartCount > 0 && (
           <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:150,background:MID,padding:"14px 60px",display:"flex",alignItems:"center",justifyContent:"space-between",boxShadow:"0 -4px 24px rgba(0,0,0,0.2)"}}>
             <div style={{color:"#fff",fontFamily:"sans-serif"}}>
               <span style={{fontSize:"13px",opacity:0.7}}>{cartCount} item{cartCount!==1?"s":""} in cart</span>
-              <span style={{fontSize:"18px",fontWeight:"700",color:GOLD,marginLeft:"16px"}}>${cartTotal.toFixed(2)}</span>
+              <span style={{fontSize:"18px",fontWeight:"700",color:GOLD,marginLeft:"16px"}}>₹{Math.round(cartTotal)}</span>
             </div>
             <button onClick={()=>setPage("cart")} style={{padding:"11px 32px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"2px"}}>View Cart & Checkout →</button>
           </div>
@@ -961,7 +1051,7 @@
               <div style={{display:"inline-flex",alignItems:"center",gap:"8px",background:"#f0faf0",border:"1px solid #aadcaa",borderRadius:"6px",padding:"8px 18px",margin:"10px 0"}}>
                 <span style={{fontSize:"15px"}}>✅</span><span style={{fontFamily:"sans-serif",fontSize:"13px",color:"#3a7a3a",fontWeight:"600"}}>Payment via {payLabel}</span>
               </div>
-              <div style={{fontSize:"22px",fontWeight:"700",color:GOLD,fontFamily:"sans-serif",marginTop:"6px"}}>Total: ${total.toFixed(2)}</div>
+              <div style={{fontSize:"22px",fontWeight:"700",color:GOLD,fontFamily:"sans-serif",marginTop:"6px"}}>Total: ₹{Math.round(total)}</div>
             </div>
 
             {/* Tracking timeline */}
@@ -1002,7 +1092,7 @@
   }
 
   /* ── CART PAGE with PROMO CODE ── */
-  function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced}) {
+  function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced, user}) {
     const cartItems = Object.values(cart);
     const subtotal  = cartItems.reduce((s,{item,qty})=>s+getPrice(item)*qty, 0);
 
@@ -1080,8 +1170,8 @@
     return (
       <div style={{paddingTop:"80px",minHeight:"100vh"}}>
         <PageBanner tag="YOUR ORDER" title="Cart & Checkout" />
-        <div style={{background:"#f9f8f5",padding:"60px"}}>
-          <div style={{maxWidth:"1100px",margin:"0 auto",display:"grid",gridTemplateColumns:"1fr 420px",gap:"40px",alignItems:"start"}}>
+        <div style={{background:"#f9f8f5",padding:"60px"}} className="cart-page-pad">
+          <div className="cart-grid" style={{maxWidth:"1100px",margin:"0 auto",display:"grid",gridTemplateColumns:"1fr 420px",gap:"40px",alignItems:"start"}}>
             <div>
               {/* Cart items */}
               <div style={{background:"#fff",borderRadius:"6px",padding:"28px 32px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",marginBottom:"24px"}}>
@@ -1103,7 +1193,7 @@
                       </div>
                     </div>
                     <div style={{textAlign:"right",display:"flex",flexDirection:"column",alignItems:"flex-end",gap:"10px"}}>
-                      <div style={{fontSize:"18px",color:GOLD,fontFamily:"sans-serif",fontWeight:"700"}}>${(getPrice(item)*qty).toFixed(2)}</div>
+                      <div style={{fontSize:"18px",color:GOLD,fontFamily:"sans-serif",fontWeight:"700"}}>₹{Math.round(getPrice(item)*qty)}</div>
                       <button className="del-btn-full" onClick={()=>updateQty(item.name,-qty)}>🗑 Delete</button>
                     </div>
                   </div>
@@ -1118,7 +1208,7 @@
               <div style={{background:"#fff",borderRadius:"6px",padding:"28px 32px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",marginBottom:"24px"}}>
                 <h3 style={{fontSize:"18px",fontWeight:"normal",marginBottom:"4px",color:MID}}>Delivery Details</h3>
                 <p style={{color:"#aaa",fontFamily:"sans-serif",fontSize:"12px",marginBottom:"22px"}}>Where should we deliver your order?</p>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"18px",marginBottom:"18px"}}>
+                <div className="rf-grid2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"18px",marginBottom:"18px"}}>
                   <div><label style={lStyle}>Full Name *</label><input value={form.name} onChange={upd("name")} placeholder="Your full name" style={iStyle("name")} />{errors.name&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.name}</span>}</div>
                   <div><label style={lStyle}>Phone *</label><input type="tel" value={form.phone} onChange={upd("phone")} placeholder="+91 00000 00000" style={iStyle("phone")} />{errors.phone&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.phone}</span>}</div>
                 </div>
@@ -1127,8 +1217,8 @@
                   <textarea value={form.address} onChange={upd("address")} rows={3} placeholder="House/flat no., building name, street, area..." style={{...iStyle("address"),resize:"vertical",lineHeight:1.7}} />
                   {errors.address&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.address}</span>}
                 </div>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"18px",marginBottom:"18px"}}>
-                  <div><label style={lStyle}>City *</label><input value={form.city} onChange={upd("city")} placeholder="e.g. Mumbai" style={iStyle("city")} />{errors.city&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.city}</span>}</div>
+                <div className="rf-grid2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"18px",marginBottom:"18px"}}>
+                  <div><label style={lStyle}>City *</label><input value={form.city} onChange={upd("city")} placeholder="e.g. Vijayawada" style={iStyle("city")} />{errors.city&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.city}</span>}</div>
                   <div><label style={lStyle}>Pincode *</label><input type="number" value={form.pincode} onChange={upd("pincode")} placeholder="e.g. 400001" style={iStyle("pincode")} />{errors.pincode&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.pincode}</span>}</div>
                 </div>
                 {form.pincode && form.pincode.length>=5 && (
@@ -1153,7 +1243,7 @@
                 {cartItems.map(({item,qty})=>(
                   <div key={item.name} className="summary-row">
                     <span style={{fontSize:"13px"}}>{item.name} × {qty}</span>
-                    <span style={{color:MID,fontWeight:"600"}}>${(getPrice(item)*qty).toFixed(2)}</span>
+                    <span style={{color:MID,fontWeight:"600"}}>₹{Math.round(getPrice(item)*qty)}</span>
                   </div>
                 ))}
 
@@ -1172,17 +1262,17 @@
                 </div>
 
                 <div style={{borderTop:"1px solid #f0ece4",paddingTop:"8px"}}>
-                  <div className="summary-row"><span>Subtotal</span><span style={{color:MID}}>${subtotal.toFixed(2)}</span></div>
+                  <div className="summary-row"><span>Subtotal</span><span style={{color:MID}}>₹{Math.round(subtotal)}</span></div>
                   {promo && (promo.type==="percent"||promo.type==="flat") && (
-                    <div className="summary-row"><span style={{color:"#3a7a3a"}}>Discount ({promo.label})</span><span style={{color:"#3a7a3a",fontWeight:"700"}}>−${discount.toFixed(2)}</span></div>
+                    <div className="summary-row"><span style={{color:"#3a7a3a"}}>Discount ({promo.label})</span><span style={{color:"#3a7a3a",fontWeight:"700"}}>−₹{Math.round(discount)}</span></div>
                   )}
                   <div className="summary-row">
                     <span>Delivery {promo?.type==="freeship"?"(FREE)":""}</span>
-                    <span style={{color:MID,textDecoration:promo?.type==="freeship"?"line-through":"none"}}>${DELIVERY_FEE.toFixed(2)}</span>
+                    <span style={{color:MID,textDecoration:promo?.type==="freeship"?"line-through":"none"}}>₹{DELIVERY_FEE}</span>
                   </div>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 0 8px",borderTop:"2px solid #f0ece4",marginTop:"8px"}}>
                     <span style={{fontSize:"14px",fontWeight:"700",color:MID,fontFamily:"sans-serif"}}>Total Amount</span>
-                    <span style={{fontSize:"22px",fontWeight:"700",color:GOLD}}>${total.toFixed(2)}</span>
+                    <span style={{fontSize:"22px",fontWeight:"700",color:GOLD}}>₹{Math.round(total)}</span>
                   </div>
                 </div>
 
@@ -1195,9 +1285,33 @@
                   </div>
                 </div>
 
-                <button onClick={()=>{if(validate()){ setOrdered(true); onOrderPlaced({items:cartItems.map(({item,qty})=>({name:item.name,qty,price:item.price})), total, payLabel, address:`${form.address}, ${form.city} – ${form.pincode}`}); }}}
+                <button onClick={()=>{if(validate()){
+                  const orderData = {items:cartItems.map(({item,qty})=>({name:item.name,qty,price:item.price})), total, payLabel, address:`${form.address}, ${form.city} – ${form.pincode}`};
+                  const itemsText = cartItems.map(({item,qty})=>`${item.name} x${qty} — ₹${Math.round(getPrice(item)*qty)}`).join('\n');
+                  const now = new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'});
+                  // Admin notification
+                  emailjs.send("service_jpem2rb","template_uq7eflu",{
+                    customer_name: form.name,
+                    customer_phone: form.phone,
+                    customer_address: orderData.address,
+                    order_items: itemsText,
+                    order_total: `₹${Math.round(total)}`,
+                    payment_method: payLabel,
+                    order_time: now
+                  }).catch(()=>{});
+                  // Customer notification
+                  emailjs.send("service_jpem2rb","template_xn0ebyn",{
+                    customer_name: form.name,
+                    customer_email: user?.email||"",
+                    customer_address: orderData.address,
+                    order_items: itemsText,
+                    order_total: `₹${Math.round(total)}`,
+                    payment_method: payLabel
+                  }).catch(()=>{});
+                  setOrdered(true); onOrderPlaced(orderData);
+                }}}
                   style={{width:"100%",padding:"16px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"12px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px"}}>
-                  {payMethod==="cod"?`Place Order · $${total.toFixed(2)}`:`Pay $${total.toFixed(2)} Now`}
+                  {payMethod==="cod"?`Place Order · ₹${Math.round(total)}`:`Pay ₹${Math.round(total)} Now`}
                 </button>
                 <p style={{textAlign:"center",color:"#ccc",fontFamily:"sans-serif",fontSize:"11px",marginTop:"10px"}}>🔒 Secure checkout · 🛵 30–45 min delivery</p>
               </div>
@@ -1241,7 +1355,7 @@
             <p style={{color:"#666",fontSize:"15px",lineHeight:2,fontFamily:"sans-serif",marginBottom:"20px"}}>Our chefs personally source the finest local and imported ingredients, ensuring each dish meets our uncompromising standards of excellence.</p>
             <p style={{color:"#666",fontSize:"15px",lineHeight:2,fontFamily:"sans-serif"}}>Founded in 2011, Rahul Foods has grown into one of the city's most celebrated dining destinations.</p>
           </div>
-          <div style={{flex:1,minWidth:"280px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"20px"}}>
+          <div className="rf-grid2" style={{flex:1,minWidth:"280px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"20px"}}>
             {[[15,"+","Years of Excellence"],[50,"+","Signature Dishes"],[10000,"+","Happy Guests"],[5," ★","Average Rating"]].map(([num,suffix,label])=>(
               <div key={label} style={{padding:"36px 24px",textAlign:"center",border:`1px solid ${GOLD}44`,background:"#fff",boxShadow:"0 2px 12px rgba(0,0,0,0.04)"}}>
                 <div style={{fontSize:"38px",color:GOLD,marginBottom:"10px",fontWeight:"300"}}><Counter end={num} suffix={suffix} /></div>
@@ -1256,7 +1370,7 @@
             <p style={{color:GOLD,letterSpacing:"5px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"600",marginBottom:"14px"}}>✦ WHAT WE STAND FOR ✦</p>
             <h2 style={{fontSize:"40px",fontWeight:"300",color:"#fff",margin:0}}>Our Values</h2>
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"28px",maxWidth:"960px",margin:"0 auto"}}>
+          <div className="rf-grid3" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"28px",maxWidth:"960px",margin:"0 auto"}}>
             {[["🌾","Quality","We source only the finest ingredients from local farms and trusted importers."],["🔥","Craft","Every dish is prepared with meticulous attention to technique and presentation."],["🤝","Hospitality","From arrival to farewell, we create an experience that exceeds every expectation."]].map(([icon,title,desc])=>(
               <div key={title} style={{padding:"44px 30px",border:"1px solid rgba(200,169,110,0.2)",background:"rgba(255,255,255,0.03)",textAlign:"center"}}>
                 <div style={{fontSize:"38px",marginBottom:"18px"}}>{icon}</div>
@@ -1278,7 +1392,7 @@
       {q:"How long does delivery take?", a:"Most orders arrive within 30–45 minutes depending on your location and order volume."},
       {q:"Do you offer vegetarian or vegan options?", a:"Yes! Look for the 'Veg' tag in our menu. We're happy to customize dishes for dietary needs — just add a note at checkout."},
       {q:"What is your refund / cancellation policy?", a:"Orders can be cancelled within 5 minutes of placing them from the cart page. Once preparation begins, refunds are evaluated case-by-case — contact us via WhatsApp."},
-      {q:"Can I make a reservation for a large group?", a:"For groups of 8 or more, please call us directly at +91 98765 43210 so we can arrange the best seating for you."},
+      {q:"Can I make a reservation for a large group?", a:"For groups of 8 or more, please call us directly at +91 70757 51105 so we can arrange the best seating for you."},
     ];
     return (
       <div style={{maxWidth:"760px",margin:"0 auto"}}>
@@ -1301,8 +1415,8 @@
       <div style={{paddingTop:"80px",minHeight:"100vh"}}>
         <PageBanner tag="VISIT US" title="Contact" />
         <section style={{padding:"90px 60px",background:"#f9f8f5"}}>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:"24px",maxWidth:"900px",margin:"0 auto 64px"}}>
-            {[["📍","Location","123 Gourmet Lane\nMumbai 400001\nMaharashtra, India"],["🕐","Hours","Monday – Friday: 12 PM – 11 PM\nSaturday – Sunday: 11 AM – 11:30 PM"],["📞","Phone","+91 98765 43210\n+91 22 1234 5678"],["✉️","Email","hello@rahulfoods.com\nreservations@rahulfoods.com"]].map(([icon,label,val])=>(
+          <div className="rf-grid2" style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:"24px",maxWidth:"900px",margin:"0 auto 64px"}}>
+            {[["📍","Location","Kanuru, Vijayawada\nAndhra Pradesh, India"],["🕐","Hours","Monday – Friday: 12 PM – 10 PM\nSaturday – Sunday: 11:30 AM – 11 PM"],["📞","Phone","+91 70757 51105"],["✉️","Email","rahultalasila9@gmail.com"]].map(([icon,label,val])=>(
               <div key={label} style={{background:"#fff",padding:"36px 32px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",display:"flex",gap:"20px",alignItems:"flex-start"}}>
                 <div style={{fontSize:"28px",flexShrink:0}}>{icon}</div>
                 <div>
@@ -1317,7 +1431,7 @@
           <div style={{maxWidth:"900px",margin:"0 auto 64px",borderRadius:"6px",overflow:"hidden",boxShadow:"0 2px 16px rgba(0,0,0,0.05)"}}>
             <iframe
               title="Rahul Foods location"
-              src="https://maps.google.com/maps?q=Mumbai,India&z=14&output=embed"
+              src="https://maps.google.com/maps?q=Kanuru,Vijayawada,Andhra+Pradesh,India&z=14&output=embed"
               width="100%" height="320" style={{border:0,display:"block"}} loading="lazy"
               referrerPolicy="no-referrer-when-downgrade" />
           </div>
@@ -1368,7 +1482,7 @@
         <PageBanner tag="RESERVATION" title="Reserve a Table" />
         <section style={{padding:"80px 60px 100px",background:"#f9f8f5"}}>
           <div style={{maxWidth:"700px",margin:"0 auto"}}>
-            <p style={{textAlign:"center",color:"#aaa",fontFamily:"sans-serif",fontSize:"13px",marginBottom:"52px",fontStyle:"italic"}}>For same-day bookings or groups of 8+, please call +91 98765 43210</p>
+            <p style={{textAlign:"center",color:"#aaa",fontFamily:"sans-serif",fontSize:"13px",marginBottom:"52px",fontStyle:"italic"}}>For same-day bookings or groups of 8+, please call +91 70757 51105</p>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"24px",marginBottom:"24px"}}>
               <div><label style={lS}>Full Name *</label><input value={form.name} onChange={upd("name")} placeholder="Your full name" style={iS("name")} />{errors.name&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.name}</span>}</div>
               <div><label style={lS}>Email *</label><input type="email" value={form.email} onChange={upd("email")} placeholder="your@email.com" style={iS("email")} />{errors.email&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.email}</span>}</div>
@@ -1447,7 +1561,7 @@
                 ))}
                 <div style={{display:"flex",justifyContent:"space-between",marginTop:"10px",paddingTop:"10px",borderTop:"1px solid #f0ece4",fontFamily:"sans-serif"}}>
                   <span style={{fontSize:"13px",fontWeight:"700",color:MID}}>Total</span>
-                  <span style={{fontSize:"15px",fontWeight:"700",color:GOLD}}>${o.total.toFixed(2)}</span>
+                  <span style={{fontSize:"15px",fontWeight:"700",color:GOLD}}>₹{Math.round(o.total)}</span>
                 </div>
                 <div style={{fontFamily:"sans-serif",fontSize:"11px",color:"#aaa",marginTop:"8px"}}>📍 {o.address}</div>
               </div>
@@ -1461,26 +1575,48 @@
   const ADMIN_EMAIL = "rahultalasila9@gmail.com";
 
   function AdminPage({user, setPage}) {
-    const [orders,setOrders]=useState([]);
-    const [loading,setLoading]=useState(true);
+    const [tab, setTab]         = useState("orders");
+    const [orders, setOrders]   = useState([]);
+    const [ordersLoading, setOrdersLoading] = useState(true);
+    const [menuItems, setMenuItems] = useState([]);
+    const [menuLoading, setMenuLoading] = useState(true);
+    const CATS = Object.keys(menuData);
+    const emptyForm = {name:"",category:"Starters",description:"",price:"",image_url:"",tag:"",is_veg:false};
+    const [form, setForm]       = useState(emptyForm);
+    const [editId, setEditId]   = useState(null);
+    const [saving, setSaving]   = useState(false);
+    const [showForm, setShowForm] = useState(false);
 
-    const load = () => {
-      setLoading(true);
-      supabase.from("orders").select("*").order("created_at",{ascending:false}).then(({data,error})=>{
-        if(!error && data) setOrders(data);
-        setLoading(false);
-      });
+    const loadOrders = () => {
+      setOrdersLoading(true);
+      supabase.from("orders").select("*").order("created_at",{ascending:false}).then(({data})=>{ if(data) setOrders(data); setOrdersLoading(false); });
     };
-    useEffect(()=>{ load(); },[]);
+    const loadMenu = () => {
+      setMenuLoading(true);
+      supabase.from("menu_items").select("*").order("created_at",{ascending:true}).then(({data})=>{ if(data) setMenuItems(data); setMenuLoading(false); });
+    };
+    useEffect(()=>{ loadOrders(); loadMenu(); },[]);
 
-    const markDelivered = async (id) => {
-      await supabase.from("orders").update({status:"delivered"}).eq("id", id);
-      load();
+    const markDelivered = async (id) => { await supabase.from("orders").update({status:"delivered"}).eq("id",id); loadOrders(); };
+
+    const saveItem = async () => {
+      if(!form.name.trim()||!form.price) return;
+      setSaving(true);
+      const payload = { name:form.name.trim(), category:form.category, description:form.description.trim(), price:parseFloat(form.price), image_url:form.image_url.trim()||null, tag:form.tag.trim()||null, is_veg:form.is_veg, active:true };
+      if(editId) await supabase.from("menu_items").update(payload).eq("id",editId);
+      else await supabase.from("menu_items").insert(payload);
+      setSaving(false); setForm(emptyForm); setEditId(null); setShowForm(false); loadMenu();
     };
+
+    const deleteItem = async (id) => { if(window.confirm("Delete this dish?")) { await supabase.from("menu_items").delete().eq("id",id); loadMenu(); } };
+    const toggleActive = async (id, active) => { await supabase.from("menu_items").update({active:!active}).eq("id",id); loadMenu(); };
+    const startEdit = (item) => { setForm({name:item.name,category:item.category,description:item.description||"",price:String(item.price),image_url:item.image_url||"",tag:item.tag||"",is_veg:item.is_veg||false}); setEditId(item.id); setShowForm(true); };
+
+    const iStyle = {width:"100%",padding:"10px 12px",border:"1px solid #e0d9ce",borderRadius:"4px",fontFamily:"sans-serif",fontSize:"13px",color:MID,marginBottom:"12px"};
 
     if(!user || user.email !== ADMIN_EMAIL) return (
       <div style={{paddingTop:"80px",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
-        <PageBanner tag="ADMIN" title="Orders Dashboard" />
+        <PageBanner tag="ADMIN" title="Dashboard" />
         <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"80px",background:"#f9f8f5",flexDirection:"column",gap:"24px"}}>
           <div style={{fontSize:"64px"}}>🔒</div>
           <h2 style={{fontSize:"28px",fontWeight:"300",color:MID}}>Access denied</h2>
@@ -1491,32 +1627,98 @@
 
     return (
       <div style={{paddingTop:"80px",minHeight:"100vh"}}>
-        <PageBanner tag="ADMIN" title="Orders Dashboard" />
-        <div style={{background:"#f9f8f5",padding:"60px",minHeight:"60vh"}}>
-          <div style={{maxWidth:"800px",margin:"0 auto"}}>
-            {loading && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>Loading orders…</p>}
-            {!loading && orders.length===0 && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>No orders yet.</p>}
-            {orders.map((o)=>(
-              <div key={o.id} style={{background:"#fff",borderRadius:"6px",padding:"24px 28px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",marginBottom:"18px"}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px",flexWrap:"wrap",gap:"8px"}}>
-                  <div style={{fontFamily:"sans-serif",fontSize:"12px",color:"#aaa"}}>{new Date(o.created_at).toLocaleString()}</div>
-                  <div style={{fontFamily:"sans-serif",fontSize:"11px",color:o.status==="delivered"?"#3a7a3a":"#a86a1c",background:o.status==="delivered"?"#f0faf0":"#fff6e8",border:`1px solid ${o.status==="delivered"?"#aadcaa":"#f0d9a8"}`,borderRadius:"4px",padding:"4px 10px",fontWeight:"700",textTransform:"uppercase"}}>{o.status||"placed"}</div>
-                </div>
-                {o.items.map((it,j)=>(
-                  <div key={j} style={{display:"flex",justifyContent:"space-between",fontFamily:"sans-serif",fontSize:"13px",color:"#555",padding:"4px 0"}}>
-                    <span>{it.name} × {it.qty}</span><span>{it.price}</span>
+        <PageBanner tag="ADMIN" title="Dashboard" />
+        {/* Tabs */}
+        <div style={{background:"#fff",borderBottom:"1px solid #f0ece4",display:"flex",justifyContent:"center",gap:"0"}}>
+          {[["orders","📋 Orders"],["menu","🍽️ Menu Management"]].map(([t,l])=>(
+            <button key={t} onClick={()=>setTab(t)} style={{padding:"16px 36px",border:"none",background:"none",fontFamily:"sans-serif",fontSize:"13px",fontWeight:tab===t?"700":"400",color:tab===t?DARK:"#aaa",borderBottom:tab===t?`3px solid ${DARK}`:"3px solid transparent",transition:"all 0.2s"}}>{l}</button>
+          ))}
+        </div>
+
+        <div style={{background:"#f9f8f5",padding:"40px 60px",minHeight:"60vh"}}>
+          <div style={{maxWidth:"900px",margin:"0 auto"}}>
+
+            {/* ORDERS TAB */}
+            {tab==="orders" && <>
+              {ordersLoading && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>Loading orders…</p>}
+              {!ordersLoading && orders.length===0 && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>No orders yet.</p>}
+              {orders.map((o)=>(
+                <div key={o.id} style={{background:"#fff",borderRadius:"6px",padding:"24px 28px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",marginBottom:"18px"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px",flexWrap:"wrap",gap:"8px"}}>
+                    <div style={{fontFamily:"sans-serif",fontSize:"12px",color:"#aaa"}}>{new Date(o.created_at).toLocaleString()}</div>
+                    <div style={{fontFamily:"sans-serif",fontSize:"11px",color:o.status==="delivered"?"#3a7a3a":"#a86a1c",background:o.status==="delivered"?"#f0faf0":"#fff6e8",border:`1px solid ${o.status==="delivered"?"#aadcaa":"#f0d9a8"}`,borderRadius:"4px",padding:"4px 10px",fontWeight:"700",textTransform:"uppercase"}}>{o.status||"placed"}</div>
                   </div>
-                ))}
-                <div style={{display:"flex",justifyContent:"space-between",marginTop:"10px",paddingTop:"10px",borderTop:"1px solid #f0ece4",fontFamily:"sans-serif"}}>
-                  <span style={{fontSize:"13px",fontWeight:"700",color:MID}}>Total</span>
-                  <span style={{fontSize:"15px",fontWeight:"700",color:GOLD}}>${o.total.toFixed(2)}</span>
+                  {o.items.map((it,j)=>(<div key={j} style={{display:"flex",justifyContent:"space-between",fontFamily:"sans-serif",fontSize:"13px",color:"#555",padding:"4px 0"}}><span>{it.name} × {it.qty}</span><span>{it.price}</span></div>))}
+                  <div style={{display:"flex",justifyContent:"space-between",marginTop:"10px",paddingTop:"10px",borderTop:"1px solid #f0ece4",fontFamily:"sans-serif"}}>
+                    <span style={{fontSize:"13px",fontWeight:"700",color:MID}}>Total</span>
+                    <span style={{fontSize:"15px",fontWeight:"700",color:GOLD}}>₹{Math.round(o.total)}</span>
+                  </div>
+                  <div style={{fontFamily:"sans-serif",fontSize:"11px",color:"#aaa",marginTop:"8px"}}>📍 {o.address} · {o.pay_label}</div>
+                  {o.status!=="delivered" && <button onClick={()=>markDelivered(o.id)} style={{marginTop:"14px",padding:"10px 24px",background:MID,color:"#fff",border:"none",letterSpacing:"2px",fontSize:"10px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Mark Delivered</button>}
                 </div>
-                <div style={{fontFamily:"sans-serif",fontSize:"11px",color:"#aaa",marginTop:"8px"}}>📍 {o.address} · {o.pay_label}</div>
-                {o.status!=="delivered" && (
-                  <button onClick={()=>markDelivered(o.id)} style={{marginTop:"14px",padding:"10px 24px",background:MID,color:"#fff",border:"none",letterSpacing:"2px",fontSize:"10px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",cursor:"pointer"}}>Mark Delivered</button>
-                )}
+              ))}
+            </>}
+
+            {/* MENU TAB */}
+            {tab==="menu" && <>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"24px",flexWrap:"wrap",gap:"12px"}}>
+                <p style={{fontFamily:"sans-serif",fontSize:"13px",color:"#666"}}>{menuItems.length} custom dish{menuItems.length!==1?"es":""} added</p>
+                <button onClick={()=>{setForm(emptyForm);setEditId(null);setShowForm(s=>!s);}} style={{padding:"11px 24px",background:DARK,color:"#fff",border:"none",borderRadius:"4px",fontFamily:"sans-serif",fontSize:"12px",fontWeight:"700",letterSpacing:"1px"}}>
+                  {showForm?"✕ Cancel":"+ Add New Dish"}
+                </button>
               </div>
-            ))}
+
+              {/* Add/Edit Form */}
+              {showForm && (
+                <div style={{background:"#fff",borderRadius:"6px",padding:"28px",boxShadow:"0 2px 16px rgba(0,0,0,0.07)",marginBottom:"28px"}}>
+                  <h3 style={{fontFamily:"sans-serif",fontSize:"14px",fontWeight:"700",color:MID,marginBottom:"20px",textTransform:"uppercase",letterSpacing:"1px"}}>{editId?"Edit Dish":"Add New Dish"}</h3>
+                  <div className="rf-grid2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"12px"}}>
+                    <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>DISH NAME *</label><input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="e.g. Butter Chicken" style={iStyle} /></div>
+                    <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>CATEGORY *</label>
+                      <select value={form.category} onChange={e=>setForm(f=>({...f,category:e.target.value}))} style={iStyle}>
+                        {CATS.map(c=><option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </div>
+                    <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>PRICE ($) *</label><input type="number" value={form.price} onChange={e=>setForm(f=>({...f,price:e.target.value}))} placeholder="e.g. 18" style={iStyle} /></div>
+                    <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>TAG (optional)</label><input value={form.tag} onChange={e=>setForm(f=>({...f,tag:e.target.value}))} placeholder="e.g. Chef's Pick, Best Seller" style={iStyle} /></div>
+                  </div>
+                  <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>DESCRIPTION</label><textarea value={form.description} onChange={e=>setForm(f=>({...f,description:e.target.value}))} rows={2} placeholder="Short description of the dish…" style={{...iStyle,resize:"vertical"}} /></div>
+                  <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>IMAGE URL (optional)</label><input value={form.image_url} onChange={e=>setForm(f=>({...f,image_url:e.target.value}))} placeholder="https://..." style={iStyle} /></div>
+                  <label style={{display:"flex",alignItems:"center",gap:"10px",fontFamily:"sans-serif",fontSize:"13px",color:MID,marginBottom:"20px",cursor:"pointer"}}>
+                    <input type="checkbox" checked={form.is_veg} onChange={e=>setForm(f=>({...f,is_veg:e.target.checked}))} />
+                    🌿 Vegetarian dish
+                  </label>
+                  <button onClick={saveItem} disabled={saving} style={{padding:"12px 32px",background:GOLD,color:"#fff",border:"none",borderRadius:"4px",fontFamily:"sans-serif",fontSize:"12px",fontWeight:"700",letterSpacing:"1px"}}>
+                    {saving?"Saving…":editId?"Update Dish":"Add Dish"}
+                  </button>
+                </div>
+              )}
+
+              {/* Menu items list */}
+              {menuLoading && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>Loading menu…</p>}
+              {!menuLoading && menuItems.length===0 && <p style={{color:"#aaa",fontFamily:"sans-serif",textAlign:"center",padding:"40px"}}>No custom dishes yet. Click "Add New Dish" to get started.</p>}
+              {menuItems.map(item=>(
+                <div key={item.id} style={{background:"#fff",borderRadius:"6px",padding:"18px 24px",boxShadow:"0 2px 12px rgba(0,0,0,0.05)",marginBottom:"12px",display:"flex",alignItems:"center",gap:"16px",flexWrap:"wrap"}}>
+                  {item.image_url && <img src={item.image_url} alt={item.name} style={{width:"60px",height:"60px",objectFit:"cover",borderRadius:"4px",flexShrink:0}} onError={e=>e.target.style.display="none"} />}
+                  <div style={{flex:1,minWidth:"180px"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"4px",flexWrap:"wrap"}}>
+                      <span style={{fontFamily:"sans-serif",fontSize:"14px",fontWeight:"700",color:MID}}>{item.name}</span>
+                      {item.tag && <span style={{fontSize:"9px",background:GOLD,color:"#fff",padding:"2px 8px",borderRadius:"2px",fontFamily:"sans-serif",fontWeight:"700"}}>{item.tag}</span>}
+                      {item.is_veg && <span style={{fontSize:"9px",background:"#f0faf0",color:"#3a7a3a",padding:"2px 8px",borderRadius:"2px",fontFamily:"sans-serif",fontWeight:"700",border:"1px solid #aadcaa"}}>VEG</span>}
+                      <span style={{fontSize:"9px",background:item.active?"#f0faf0":"#fff0f0",color:item.active?"#3a7a3a":"#e05555",padding:"2px 8px",borderRadius:"2px",fontFamily:"sans-serif",fontWeight:"700",border:`1px solid ${item.active?"#aadcaa":"#f0aaaa"}`}}>{item.active?"ACTIVE":"HIDDEN"}</span>
+                    </div>
+                    <div style={{fontFamily:"sans-serif",fontSize:"12px",color:"#aaa"}}>{item.category} · ${item.price}</div>
+                    {item.description && <div style={{fontFamily:"sans-serif",fontSize:"11px",color:"#bbb",marginTop:"2px"}}>{item.description}</div>}
+                  </div>
+                  <div style={{display:"flex",gap:"8px",flexShrink:0}}>
+                    <button onClick={()=>startEdit(item)} style={{padding:"8px 14px",border:"1px solid #e0d9ce",borderRadius:"4px",background:"#fff",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",color:MID}}>✏️ Edit</button>
+                    <button onClick={()=>toggleActive(item.id,item.active)} style={{padding:"8px 14px",border:"1px solid #e0d9ce",borderRadius:"4px",background:"#fff",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",color:"#888"}}>{item.active?"Hide":"Show"}</button>
+                    <button onClick={()=>deleteItem(item.id)} style={{padding:"8px 14px",border:"1px solid #fcc",borderRadius:"4px",background:"#fff5f5",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",color:"#e05555"}}>🗑</button>
+                  </div>
+                </div>
+              ))}
+            </>}
+
           </div>
         </div>
       </div>
@@ -1609,7 +1811,7 @@
         <div key={page} className="page-animate">
           {page==="home"    && <HomePage    setPage={setPage} cart={cart} addToCart={addToCart} updateQty={updateQty} onOpenModal={setModalDish} user={user} />}
           {page==="menu"    && <MenuPage    setPage={setPage} cart={cart} addToCart={addToCart} updateQty={updateQty} onOpenModal={setModalDish} />}
-          {page==="cart"    && <CartPage    setPage={setPage} cart={cart} updateQty={updateQty} showToast={showToast} clearCart={clearCart} onOrderPlaced={recordOrder} />}
+          {page==="cart"    && <CartPage    setPage={setPage} cart={cart} updateQty={updateQty} showToast={showToast} clearCart={clearCart} onOrderPlaced={recordOrder} user={user} />}
           {page==="gallery" && <GalleryPage />}
           {page==="about"   && <AboutPage />}
           {page==="contact" && <ContactPage setPage={setPage} />}
@@ -1623,7 +1825,7 @@
         <Toast toast={toast} />
 
         {/* Dish detail modal */}
-        {modalDish && <DishModal dish={modalDish} cart={cart} addToCart={addToCart} updateQty={updateQty} onClose={()=>setModalDish(null)} />}
+        {modalDish && <DishModal dish={modalDish} cart={cart} addToCart={addToCart} updateQty={updateQty} onClose={()=>setModalDish(null)} user={user} />}
 
         {/* Auth modal */}
         {authMode && <AuthModal mode={authMode} setMode={setAuthMode} onClose={()=>setAuthMode(null)} onAuth={handleAuth} />}
@@ -1642,7 +1844,7 @@
         </button>
 
         {/* WhatsApp floating button */}
-        <a href="https://wa.me/919876543210?text=Hello%21+I%27d+like+to+know+more+about+Rahul+Foods." target="_blank" rel="noopener noreferrer" className="whatsapp-btn" title="Chat with us on WhatsApp" aria-label="Chat with us on WhatsApp">
+        <a href="https://wa.me/917075751105?text=Hello%21+I%27d+like+to+know+more+about+Rahul+Foods." target="_blank" rel="noopener noreferrer" className="whatsapp-btn" title="Chat with us on WhatsApp" aria-label="Chat with us on WhatsApp">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
             <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.528 5.845L0 24l6.335-1.506A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.37l-.36-.214-3.732.888.936-3.637-.235-.375A9.818 9.818 0 1112 21.818z"/>
