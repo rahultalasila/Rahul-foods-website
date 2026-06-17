@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rahul Foods — Fine Dining & Delivery</title>
+  <meta name="description" content="Rahul Foods — exquisite fine dining and delivery in Vijayawada. Order online, reserve a table, or explore our signature menu." />
+  <meta property="og:title" content="Rahul Foods — Fine Dining & Delivery" />
+  <meta property="og:description" content="Exquisite fine dining and delivery in Vijayawada. Order online or reserve a table." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%23c0392b'/%3E%3Ctext x='50' y='62' font-size='52' text-anchor='middle' font-family='Georgia,serif' fill='%23c8a96e'%3ER%3C/text%3E%3C/svg%3E" />
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+    // EmailJS will be loaded after page renders
+    window.loadEmailJS = function() {
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+      s.onload = function(){ emailjs.init('F3yhH_TVKN_Sw1io8'); };
+      document.head.appendChild(s);
+    };
+    window.addEventListener('load', window.loadEmailJS);
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Georgia', serif; background: #fff; color: #1c1c1c; overflow-x: hidden; }
+    #root.dark-mode { filter: invert(1) hue-rotate(180deg); background:#1c1c1c; }
+    #root.dark-mode img, #root.dark-mode video, #root.dark-mode canvas, #root.dark-mode iframe { filter: invert(1) hue-rotate(180deg); }
+    .theme-toggle { position:fixed; bottom:28px; left:28px; z-index:350; width:48px; height:48px; border-radius:50%; background:#c0392b; border:2px solid #c8a96e; color:#fff; font-size:20px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 18px rgba(192,57,43,0.35); transition:transform 0.25s; }
+    .theme-toggle:hover { transform:scale(1.1); opacity:1 !important; }
+    #root.dark-mode .theme-toggle { filter:invert(1) hue-rotate(180deg); }
+    @keyframes pageFadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes cardIn     { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes badgePop   { 0%{transform:scale(1)} 50%{transform:scale(1.4)} 100%{transform:scale(1)} }
+    @keyframes toastIn    { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes spin       { to{transform:rotate(360deg)} }
+    .page-animate { animation: pageFadeIn 0.4s ease; }
+    button { cursor:pointer; font-family:inherit; }
+    button:hover { opacity:0.85 !important; }
+    input:focus, textarea:focus, select:focus { border-color:#c8a96e !important; outline:none; }
+
+    /* Menu grid */
+    .menu-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:28px; max-width:1100px; margin:0 auto; }
+    @media(max-width:900px){ .menu-grid{ grid-template-columns:repeat(2,1fr); } }
+    @media(max-width:580px){ .menu-grid{ grid-template-columns:1fr; } }
+
+    /* Dish card */
+    .dish-card { background:#fff; border-radius:6px; overflow:hidden; box-shadow:0 2px 20px rgba(0,0,0,0.07); transition:transform 0.3s,box-shadow 0.3s; animation:cardIn 0.5s ease both; display:flex; flex-direction:column; }
+    .dish-card:hover { transform:translateY(-5px); box-shadow:0 12px 36px rgba(0,0,0,0.12); }
+    .dish-card-img-wrap { position:relative; overflow:hidden; cursor:pointer; }
+    .dish-card img { width:100%; height:200px; object-fit:cover; display:block; background:#eee; flex-shrink:0; transition:transform 0.4s ease; }
+    .dish-card-img-wrap:hover img { transform:scale(1.05); }
+    .dish-card-img-overlay { position:absolute; inset:0; background:rgba(0,0,0,0); display:flex; align-items:center; justify-content:center; transition:background 0.3s; }
+    .dish-card-img-wrap:hover .dish-card-img-overlay { background:rgba(0,0,0,0.25); }
+    .dish-card-img-overlay span { color:#fff; font-family:sans-serif; font-size:11px; letter-spacing:2px; font-weight:700; text-transform:uppercase; opacity:0; transition:opacity 0.3s; }
+    .dish-card-img-wrap:hover .dish-card-img-overlay span { opacity:1; }
+    .dish-card-body { padding:16px 18px 18px; display:flex; flex-direction:column; flex:1; }
+    .dish-card-name { font-size:15px; color:#1c1c1c; margin-bottom:4px; cursor:pointer; }
+    .dish-card-name:hover { color:#c8a96e; }
+    .dish-card-stars { display:flex; align-items:center; gap:5px; margin-bottom:6px; }
+    .dish-card-desc { color:#bbb; font-size:11px; font-family:sans-serif; font-style:italic; line-height:1.6; flex:1; }
+    .dish-tag { font-size:9px; letter-spacing:2px; color:#fff; background:#c8a96e; padding:3px 9px; font-family:sans-serif; font-weight:700; text-transform:uppercase; display:inline-block; margin-bottom:7px; border-radius:2px; }
+    .dish-card-footer { border-top:1px solid #f0ece4; margin-top:14px; padding-top:12px; }
+    .dish-card-price-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+    .dish-card-price { font-size:20px; color:#c8a96e; font-family:sans-serif; font-weight:700; }
+    .dish-card-btn-row { display:flex; align-items:center; gap:8px; }
+    .add-btn { flex:1; padding:9px 0; background:#c0392b; color:#fff; border:none; font-size:11px; letter-spacing:1.5px; font-family:sans-serif; font-weight:700; text-transform:uppercase; border-radius:3px; transition:background 0.2s; }
+    .add-btn:hover { background:#c8a96e !important; opacity:1 !important; }
+    .qty-control { display:flex; align-items:center; flex:1; background:#f9f8f5; border-radius:3px; overflow:hidden; border:1px solid #e8e2d8; }
+    .qty-btn { width:36px; height:36px; border:none; background:transparent; color:#1c1c1c; font-size:20px; font-weight:700; display:flex; align-items:center; justify-content:center; transition:background 0.15s; flex-shrink:0; }
+    .qty-btn:hover { background:#c8a96e !important; color:#fff !important; opacity:1 !important; }
+    .qty-num { flex:1; text-align:center; font-size:14px; font-family:sans-serif; font-weight:700; color:#1c1c1c; }
+    .del-btn { width:36px; height:36px; border-radius:3px; border:1px solid #e8e2d8; background:#fff5f5; color:#e05555; font-size:15px; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
+    .del-btn:hover { background:#e05555 !important; color:#fff !important; border-color:#e05555 !important; opacity:1 !important; }
+    .del-btn-full { padding:8px 14px; border:1px solid #e05555; background:transparent; color:#e05555; font-size:11px; letter-spacing:1px; font-family:sans-serif; font-weight:700; border-radius:3px; transition:all 0.2s; }
+    .del-btn-full:hover { background:#e05555 !important; color:#fff !important; opacity:1 !important; }
+    .cart-badge { position:absolute; top:-6px; right:-8px; background:#c8a96e; color:#fff; font-size:9px; font-family:sans-serif; font-weight:700; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; animation:badgePop 0.3s ease; }
+    .cart-item { display:flex; gap:16px; padding:20px 0; border-bottom:1px solid #f0ece4; align-items:center; }
+    .cart-item img { width:80px; height:70px; object-fit:cover; border-radius:4px; flex-shrink:0; }
+    .summary-box { background:#fff; border:1px solid #f0ece4; border-radius:6px; padding:28px; box-shadow:0 2px 16px rgba(0,0,0,0.05); }
+    .summary-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; font-family:sans-serif; font-size:14px; color:#666; border-bottom:1px solid #f8f5f0; }
+    .summary-row:last-child { border-bottom:none; }
+
+    /* Payment */
+    .pay-option { display:flex; align-items:center; gap:14px; padding:16px 18px; border:2px solid #e8e2d8; border-radius:6px; cursor:pointer; transition:all 0.2s; background:#fff; margin-bottom:10px; }
+    .pay-option.selected { border-color:#c8a96e; background:#fdf9f2; }
+    .pay-option:hover { border-color:#c8a96e44; }
+    .pay-radio { width:18px; height:18px; border-radius:50%; border:2px solid #ccc; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:border-color 0.2s; }
+    .pay-radio.checked { border-color:#c8a96e; }
+    .pay-radio-dot { width:8px; height:8px; border-radius:50%; background:#c8a96e; }
+    .pay-icon { font-size:24px; width:36px; text-align:center; flex-shrink:0; }
+    .pay-label { font-family:sans-serif; }
+    .pay-label-title { font-size:13px; font-weight:700; color:#1c1c1c; }
+    .pay-label-sub { font-size:11px; color:#aaa; margin-top:2px; }
+    .pay-extra { margin-top:14px; padding:18px; background:#f9f8f5; border-radius:6px; border:1px solid #f0ece4; }
+
+    /* Toast */
+    .toast { position:fixed; top:90px; right:24px; z-index:600; padding:13px 18px; border-radius:6px; font-family:sans-serif; font-size:13px; font-weight:600; box-shadow:0 4px 24px rgba(0,0,0,0.18); animation:toastIn 0.3s ease; display:flex; align-items:center; gap:10px; min-width:240px; max-width:340px; }
+    .toast-success { background:#0f2e0f; color:#7ddb7d; border:1px solid #2d6a2d; }
+    .toast-error   { background:#2e0f0f; color:#f08080; border:1px solid #6a2d2d; }
+    .toast-info    { background:#0f1e2e; color:#80b8f0; border:1px solid #2d4d6a; }
+
+    /* Dish Modal */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.78); z-index:500; display:flex; align-items:center; justify-content:center; animation:pageFadeIn 0.2s ease; padding:20px; }
+    .modal-box { background:#fff; border-radius:8px; max-width:860px; width:100%; max-height:90vh; overflow:hidden; display:grid; grid-template-columns:1fr 1fr; box-shadow:0 24px 80px rgba(0,0,0,0.4); }
+    .modal-left { position:relative; }
+    .modal-left img { width:100%; height:100%; object-fit:cover; min-height:380px; display:block; }
+    .modal-close { position:absolute; top:14px; right:14px; width:34px; height:34px; border-radius:50%; background:rgba(0,0,0,0.55); border:none; color:#fff; font-size:18px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:10; }
+    .modal-close:hover { background:rgba(0,0,0,0.8) !important; opacity:1 !important; }
+    .modal-right { padding:36px; overflow-y:auto; display:flex; flex-direction:column; }
+
+    /* Gallery */
+    .gallery-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; max-width:1100px; margin:0 auto; }
+    @media(max-width:700px){ .gallery-grid{ grid-template-columns:repeat(2,1fr); } }
+    .gallery-item { overflow:hidden; border-radius:6px; cursor:pointer; position:relative; background:#eee; }
+    .gallery-item img { width:100%; height:260px; object-fit:cover; display:block; transition:transform 0.4s ease; }
+    .gallery-item.tall img { height:380px; }
+    .gallery-item:hover img { transform:scale(1.06); }
+    .gallery-overlay { position:absolute; inset:0; background:rgba(0,0,0,0); transition:background 0.3s; display:flex; align-items:flex-end; padding:16px; }
+    .gallery-item:hover .gallery-overlay { background:rgba(0,0,0,0.35); }
+    .gallery-caption { color:#fff; font-size:12px; font-family:sans-serif; font-weight:600; letter-spacing:1px; opacity:0; transform:translateY(6px); transition:all 0.3s; }
+    .gallery-item:hover .gallery-caption { opacity:1; transform:translateY(0); }
+
+    /* WhatsApp */
+    .whatsapp-btn { position:fixed; bottom:28px; right:28px; z-index:350; width:56px; height:56px; background:#25D366; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px; box-shadow:0 4px 18px rgba(37,211,102,0.45); transition:all 0.25s; text-decoration:none; cursor:pointer; border:none; }
+    .whatsapp-btn:hover { transform:scale(1.13); box-shadow:0 6px 28px rgba(37,211,102,0.55); opacity:1 !important; }
+    @media(max-width:700px){ .whatsapp-btn{ bottom:84px; } }
+    @media(max-width:900px){
+      .cart-grid{ grid-template-columns:1fr !important; }
+      .cart-page-pad{ padding:30px 16px !important; }
+    }
+    @media(max-width:700px){
+      section{ padding:40px 20px !important; }
+      .rf-grid2, .rf-grid3{ grid-template-columns:1fr !important; }
+      .page-banner{ padding:100px 20px 50px !important; }
+      .page-banner-title{ font-size:32px !important; }
+    }
+
+    /* Search bar */
+    .search-wrap { max-width:500px; margin:0 auto 40px; position:relative; }
+    .search-input { width:100%; padding:14px 44px 14px 18px; border:1px solid #e0d9ce; border-radius:30px; font-family:sans-serif; font-size:14px; color:#1c1c1c; background:#fff; box-shadow:0 2px 12px rgba(0,0,0,0.06); transition:border-color 0.2s,box-shadow 0.2s; }
+    .search-input:focus { border-color:#c8a96e !important; box-shadow:0 2px 20px rgba(200,169,110,0.2); outline:none; }
+    .search-clear { position:absolute; right:14px; top:50%; transform:translateY(-50%); background:none; border:none; color:#bbb; font-size:18px; cursor:pointer; padding:0; }
+    .search-clear:hover { color:#e05555 !important; opacity:1 !important; }
+
+    /* Order tracking */
+    .track-step { display:flex; gap:16px; align-items:flex-start; margin-bottom:0; }
+    .track-line-wrap { display:flex; flex-direction:column; align-items:center; }
+    .track-dot { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; transition:all 0.5s; }
+    .track-dot.done    { background:#c8a96e; color:#fff; }
+    .track-dot.active  { background:#fff; border:2px solid #c8a96e; color:#c8a96e; animation: none; }
+    .track-dot.pending { background:#f0ece4; color:#ccc; }
+    .track-connector { width:2px; height:40px; background:#f0ece4; margin:4px 0; transition:background 0.5s; }
+    .track-connector.done { background:#c8a96e; }
+    .track-info { padding-top:6px; font-family:sans-serif; padding-bottom:32px; }
+    .track-title { font-size:14px; font-weight:700; color:#1c1c1c; margin-bottom:3px; }
+    .track-title.active { color:#c8a96e; }
+    .track-title.pending { color:#bbb; }
+    .track-sub { font-size:12px; color:#aaa; }
+
+    /* Testimonials grid */
+    .testimonial-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:28px; max-width:1100px; margin:0 auto; }
+    @media(max-width:900px){ .testimonial-grid{ grid-template-columns:1fr; } }
+
+    /* FAQ accordion */
+    .faq-item { border-bottom:1px solid #f0ece4; }
+    .faq-question { width:100%; text-align:left; padding:20px 4px; background:none; border:none; display:flex; justify-content:space-between; align-items:center; font-family:sans-serif; font-size:14px; font-weight:700; color:#1c1c1c; }
+    .faq-answer { padding:0 4px 20px; color:#888; font-family:sans-serif; font-size:13px; line-height:1.9; }
+    .faq-icon { color:#c8a96e; font-size:18px; transition:transform 0.25s; flex-shrink:0; }
+    .faq-icon.open { transform:rotate(45deg); }
+
+    /* Skeleton loader */
+    @keyframes shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+    .img-skeleton { position:absolute; inset:0; background:linear-gradient(90deg,#eee 25%,#f5f5f5 50%,#eee 75%); background-size:800px 100%; animation:shimmer 1.4s infinite linear; }
+
+    /* Newsletter */
+    .newsletter-input { padding:12px 16px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.05); color:#fff; font-family:sans-serif; font-size:13px; border-radius:4px 0 0 4px; flex:1; min-width:0; }
+    .newsletter-input::placeholder { color:rgba(255,255,255,0.35); }
+    .newsletter-btn { padding:12px 22px; background:#c8a96e; color:#fff; border:none; font-family:sans-serif; font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; border-radius:0 4px 4px 0; }
+
+    /* Sticky mobile reserve bar */
+    .sticky-reserve { display:none; }
+    @media(max-width:700px){
+      .sticky-reserve { display:flex; position:fixed; bottom:0; left:0; right:0; z-index:340; background:#c0392b; padding:14px 20px; align-items:center; justify-content:space-between; box-shadow:0 -4px 20px rgba(192,57,43,0.35); }
+    }
+
+    /* Navbar responsive */
+    .navbar-links { display:flex; gap:20px; align-items:center; }
+    .navbar-burger { display:none; }
+    .navbar-mobile-menu { display:none; }
+    @media(max-width:900px) {
+      .navbar-links { display:none; }
+      .navbar-burger { display:flex; }
+      .navbar-mobile-menu.open { display:flex; }
+    }
+
+    /* Stars */
+    .stars { color:#f5b400; font-size:11px; letter-spacing:0.5px; }
+    .stars-count { font-size:11px; color:#aaa; font-family:sans-serif; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { useState, useEffect, useRef, useCallback } = React;
+  const GOLD="#c8a96e", DARK="#c0392b", MID="#1c1c1c";
+
+  const SUPABASE_URL = "https://nfwdwzqzygbvxysnkmwq.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_FKEYf4ZbfQeBV1Vl6QuYYg_rpzbMbEU";
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const DELIVERY_FEE = 99;
+  const IMG = id => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=700&q=80`;
+  const FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='300'%3E%3Crect width='500' height='300' fill='%23f0ece4'/%3E%3Ctext x='50%25' y='50%25' font-size='48' text-anchor='middle' dy='.3em'%3E%F0%9F%8D%BD%3C/text%3E%3C/svg%3E";
+
+  const PROMO_CODES = {
+    "RAHUL10":  { type:"percent",   value:10,  label:"10% off" },
+    "WELCOME20":{ type:"percent",   value:20,  label:"20% off" },
+    "FREESHIP": { type:"freeship",  value:99,  label:"Free delivery" },
+    "FEAST50":  { type:"flat",      value:500, label:"₹500 flat off" },
+  };
+
+  const menuData = {
+    Starters: [
+      { name:"Truffle Mushroom Bruschetta", desc:"Wild mushrooms, truffle oil, toasted sourdough", price:"₹1499", img:IMG("photo-1572695157366-5e585ab2b69f"), tag:"Chef's Pick", rating:4.8, reviews:142 },
+      { name:"Pan Seared Scallops",         desc:"Cauliflower purée, crispy capers, lemon butter",  price:"₹1999", img:IMG("photo-1559410545-0bdcd187e0a6"), rating:4.9, reviews:218 },
+      { name:"Burrata & Heirloom Tomatoes", desc:"Fresh burrata, basil oil, sea salt flakes",        price:"₹1849", img:IMG("photo-1608897013039-887f21d8c804"), rating:4.7, reviews:97 },
+      { name:"Foie Gras Terrine",           desc:"Brioche toast, fig jam, micro herbs",              price:"₹2349", img:IMG("photo-1547592180-85f173990554"), tag:"Signature", rating:4.6, reviews:64 },
+      { name:"Smoked Salmon Tartare",       desc:"Cucumber gel, dill crème fraîche, rye crisp",     price:"₹1749", img:IMG("photo-1519708227418-c8fd9a32b7a2"), rating:4.7, reviews:113 },
+    ],
+    "Main Course": [
+      { name:"Grilled Tenderloin Steak",  desc:"200g prime beef, seasonal vegetables, red wine jus", price:"₹4349", img:IMG("photo-1558030006-450675393462"), tag:"Best Seller", rating:4.9, reviews:387 },
+      { name:"Lobster Thermidor",         desc:"Half lobster, cognac cream sauce, gruyère",          price:"₹5449", img:IMG("photo-1559339352-11d035aa65de"), tag:"Signature",   rating:4.8, reviews:201 },
+      { name:"Duck Confit",               desc:"Slow cooked duck leg, cherry sauce, pommes sarladaises", price:"₹3999", img:IMG("photo-1600803907087-f56d462fd26b"), rating:4.7, reviews:155 },
+      { name:"Vegetarian Wellington",     desc:"Roasted vegetables, mushroom duxelles, puff pastry", price:"₹3199", img:IMG("photo-1476718406336-bb5a9690ee2a"), tag:"Veg",       rating:4.6, reviews:88 },
+      { name:"Pan Roasted Sea Bass",      desc:"Mediterranean sea bass, ratatouille, saffron sauce", price:"₹3699", img:IMG("photo-1519984388953-d2406bc725e1"), rating:4.8, reviews:174 },
+      { name:"Rack of Lamb",              desc:"Herb crusted, garlic jus, dauphinoise potatoes",     price:"₹4849", img:IMG("photo-1544025162-d76538645703"), tag:"Chef's Pick",  rating:4.9, reviews:263 },
+    ],
+    Desserts: [
+      { name:"Warm Chocolate Fondant", desc:"Valrhona chocolate, vanilla ice cream, cocoa soil",     price:"₹1349", img:IMG("photo-1578985545062-69928b1d9587"), tag:"Best Seller", rating:4.9, reviews:342 },
+      { name:"Classic Crème Brûlée",   desc:"Madagascar vanilla, caramelised sugar crust",           price:"₹1199", img:IMG("photo-1470124182917-cc6e71b22ecc"), rating:4.8, reviews:198 },
+      { name:"Mango Panna Cotta",      desc:"Alphonso mango, coconut cream, passionfruit coulis",    price:"₹1249", img:IMG("photo-1488477181946-6428a0291777"), rating:4.7, reviews:122 },
+      { name:"Artisan Cheese Board",   desc:"Three curated cheeses, honey, seasonal fruit, crackers",price:"₹1599", img:IMG("photo-1452195100486-9cc805987862"), rating:4.5, reviews:76 },
+      { name:"Tarte Tatin",            desc:"Caramelised apple, puff pastry, calvados cream",        price:"₹1249", img:IMG("photo-1562440499-64c9a111f713"), rating:4.6, reviews:91 },
+    ],
+    Beverages: [
+      { name:"Sparkling Water",     desc:"San Pellegrino 750ml",                     price:"₹699",  img:IMG("photo-1559839914-17aae19cec71"), rating:4.4, reviews:32 },
+      { name:"House Red Wine",      desc:"Curated Bordeaux selection (glass)",        price:"₹1349", img:IMG("photo-1510812431401-41d2bd2722f3"), rating:4.7, reviews:88 },
+      { name:"House White Wine",    desc:"Crisp Chablis or Chardonnay (glass)",      price:"₹1199", img:IMG("photo-1474722883778-792e7990302f"), rating:4.6, reviews:71 },
+      { name:"Fresh Pressed Juice", desc:"Orange, Apple, or Mixed Berry",            price:"₹999",  img:IMG("photo-1534353436294-0dbd4bdac845"), rating:4.5, reviews:55 },
+      { name:"Artisan Coffee",      desc:"Espresso, Cappuccino, or Flat White",      price:"₹599",  img:IMG("photo-1497515114629-f71d768fd07c"), rating:4.8, reviews:203 },
+      { name:"Mocktail of the Day", desc:"Chef's seasonal non-alcoholic creation",   price:"₹949",  img:IMG("photo-1513558161293-cdaf765ed2fd"), rating:4.6, reviews:66 },
+    ],
+  };
+
+  const getPrice = item => parseFloat(item.price.replace("₹","").replace(",",""));
+
+  /* Deterministic "orders today" count based on dish name */
+  const popularityCount = name => {
+    let h=0; for(let i=0;i<name.length;i++) h=(h*31+name.charCodeAt(i))>>>0;
+    return 8 + (h % 38);
+  };
+
+  /* ── IMAGE WITH SKELETON LOADER ── */
+  function SmartImg({src, alt, style, imgStyle, onClick}) {
+    const [loaded,setLoaded]=useState(false);
+    return (
+      <div style={{position:"relative",overflow:"hidden",...style}} onClick={onClick}>
+        {!loaded && <div className="img-skeleton" />}
+        <img src={src} alt={alt} loading="lazy" onLoad={()=>setLoaded(true)}
+          onError={e=>{e.target.src=FALLBACK;setLoaded(true);}}
+          style={{...imgStyle, opacity:loaded?1:0, transition:"opacity 0.35s ease"}} />
+      </div>
+    );
+  }
+
+  /* ── STARS ── */
+  function Stars({rating, reviews}) {
+    const full = Math.floor(rating);
+    const half = rating - full >= 0.5;
+    return (
+      <div className="dish-card-stars">
+        <span className="stars">
+          {"★".repeat(full)}{half?"½":""}{"☆".repeat(5-full-(half?1:0))}
+        </span>
+        <span className="stars-count">{rating} · {reviews} reviews</span>
+      </div>
+    );
+  }
+
+  /* ── TOAST ── */
+  function Toast({toast}) {
+    if(!toast) return null;
+    const cls = toast.type==="error" ? "toast toast-error" : toast.type==="info" ? "toast toast-info" : "toast toast-success";
+    const icon = toast.type==="error" ? "❌" : toast.type==="info" ? "ℹ️" : "✅";
+    return <div className={cls} style={{pointerEvents:"none"}}>{icon} {toast.msg}</div>;
+  }
+
+  /* ── DISH MODAL ── */
+  function ReviewsSection({dishName, user}) {
+    const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [rating, setRating] = useState(5);
+    const [comment, setComment] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+
+    useEffect(()=>{
+      supabase.from("reviews").select("*").eq("dish_name", dishName).order("created_at",{ascending:false}).then(({data})=>{
+        if(data) setReviews(data);
+        setLoading(false);
+      });
+    },[dishName]);
+
+    const submitReview = async () => {
+      if(!comment.trim()) return;
+      setSubmitting(true);
+      await supabase.from("reviews").insert({ dish_name:dishName, user_id:user.id, user_name:user.name, rating, comment:comment.trim() });
+      setReviews(r=>[{dish_name:dishName,user_name:user.name,rating,comment:comment.trim(),created_at:new Date().toISOString()},...r]);
+      setComment(""); setSubmitted(true); setSubmitting(false);
+    };
+
+    return (
+      <div style={{borderTop:"1px solid #f0ece4",marginTop:"20px",paddingTop:"16px"}}>
+        <h4 style={{fontFamily:"sans-serif",fontSize:"12px",fontWeight:"700",letterSpacing:"2px",color:MID,textTransform:"uppercase",marginBottom:"12px"}}>Customer Reviews</h4>
+        {loading ? <p style={{fontFamily:"sans-serif",fontSize:"12px",color:"#aaa"}}>Loading…</p> : (
+          <>
+            {reviews.length===0 && <p style={{fontFamily:"sans-serif",fontSize:"12px",color:"#bbb",marginBottom:"12px"}}>No reviews yet — be the first!</p>}
+            {reviews.slice(0,3).map((r,i)=>(
+              <div key={i} style={{marginBottom:"10px",paddingBottom:"10px",borderBottom:"1px solid #f8f5f0"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"4px"}}>
+                  <span style={{fontFamily:"sans-serif",fontSize:"12px",fontWeight:"700",color:MID}}>{r.user_name}</span>
+                  <span style={{color:"#f5b400",fontSize:"11px"}}>{"★".repeat(r.rating)}{"☆".repeat(5-r.rating)}</span>
+                </div>
+                <p style={{fontFamily:"sans-serif",fontSize:"12px",color:"#666",lineHeight:1.6}}>{r.comment}</p>
+              </div>
+            ))}
+            {user && !submitted && (
+              <div style={{marginTop:"12px",background:"#f9f8f5",padding:"14px",borderRadius:"6px"}}>
+                <p style={{fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",color:MID,marginBottom:"8px",textTransform:"uppercase",letterSpacing:"1px"}}>Leave a Review</p>
+                <div style={{display:"flex",gap:"4px",marginBottom:"8px"}}>
+                  {[1,2,3,4,5].map(s=>(
+                    <button key={s} onClick={()=>setRating(s)} style={{background:"none",border:"none",fontSize:"20px",color:s<=rating?"#f5b400":"#ddd",padding:"0"}}>{s<=rating?"★":"☆"}</button>
+                  ))}
+                </div>
+                <textarea value={comment} onChange={e=>setComment(e.target.value)} rows={2} placeholder="Share your experience…" style={{width:"100%",padding:"10px",border:"1px solid #e0d9ce",borderRadius:"4px",fontFamily:"sans-serif",fontSize:"12px",resize:"none",marginBottom:"8px"}} />
+                <button onClick={submitReview} disabled={submitting||!comment.trim()} style={{padding:"9px 20px",background:DARK,color:"#fff",border:"none",borderRadius:"3px",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",letterSpacing:"1px"}}>
+                  {submitting?"Posting…":"Post Review"}
+                </button>
+              </div>
+            )}
+            {user && submitted && <p style={{fontFamily:"sans-serif",fontSize:"12px",color:"#3a7a3a",marginTop:"8px"}}>✅ Thanks for your review!</p>}
+            {!user && <p style={{fontFamily:"sans-serif",fontSize:"11px",color:"#aaa",marginTop:"8px"}}>Sign in to leave a review.</p>}
+          </>
+        )}
+      </div>
+    );
+  }
+
+  function DishModal({dish, cart, addToCart, updateQty, onClose, user}) {
+    if(!dish) return null;
+    const qty = cart[dish.name]?.qty || 0;
+    useEffect(()=>{
+      const fn = e => { if(e.key==="Escape") onClose(); };
+      window.addEventListener("keydown", fn);
+      return ()=>window.removeEventListener("keydown",fn);
+    },[]);
+    return (
+      <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-box" onClick={e=>e.stopPropagation()}>
+          <div className="modal-left">
+            <img src={dish.img} alt={dish.name} onError={e=>e.target.src=FALLBACK} />
+            <button className="modal-close" onClick={onClose} aria-label="Close dialog">✕</button>
+          </div>
+          <div className="modal-right">
+            {dish.tag && <span className="dish-tag" style={{marginBottom:"12px"}}>{dish.tag}</span>}
+            <h2 style={{fontSize:"24px",fontWeight:"400",color:MID,marginBottom:"10px",lineHeight:1.3}}>{dish.name}</h2>
+            <Stars rating={dish.rating} reviews={dish.reviews} />
+            <div style={{fontSize:"11px",color:"#ff7a45",fontFamily:"sans-serif",fontWeight:"700",margin:"6px 0"}}>🔥 {popularityCount(dish.name)} ordered today</div>
+            <p style={{color:"#888",fontFamily:"sans-serif",fontSize:"13px",lineHeight:2,margin:"16px 0 20px",fontStyle:"italic"}}>{dish.desc}</p>
+            <div style={{flex:1}} />
+            <div style={{borderTop:"1px solid #f0ece4",paddingTop:"20px"}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"16px"}}>
+                <span style={{fontSize:"28px",color:GOLD,fontFamily:"sans-serif",fontWeight:"700"}}>{dish.price}</span>
+                <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+                  {qty > 0 && <span style={{fontSize:"12px",fontFamily:"sans-serif",color:GOLD,background:"#fdf6ec",padding:"4px 12px",borderRadius:"20px",border:`1px solid ${GOLD}44`}}>{qty} in cart</span>}
+                  <button title="Share this dish" aria-label="Share this dish" onClick={()=>{
+                    const text = `Check out ${dish.name} (${dish.price}) at Rahul Foods!`;
+                    if(navigator.share) navigator.share({title:dish.name, text});
+                    else window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+                  }} style={{width:"34px",height:"34px",borderRadius:"50%",border:"1px solid #e0d9ce",background:"#fff",fontSize:"15px",display:"flex",alignItems:"center",justifyContent:"center"}}>📤</button>
+                </div>
+              </div>
+              <div style={{display:"flex",gap:"10px",alignItems:"center"}}>
+                {qty === 0
+                  ? <button className="add-btn" style={{padding:"12px 0"}} onClick={()=>{ addToCart(dish); }}>+ Add to Cart</button>
+                  : <>
+                      <div className="qty-control">
+                        <button className="qty-btn" onClick={()=>updateQty(dish.name,-1)}>−</button>
+                        <span className="qty-num">{qty}</span>
+                        <button className="qty-btn" onClick={()=>updateQty(dish.name,1)}>+</button>
+                      </div>
+                      <button className="del-btn" onClick={()=>{ updateQty(dish.name,-qty); onClose(); }}>🗑</button>
+                    </>
+                }
+              </div>
+            </div>
+            <ReviewsSection dishName={dish.name} user={user} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+
+  function PageBanner({tag,title}) {
+    return (
+      <div className="page-banner" style={{background:`linear-gradient(135deg,${DARK},${MID})`,padding:"130px 60px 80px",textAlign:"center"}}>
+        <p style={{color:GOLD,letterSpacing:"5px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"600",marginBottom:"16px"}}>✦ {tag} ✦</p>
+        <h1 className="page-banner-title" style={{color:"#fff",fontSize:"52px",fontWeight:"300",letterSpacing:"2px",margin:"0 0 20px"}}>{title}</h1>
+        <div style={{width:"60px",height:"1px",background:GOLD,margin:"0 auto"}} />
+      </div>
+    );
+  }
+
+  function Navbar({page,setPage,scrolled,cartCount,user,onOpenAuth,onLogout}) {
+    const light=!scrolled&&page==="home";
+    const [mobileOpen,setMobileOpen]=useState(false);
+    const go = id => { setPage(id); setMobileOpen(false); };
+    const openAuth = m => { onOpenAuth(m); setMobileOpen(false); };
+    const logout = () => { onLogout(); setMobileOpen(false); };
+    return (
+      <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:200,padding:"18px 50px",background:light&&!mobileOpen?"transparent":"rgba(255,255,255,0.97)",backdropFilter:light&&!mobileOpen?"none":"blur(12px)",boxShadow:light&&!mobileOpen?"none":"0 1px 24px rgba(0,0,0,0.09)",transition:"all 0.35s ease",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap"}}>
+        <button onClick={()=>go("home")} style={{background:"none",border:"none",fontSize:"18px",fontWeight:"bold",letterSpacing:"4px",color:(light&&!mobileOpen)?"#fff":MID,fontFamily:"Georgia,serif",transition:"color 0.35s"}}>RAHUL FOODS</button>
+
+        {/* Desktop links */}
+        <div className="navbar-links">
+          {[["home","Home"],["menu","Menu"],["gallery","Gallery"],["about","About"],["contact","Contact"]].map(([id,label])=>(
+            <button key={id} onClick={()=>go(id)} style={{background:"none",border:"none",color:page===id?GOLD:(light?"rgba(255,255,255,0.85)":"#555"),fontSize:"11px",letterSpacing:"2px",fontFamily:"sans-serif",fontWeight:page===id?"700":"600",textTransform:"uppercase",transition:"color 0.2s",borderBottom:page===id?`2px solid ${GOLD}`:"2px solid transparent",paddingBottom:"3px"}}>{label}</button>
+          ))}
+          <button onClick={()=>go("reserve")} style={{padding:"9px 16px",border:`1px solid ${light?"rgba(200,169,110,0.8)":GOLD}`,background:"transparent",color:light?"rgba(200,169,110,0.9)":GOLD,fontSize:"10px",letterSpacing:"2px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",transition:"all 0.25s"}}>Reserve</button>
+          {user ? (
+            <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
+              <button onClick={()=>go("orders")} style={{background:"none",border:"none",color:page==="orders"?GOLD:(light?"rgba(255,255,255,0.85)":"#555"),fontSize:"11px",letterSpacing:"1px",fontFamily:"sans-serif",fontWeight:"600"}}>👤 {user.name}</button>
+              {user.email===ADMIN_EMAIL && <button onClick={()=>go("admin")} style={{background:"none",border:"none",color:page==="admin"?GOLD:(light?"rgba(255,255,255,0.85)":"#555"),fontSize:"11px",letterSpacing:"1px",fontFamily:"sans-serif",fontWeight:"600"}}>🛠 Admin</button>}
+              <button onClick={logout} style={{padding:"9px 14px",border:`1px solid ${light?"rgba(255,255,255,0.4)":"#ccc"}`,background:"transparent",color:light?"rgba(255,255,255,0.85)":"#888",fontSize:"10px",letterSpacing:"2px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",transition:"all 0.25s"}}>Logout</button>
+            </div>
+          ) : (
+            <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
+              <button onClick={()=>openAuth("signin")} style={{padding:"9px 16px",border:`1px solid ${light?"rgba(255,255,255,0.4)":"#ccc"}`,background:"transparent",color:light?"rgba(255,255,255,0.85)":"#555",fontSize:"10px",letterSpacing:"2px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",transition:"all 0.25s"}}>Sign In</button>
+              <button onClick={()=>openAuth("signup")} style={{padding:"9px 16px",border:"none",background:GOLD,color:"#fff",fontSize:"10px",letterSpacing:"2px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",transition:"all 0.25s"}}>Sign Up</button>
+            </div>
+          )}
+        </div>
+
+        {/* Right side: cart + burger (always visible) */}
+        <div style={{display:"flex",alignItems:"center",gap:"14px"}}>
+          <button onClick={()=>go("cart")} aria-label={`Cart, ${cartCount} items`} style={{position:"relative",background:page==="cart"?GOLD:MID,border:"none",color:"#fff",width:"40px",height:"40px",borderRadius:"50%",fontSize:"17px",display:"flex",alignItems:"center",justifyContent:"center",transition:"background 0.2s"}}>
+            🛒
+            {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+          </button>
+          <button className="navbar-burger" onClick={()=>setMobileOpen(o=>!o)} aria-label={mobileOpen?"Close menu":"Open menu"} style={{background:"none",border:"none",width:"40px",height:"40px",alignItems:"center",justifyContent:"center",fontSize:"24px",color:(light&&!mobileOpen)?"#fff":MID}}>
+            {mobileOpen ? "✕" : "☰"}
+          </button>
+        </div>
+
+        {/* Mobile dropdown menu */}
+        <div className={`navbar-mobile-menu${mobileOpen?" open":""}`} style={{flexDirection:"column",width:"100%",paddingTop:"18px",gap:"4px"}}>
+          {[["home","Home"],["menu","Menu"],["gallery","Gallery"],["about","About"],["contact","Contact"],["reserve","Reserve"]].map(([id,label])=>(
+            <button key={id} onClick={()=>go(id)} style={{background:"none",border:"none",textAlign:"left",padding:"12px 4px",color:page===id?GOLD:"#555",fontSize:"13px",letterSpacing:"2px",fontFamily:"sans-serif",fontWeight:page===id?"700":"600",textTransform:"uppercase",borderBottom:"1px solid #f0ece4"}}>{label}</button>
+          ))}
+          {user ? (
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 4px"}}>
+              <button onClick={()=>go("orders")} style={{background:"none",border:"none",fontSize:"12px",fontFamily:"sans-serif",fontWeight:"600",color:page==="orders"?GOLD:"#555"}}>👤 {user.name} · My Orders</button>
+              <button onClick={logout} style={{padding:"9px 16px",border:"1px solid #ccc",background:"transparent",color:"#888",fontSize:"10px",letterSpacing:"2px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Logout</button>
+            </div>
+          ) : (
+            <div style={{display:"flex",gap:"10px",padding:"12px 4px"}}>
+              <button onClick={()=>openAuth("signin")} style={{flex:1,padding:"11px 16px",border:"1px solid #ccc",background:"transparent",color:"#555",fontSize:"10px",letterSpacing:"2px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Sign In</button>
+              <button onClick={()=>openAuth("signup")} style={{flex:1,padding:"11px 16px",border:"none",background:GOLD,color:"#fff",fontSize:"10px",letterSpacing:"2px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Sign Up</button>
+            </div>
+          )}
+          {user && user.email===ADMIN_EMAIL && (
+            <button onClick={()=>go("admin")} style={{background:"none",border:"none",textAlign:"left",padding:"12px 4px",fontSize:"12px",fontFamily:"sans-serif",fontWeight:"600",color:page==="admin"?GOLD:"#555",borderTop:"1px solid #f0ece4"}}>🛠 Admin Dashboard</button>
+          )}
+        </div>
+      </nav>
+    );
+  }
+
+  /* ── AUTH MODAL ── */
+  function AuthModal({mode, setMode, onClose, onAuth}) {
+    const [form,setForm]=useState({name:"",email:"",password:""});
+    const [errors,setErrors]=useState({});
+    const [loading,setLoading]=useState(false);
+    const upd = k => e => setForm(f=>({...f,[k]:e.target.value}));
+    const iS = field => ({width:"100%",padding:"12px 14px",border:`1px solid ${errors[field]?"#e05555":"#e0d9ce"}`,background:"#fff",fontFamily:"sans-serif",fontSize:"13px",color:MID,borderRadius:"3px"});
+    const lS = {display:"block",fontSize:"10px",letterSpacing:"2px",color:"#999",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",marginBottom:"6px"};
+
+    useEffect(()=>{
+      const fn = e => { if(e.key==="Escape") onClose(); };
+      window.addEventListener("keydown", fn);
+      return ()=>window.removeEventListener("keydown",fn);
+    },[]);
+
+    const validate = () => {
+      const e={};
+      if(mode==="signup" && !form.name.trim()) e.name="Required";
+      if(!form.email.trim()) e.email="Required";
+      else if(!/^\S+@\S+\.\S+$/.test(form.email)) e.email="Enter a valid email";
+      if(!form.password.trim()) e.password="Required";
+      else if(form.password.length<6) e.password="At least 6 characters";
+      setErrors(e);
+      return Object.keys(e).length===0;
+    };
+
+    const submit = async () => {
+      if(!validate()) return;
+      setLoading(true);
+      const email = form.email.trim();
+      const password = form.password;
+      let result;
+      if(mode==="signup") {
+        result = await supabase.auth.signUp({
+          email, password,
+          options: { data: { name: form.name.trim() } }
+        });
+      } else {
+        result = await supabase.auth.signInWithPassword({ email, password });
+      }
+      setLoading(false);
+      if(result.error) {
+        setErrors({form: result.error.message});
+        return;
+      }
+      if(mode==="signup" && !result.data.session) {
+        setErrors({form: "Account created! Please check your email to confirm, then sign in."});
+        return;
+      }
+      onAuth();
+    };
+
+    return (
+      <div className="modal-overlay" onClick={onClose}>
+        <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:"8px",maxWidth:"400px",width:"100%",padding:"40px 36px",boxShadow:"0 24px 80px rgba(0,0,0,0.4)",position:"relative"}}>
+          <button className="modal-close" style={{position:"absolute",top:"14px",right:"14px",background:"rgba(0,0,0,0.06)",color:"#888"}} onClick={onClose} aria-label="Close dialog">✕</button>
+          <p style={{color:GOLD,letterSpacing:"5px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"600",marginBottom:"10px",textAlign:"center"}}>✦ RAHUL FOODS ✦</p>
+          <h2 style={{fontSize:"24px",fontWeight:"300",color:MID,marginBottom:"24px",textAlign:"center"}}>{mode==="signin" ? "Sign In" : "Create Account"}</h2>
+
+          {mode==="signup" && (
+            <div style={{marginBottom:"16px"}}>
+              <label style={lS}>Full Name *</label>
+              <input value={form.name} onChange={upd("name")} placeholder="Your full name" style={iS("name")} />
+              {errors.name && <span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.name}</span>}
+            </div>
+          )}
+          <div style={{marginBottom:"16px"}}>
+            <label style={lS}>Email *</label>
+            <input type="email" value={form.email} onChange={upd("email")} placeholder="your@email.com" style={iS("email")} />
+            {errors.email && <span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.email}</span>}
+          </div>
+          <div style={{marginBottom:"24px"}}>
+            <label style={lS}>Password *</label>
+            <input type="password" value={form.password} onChange={upd("password")} placeholder="••••••••" style={iS("password")} onKeyDown={e=>e.key==="Enter"&&submit()} />
+            {errors.password && <span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.password}</span>}
+          </div>
+
+          {errors.form && <p style={{color:"#e05555",fontSize:"12px",fontFamily:"sans-serif",marginBottom:"14px",textAlign:"center"}}>{errors.form}</p>}
+
+          <button onClick={submit} disabled={loading} style={{width:"100%",padding:"14px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px",marginBottom:"16px",opacity:loading?0.6:1}}>
+            {loading ? "Please wait…" : mode==="signin" ? "Sign In" : "Create Account"}
+          </button>
+
+          <p style={{textAlign:"center",fontFamily:"sans-serif",fontSize:"12px",color:"#888"}}>
+            {mode==="signin" ? "Don't have an account? " : "Already have an account? "}
+            <button onClick={()=>{setErrors({});setMode(mode==="signin"?"signup":"signin");}} style={{background:"none",border:"none",color:GOLD,fontWeight:"700",fontSize:"12px",fontFamily:"sans-serif",textDecoration:"underline"}}>
+              {mode==="signin" ? "Sign Up" : "Sign In"}
+            </button>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── FOOTER with social links ── */
+  function Footer({setPage}) {
+    const socials = [
+      { icon:"📸", label:"Instagram", href:"https://instagram.com" },
+      { icon:"👥", label:"Facebook",  href:"https://facebook.com" },
+      { icon:"🍽️", label:"Zomato",   href:"https://zomato.com" },
+      { icon:"🛵", label:"Swiggy",   href:"https://swiggy.com" },
+    ];
+    const [email,setEmail]=useState("");
+    const [subscribed,setSubscribed]=useState(false);
+    const subscribe = () => {
+      if(!email.trim() || !/^\S+@\S+\.\S+$/.test(email)) return;
+      setSubscribed(true);
+      setEmail("");
+    };
+    return (
+      <footer style={{background:DARK,padding:"52px 60px 36px",fontFamily:"sans-serif"}}>
+        <div style={{textAlign:"center",marginBottom:"32px"}}>
+          <div style={{color:GOLD,fontSize:"20px",letterSpacing:"5px",fontFamily:"Georgia,serif",marginBottom:"6px",fontWeight:"bold"}}>RAHUL FOODS</div>
+          <div style={{color:"rgba(255,255,255,0.25)",fontSize:"11px",letterSpacing:"3px",marginBottom:"28px"}}>EST. 2011 · FINE DINING & DELIVERY</div>
+          {/* Newsletter */}
+          <div style={{maxWidth:"380px",margin:"0 auto"}}>
+            <p style={{color:"rgba(255,255,255,0.4)",fontSize:"11px",letterSpacing:"2px",marginBottom:"12px",textTransform:"uppercase"}}>Subscribe for offers & updates</p>
+            {subscribed ? (
+              <p style={{color:"#7ddb7d",fontSize:"13px",fontWeight:"600"}}>✅ Thanks for subscribing!</p>
+            ) : (
+              <div style={{display:"flex"}}>
+                <input className="newsletter-input" type="email" placeholder="Your email address" value={email}
+                  onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&subscribe()} />
+                <button className="newsletter-btn" onClick={subscribe}>Subscribe</button>
+              </div>
+            )}
+          </div>
+        </div>
+        <div style={{display:"flex",justifyContent:"center",gap:"24px",flexWrap:"wrap",marginBottom:"28px"}}>
+          {[["home","Home"],["menu","Menu"],["gallery","Gallery"],["cart","🛒 Order"],["about","About"],["contact","Contact"],["reserve","Reserve"]].map(([id,label])=>(
+            <button key={id} onClick={()=>setPage(id)} style={{color:"rgba(255,255,255,0.3)",background:"none",border:"none",textTransform:"uppercase",letterSpacing:"2px",fontSize:"10px"}}>{label}</button>
+          ))}
+        </div>
+        {/* Social links */}
+        <div style={{display:"flex",justifyContent:"center",gap:"14px",marginBottom:"32px",flexWrap:"wrap"}}>
+          {socials.map(s=>(
+            <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
+              style={{display:"flex",alignItems:"center",gap:"7px",padding:"8px 16px",border:"1px solid rgba(200,169,110,0.25)",borderRadius:"20px",color:"rgba(255,255,255,0.5)",textDecoration:"none",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"600",letterSpacing:"1px",transition:"all 0.2s"}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor=GOLD;e.currentTarget.style.color=GOLD;}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(200,169,110,0.25)";e.currentTarget.style.color="rgba(255,255,255,0.5)";}}>
+              <span style={{fontSize:"14px"}}>{s.icon}</span>{s.label}
+            </a>
+          ))}
+        </div>
+        <div style={{height:"1px",background:"rgba(255,255,255,0.06)",marginBottom:"20px"}} />
+        <div style={{color:"rgba(255,255,255,0.15)",fontSize:"11px",letterSpacing:"2px",textAlign:"center"}}>© 2026 RAHUL FOODS · ALL RIGHTS RESERVED · MUMBAI, INDIA</div>
+      </footer>
+    );
+  }
+
+  /* ── DISH CARD ── */
+  function DishCard({item, cart, addToCart, updateQty, onOpenModal, delay=0}) {
+    const qty = cart[item.name]?.qty || 0;
+    return (
+      <div className="dish-card" style={{animationDelay:`${delay}s`}}>
+        <div className="dish-card-img-wrap" onClick={()=>onOpenModal(item)}>
+          <SmartImg src={item.img} alt={item.name} imgStyle={{width:"100%",height:"200px",objectFit:"cover",display:"block",background:"#eee"}} />
+          <div className="dish-card-img-overlay"><span>View Details</span></div>
+        </div>
+        <div className="dish-card-body">
+          {item.tag && <span className="dish-tag">{item.tag}</span>}
+          <div className="dish-card-name" onClick={()=>onOpenModal(item)}>{item.name}</div>
+          <Stars rating={item.rating} reviews={item.reviews} />
+          <div style={{fontSize:"10px",color:"#ff7a45",fontFamily:"sans-serif",fontWeight:"700",marginBottom:"6px"}}>🔥 {popularityCount(item.name)} ordered today</div>
+          <div className="dish-card-desc">{item.desc}</div>
+          <div className="dish-card-footer">
+            <div className="dish-card-price-row">
+              <span className="dish-card-price">{item.price}</span>
+              {qty > 0 && <span style={{fontSize:"11px",fontFamily:"sans-serif",color:GOLD,fontWeight:"700",background:"#fdf6ec",padding:"3px 9px",borderRadius:"20px",border:`1px solid ${GOLD}44`}}>{qty} in cart</span>}
+            </div>
+            <div className="dish-card-btn-row">
+              {qty === 0
+                ? <button className="add-btn" onClick={()=>addToCart(item)}>+ Add to Cart</button>
+                : <>
+                    <div className="qty-control">
+                      <button className="qty-btn" onClick={()=>updateQty(item.name,-1)}>−</button>
+                      <span className="qty-num">{qty}</span>
+                      <button className="qty-btn" onClick={()=>updateQty(item.name,1)}>+</button>
+                    </div>
+                    <button className="del-btn" title="Remove" onClick={()=>updateQty(item.name,-qty)}>🗑</button>
+                  </>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── GALLERY PAGE ── */
+  function GalleryPage() {
+    const photos = [
+      { id:"photo-1414235077428-338989a2e8c0", caption:"Private Dining Room",  tall:true  },
+      { id:"photo-1559339352-11d035aa65de",    caption:"Lobster Thermidor",     tall:false },
+      { id:"photo-1544025162-d76538645703",    caption:"Rack of Lamb",          tall:false },
+      { id:"photo-1578985545062-69928b1d9587", caption:"Chocolate Fondant",     tall:false },
+      { id:"photo-1551218808-94e220e084d2",    caption:"Our Open Kitchen",      tall:true  },
+      { id:"photo-1504674900247-0877df9cc836", caption:"Chef's Table Spread",   tall:false },
+      { id:"photo-1530554764233-e79e16c91d08", caption:"The Main Dining Hall",  tall:false },
+      { id:"photo-1424847651672-bf20a4b0982b", caption:"The Bar Lounge",        tall:false },
+      { id:"photo-1466978913421-dad2ebd01d17", caption:"Evening Ambiance",      tall:false },
+      { id:"photo-1558030006-450675393462",    caption:"Tenderloin Steak",      tall:false },
+      { id:"photo-1432139555190-58524dae6a55", caption:"Signature Cocktails",   tall:false },
+      { id:"photo-1484980972926-edee96e0960d", caption:"Weekend Brunch",        tall:false },
+    ];
+    return (
+      <div style={{paddingTop:"80px",minHeight:"100vh"}}>
+        <PageBanner tag="OUR SPACE & FOOD" title="Gallery" />
+        <section style={{padding:"70px 60px 90px",background:"#f9f8f5"}}>
+          <p style={{textAlign:"center",color:"#aaa",fontFamily:"sans-serif",fontSize:"13px",marginBottom:"52px",fontStyle:"italic"}}>A glimpse into the Rahul Foods experience</p>
+          <div className="gallery-grid">
+            {photos.map((p,i)=>(
+              <div key={i} className={`gallery-item${p.tall?" tall":""}`} style={{animationDelay:`${i*0.05}s`}}>
+                <SmartImg src={`https://images.unsplash.com/${p.id}?auto=format&fit=crop&w=700&q=80`} alt={p.caption}
+                  imgStyle={{width:"100%",height:p.tall?"380px":"260px",objectFit:"cover",display:"block"}} />
+                <div className="gallery-overlay">
+                  <span className="gallery-caption">{p.caption}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  /* ── PAYMENT SECTION ── */
+  function PaymentSection({payMethod, setPayMethod, payForm, setPayForm, payErrors}) {
+    const updPay = k => e => setPayForm(f=>({...f,[k]:e.target.value}));
+    const iS = field => ({width:"100%",padding:"11px 13px",border:`1px solid ${payErrors[field]?"#e05555":"#e0d9ce"}`,background:"#fff",fontFamily:"sans-serif",fontSize:"13px",color:MID,borderRadius:"3px"});
+    const lS = {display:"block",fontSize:"10px",letterSpacing:"2px",color:"#999",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",marginBottom:"6px"};
+    const options = [
+      {id:"cod",   icon:"💵",title:"Cash on Delivery",      sub:"Pay when your order arrives"},
+      {id:"card",  icon:"💳",title:"Credit / Debit Card",  sub:"Visa, Mastercard, RuPay, Amex"},
+      {id:"upi",   icon:"📱",title:"UPI Payment",           sub:"GPay, PhonePe, Paytm, BHIM & more"},
+      {id:"nb",    icon:"🏦",title:"Net Banking",           sub:"All major banks supported"},
+      {id:"wallet",icon:"👛",title:"Mobile Wallet",         sub:"Paytm, Amazon Pay, MobiKwik & more"},
+    ];
+    return (
+      <div style={{background:"#fff",borderRadius:"6px",padding:"28px 32px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)"}}>
+        <h3 style={{fontSize:"18px",fontWeight:"normal",marginBottom:"4px",color:MID}}>Payment Method</h3>
+        <p style={{color:"#aaa",fontFamily:"sans-serif",fontSize:"12px",marginBottom:"22px"}}>Choose how you'd like to pay</p>
+        {options.map(opt=>(
+          <div key={opt.id} className={`pay-option${payMethod===opt.id?" selected":""}`} onClick={()=>setPayMethod(opt.id)}>
+            <div className={`pay-radio${payMethod===opt.id?" checked":""}`}>{payMethod===opt.id&&<div className="pay-radio-dot"/>}</div>
+            <div className="pay-icon">{opt.icon}</div>
+            <div className="pay-label"><div className="pay-label-title">{opt.title}</div><div className="pay-label-sub">{opt.sub}</div></div>
+          </div>
+        ))}
+        {payMethod==="card" && (
+          <div className="pay-extra">
+            <p style={{fontFamily:"sans-serif",fontSize:"11px",color:GOLD,fontWeight:"700",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"14px"}}>Card Details</p>
+            <div style={{marginBottom:"12px"}}>
+              <label style={lS}>Card Number *</label>
+              <input value={payForm.cardNum||""} onChange={updPay("cardNum")} placeholder="1234  5678  9012  3456" maxLength={19} style={iS("cardNum")}
+                onInput={e=>{let v=e.target.value.replace(/\D/g,"").slice(0,16);e.target.value=v.replace(/(.{4})/g,"$1 ").trim();setPayForm(f=>({...f,cardNum:e.target.value}));}} />
+              {payErrors.cardNum&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{payErrors.cardNum}</span>}
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"10px"}}>
+              <div><label style={lS}>Name *</label><input value={payForm.cardName||""} onChange={updPay("cardName")} placeholder="Full name" style={iS("cardName")} />{payErrors.cardName&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{payErrors.cardName}</span>}</div>
+              <div><label style={lS}>Expiry *</label><input value={payForm.expiry||""} onChange={updPay("expiry")} placeholder="MM / YY" maxLength={7} style={iS("expiry")}
+                onInput={e=>{let v=e.target.value.replace(/\D/g,"").slice(0,4);if(v.length>=3)v=v.slice(0,2)+" / "+v.slice(2);e.target.value=v;setPayForm(f=>({...f,expiry:e.target.value}));}} />
+                {payErrors.expiry&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{payErrors.expiry}</span>}</div>
+              <div><label style={lS}>CVV *</label><input value={payForm.cvv||""} onChange={updPay("cvv")} placeholder="•••" maxLength={4} type="password" style={iS("cvv")} />{payErrors.cvv&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{payErrors.cvv}</span>}</div>
+            </div>
+            <div style={{marginTop:"12px",padding:"10px 14px",background:"#f0f7ff",border:"1px solid #c8dff8",borderRadius:"4px",display:"flex",gap:"8px",alignItems:"center"}}>
+              <span>🔒</span><span style={{fontFamily:"sans-serif",fontSize:"11px",color:"#5b7fa8"}}>Your card details are encrypted and secure.</span>
+            </div>
+          </div>
+        )}
+        {payMethod==="upi" && (
+          <div className="pay-extra">
+            <p style={{fontFamily:"sans-serif",fontSize:"11px",color:GOLD,fontWeight:"700",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"12px"}}>UPI Details</p>
+            <div style={{marginBottom:"12px"}}><label style={lS}>UPI ID *</label><input value={payForm.upiId||""} onChange={updPay("upiId")} placeholder="yourname@upi" style={iS("upiId")} />{payErrors.upiId&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{payErrors.upiId}</span>}</div>
+            <div style={{display:"flex",gap:"8px",flexWrap:"wrap"}}>
+              {[["🟢","Google Pay"],["🟣","PhonePe"],["🔵","Paytm"],["🟠","BHIM"],["🔴","Amazon Pay"]].map(([e,n])=>(
+                <button key={n} onClick={()=>setPayForm(f=>({...f,upiApp:n}))} style={{padding:"6px 12px",border:`1px solid ${payForm.upiApp===n?GOLD:"#e0d9ce"}`,background:payForm.upiApp===n?"#fdf9f2":"#fff",borderRadius:"20px",fontSize:"11px",fontFamily:"sans-serif",color:payForm.upiApp===n?GOLD:"#888",fontWeight:payForm.upiApp===n?"700":"400"}}>{e} {n}</button>
+              ))}
+            </div>
+          </div>
+        )}
+        {payMethod==="nb" && (
+          <div className="pay-extra">
+            <p style={{fontFamily:"sans-serif",fontSize:"11px",color:GOLD,fontWeight:"700",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"12px"}}>Select Your Bank</p>
+            <select value={payForm.bank||""} onChange={updPay("bank")} style={{width:"100%",padding:"11px 13px",border:`1px solid ${payErrors.bank?"#e05555":"#e0d9ce"}`,background:"#fff",fontFamily:"sans-serif",fontSize:"13px",color:MID,borderRadius:"3px",cursor:"pointer"}}>
+              <option value="">Choose your bank</option>
+              {["State Bank of India","HDFC Bank","ICICI Bank","Axis Bank","Kotak Mahindra Bank","Punjab National Bank","Bank of Baroda","Yes Bank","IndusInd Bank","Canara Bank"].map(b=><option key={b} value={b}>{b}</option>)}
+            </select>
+            {payErrors.bank&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{payErrors.bank}</span>}
+          </div>
+        )}
+        {payMethod==="wallet" && (
+          <div className="pay-extra">
+            <p style={{fontFamily:"sans-serif",fontSize:"11px",color:GOLD,fontWeight:"700",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"12px"}}>Select Wallet</p>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"8px"}}>
+              {[["🔵","Paytm"],["🟠","Amazon Pay"],["🟢","MobiKwik"],["🔴","Freecharge"],["🟣","Ola Money"],["⚫","JioMoney"]].map(([e,n])=>(
+                <button key={n} onClick={()=>setPayForm(f=>({...f,wallet:n}))} style={{padding:"10px 6px",border:`1px solid ${payForm.wallet===n?GOLD:"#e0d9ce"}`,background:payForm.wallet===n?"#fdf9f2":"#fff",borderRadius:"6px",fontSize:"11px",fontFamily:"sans-serif",color:payForm.wallet===n?GOLD:"#888",fontWeight:payForm.wallet===n?"700":"400",textAlign:"center"}}>
+                  <div style={{fontSize:"18px",marginBottom:"3px"}}>{e}</div>{n}
+                </button>
+              ))}
+            </div>
+            {payErrors.wallet&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif",display:"block",marginTop:"8px"}}>{payErrors.wallet}</span>}
+          </div>
+        )}
+        {payMethod==="cod" && (
+          <div className="pay-extra" style={{display:"flex",gap:"12px",alignItems:"flex-start"}}>
+            <span style={{fontSize:"22px"}}>💵</span>
+            <div style={{fontFamily:"sans-serif",fontSize:"13px",color:"#666",lineHeight:1.8}}>
+              <strong style={{color:MID,display:"block",marginBottom:"4px"}}>Pay on Delivery</strong>
+              Keep exact change ready. Our delivery partner will collect payment at your doorstep.
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  /* ── HOME ── */
+  function HomePage({setPage, cart, addToCart, updateQty, onOpenModal, user}) {
+    const orderCount = parseInt(localStorage.getItem("rf_orderCount"))||0;
+    const REWARD_TARGET = 5;
+    const remaining = REWARD_TARGET - (orderCount % REWARD_TARGET);
+
+    const [couponIdx,setCouponIdx]=useState(0);
+    const coupons = Object.entries(PROMO_CODES);
+    useEffect(()=>{
+      const t = setInterval(()=>setCouponIdx(i=>(i+1)%coupons.length), 4000);
+      return ()=>clearInterval(t);
+    },[]);
+    const [code,promoInfo] = coupons[couponIdx];
+
+    return (
+      <>
+        {user && (
+          <div style={{background:"linear-gradient(135deg,#1f4e3f,#2e7d5b)",padding:"14px 24px",paddingTop:"84px",textAlign:"center",fontFamily:"sans-serif"}}>
+            {orderCount===0
+              ? <span style={{fontSize:"13px",fontWeight:"700",color:"#fff"}}>🎁 Welcome, {user.name}! Order {REWARD_TARGET} times to earn a free dessert.</span>
+              : remaining===REWARD_TARGET
+              ? <span style={{fontSize:"13px",fontWeight:"700",color:"#fff"}}>🎉 Congrats {user.name}, you've earned a free dessert! Mention it on your next order.</span>
+              : <span style={{fontSize:"13px",fontWeight:"700",color:"#fff"}}>🎁 {orderCount} order{orderCount!==1?"s":""} placed — {remaining} more for a free dessert, {user.name}!</span>
+            }
+          </div>
+        )}
+        <section style={{minHeight:"100vh",background:`linear-gradient(135deg,${DARK} 0%,#8e1c14 100%)`,display:"flex",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden"}}>
+          {/* Subtle decorative elements */}
+          <div style={{position:"absolute",top:"-80px",right:"-80px",width:"400px",height:"400px",borderRadius:"50%",background:"rgba(255,255,255,0.04)",pointerEvents:"none"}} />
+          <div style={{position:"absolute",bottom:"-60px",left:"-60px",width:"300px",height:"300px",borderRadius:"50%",background:"rgba(200,169,110,0.07)",pointerEvents:"none"}} />
+          <div style={{position:"absolute",inset:0,backgroundImage:"radial-gradient(rgba(255,255,255,0.04) 1px,transparent 1px)",backgroundSize:"32px 32px",pointerEvents:"none"}} />
+          <div style={{position:"relative",zIndex:2,textAlign:"center",padding:"120px 40px 80px",maxWidth:"800px"}}>
+            <div style={{display:"inline-block",background:"rgba(200,169,110,0.15)",border:`1px solid ${GOLD}44`,borderRadius:"30px",padding:"6px 20px",marginBottom:"28px"}}>
+              <span style={{color:GOLD,letterSpacing:"4px",fontSize:"10px",fontFamily:"sans-serif",fontWeight:"700"}}>✦ FINE DINING & DELIVERY ✦</span>
+            </div>
+            <h1 style={{color:"#fff",fontSize:"64px",lineHeight:1.1,margin:"0 0 24px",fontWeight:"300",letterSpacing:"-0.5px"}}>
+              Welcome to<br/><span style={{color:GOLD,fontWeight:"700"}}>Rahul Foods</span>
+            </h1>
+            <p style={{color:"rgba(255,255,255,0.65)",fontSize:"17px",lineHeight:1.9,marginBottom:"48px",fontFamily:"sans-serif",maxWidth:"540px",margin:"0 auto 48px"}}>
+              An exquisite culinary journey — dine in or order delivery to your door.
+            </p>
+            <div style={{display:"flex",gap:"16px",flexWrap:"wrap",justifyContent:"center"}}>
+              <button onClick={()=>setPage("menu")} style={{padding:"16px 48px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px"}}>Order Now</button>
+              <button onClick={()=>setPage("reserve")} style={{padding:"16px 40px",background:"transparent",border:"1px solid rgba(255,255,255,0.35)",color:"rgba(255,255,255,0.85)",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"600",textTransform:"uppercase",borderRadius:"3px"}}>Reserve a Table</button>
+            </div>
+            <div style={{display:"flex",justifyContent:"center",gap:"40px",marginTop:"60px",flexWrap:"wrap"}}>
+              {[["🍽️","Fine Dining"],["🛵","Fast Delivery"],["⭐","5-Star Rated"]].map(([icon,label])=>(
+                <div key={label} style={{textAlign:"center"}}>
+                  <div style={{fontSize:"22px",marginBottom:"6px"}}>{icon}</div>
+                  <div style={{color:"rgba(255,255,255,0.5)",fontFamily:"sans-serif",fontSize:"11px",letterSpacing:"2px",textTransform:"uppercase"}}>{label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+        <div style={{height:"1px",background:`linear-gradient(to right,transparent,${GOLD},transparent)`}} />
+        {/* Rotating coupon banner */}
+        <div style={{background:MID,padding:"10px 24px",textAlign:"center",fontFamily:"sans-serif",overflow:"hidden"}}>
+          <span key={code} style={{display:"inline-block",fontSize:"12px",color:"#fff",letterSpacing:"1px",animation:"pageFadeIn 0.5s ease"}}>
+            🏷️ Use code <strong style={{color:GOLD}}>{code}</strong> for {promoInfo.label} on your order!
+          </span>
+        </div>
+        <div style={{background:"#fff",padding:"28px 60px",display:"flex",justifyContent:"center",gap:"70px",flexWrap:"wrap"}}>
+          {[["🍴","Fine Dining"],["🛵","Fast Delivery"],["👨‍🍳","Michelin-Trained Chefs"],["🍷","Curated Wine List"]].map(([icon,label])=>(
+            <div key={label} style={{display:"flex",alignItems:"center",gap:"10px"}}>
+              <span style={{fontSize:"18px"}}>{icon}</span>
+              <span style={{fontSize:"12px",letterSpacing:"2px",fontFamily:"sans-serif",color:"#555",textTransform:"uppercase",fontWeight:"600"}}>{label}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{height:"1px",background:"#eee"}} />
+        <section style={{padding:"90px 60px",background:"#f9f8f5"}}>
+          <div style={{textAlign:"center",marginBottom:"56px"}}>
+            <p style={{color:GOLD,letterSpacing:"5px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"600",marginBottom:"14px"}}>✦ FEATURED ✦</p>
+            <h2 style={{fontSize:"42px",fontWeight:"300",margin:"0 0 20px"}}>Signature Dishes</h2>
+            <div style={{width:"60px",height:"1px",background:GOLD,margin:"0 auto"}} />
+          </div>
+          <div className="rf-grid3" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"28px",maxWidth:"1000px",margin:"0 auto 52px"}}>
+            {[menuData["Main Course"][0], menuData["Main Course"][1], menuData.Desserts[0]].map((dish,i)=>(
+              <DishCard key={dish.name} item={dish} cart={cart} addToCart={addToCart} updateQty={updateQty} onOpenModal={onOpenModal} delay={i*0.1} />
+            ))}
+          </div>
+          <div style={{textAlign:"center"}}>
+            <button onClick={()=>setPage("menu")} style={{padding:"14px 48px",border:`1px solid ${GOLD}`,color:GOLD,background:"transparent",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>View Full Menu</button>
+          </div>
+        </section>
+        <div style={{height:"1px",background:`linear-gradient(to right,transparent,${GOLD},transparent)`}} />
+        <section style={{padding:"90px 60px",background:"#fff"}}>
+          <div style={{textAlign:"center",marginBottom:"56px"}}>
+            <p style={{color:GOLD,letterSpacing:"5px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"600",marginBottom:"14px"}}>✦ TESTIMONIALS ✦</p>
+            <h2 style={{fontSize:"42px",fontWeight:"300",margin:"0 0 20px"}}>What Our Guests Say</h2>
+            <div style={{width:"60px",height:"1px",background:GOLD,margin:"0 auto"}} />
+          </div>
+          <div className="testimonial-grid">
+            {[
+              {name:"Aanya Sharma", role:"Food Blogger", text:"The Lobster Thermidor was out of this world. Service was impeccable and the ambiance felt like a Michelin-star restaurant.", rating:5},
+              {name:"Rohan Mehta", role:"Regular Guest", text:"Delivery is always fast and the food arrives still hot. The Grilled Tenderloin Steak is my go-to order every time.", rating:5},
+              {name:"Priya Nair", role:"Food Enthusiast", text:"Booked a table for our anniversary — the staff made it so special. The Chocolate Fondant dessert was the perfect finish.", rating:4.5},
+            ].map((t,i)=>(
+              <div key={t.name} style={{background:"#f9f8f5",borderRadius:"6px",padding:"32px 28px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",animation:"cardIn 0.5s ease both",animationDelay:`${i*0.1}s`}}>
+                <div style={{color:"#f5b400",fontSize:"15px",marginBottom:"14px"}}>{"★".repeat(Math.floor(t.rating))}{t.rating%1!==0?"½":""}</div>
+                <p style={{color:"#666",fontFamily:"sans-serif",fontSize:"13px",lineHeight:2,marginBottom:"22px",fontStyle:"italic"}}>"{t.text}"</p>
+                <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
+                  <div style={{width:"42px",height:"42px",borderRadius:"50%",background:GOLD,color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"sans-serif",fontWeight:"700",fontSize:"16px",flexShrink:0}}>{t.name[0]}</div>
+                  <div>
+                    <div style={{fontFamily:"sans-serif",fontSize:"13px",fontWeight:"700",color:MID}}>{t.name}</div>
+                    <div style={{fontFamily:"sans-serif",fontSize:"11px",color:"#aaa"}}>{t.role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+        <div style={{height:"1px",background:"#eee"}} />
+        <section style={{background:`linear-gradient(135deg,${DARK},${MID})`,padding:"80px 60px",textAlign:"center"}}>
+          <p style={{color:GOLD,letterSpacing:"5px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"600",marginBottom:"14px"}}>✦ ORDER DELIVERY ✦</p>
+          <h2 style={{color:"#fff",fontSize:"40px",fontWeight:"300",margin:"0 0 16px"}}>Craving Rahul Foods?</h2>
+          <p style={{color:"rgba(255,255,255,0.5)",fontFamily:"sans-serif",fontSize:"15px",marginBottom:"36px"}}>Order from our full menu and get it delivered straight to your door.</p>
+          <button onClick={()=>setPage("menu")} style={{padding:"15px 52px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Start Ordering 🛒</button>
+        </section>
+      </>
+    );
+  }
+
+  /* ── MENU with SEARCH ── */
+  function MenuPage({cart, addToCart, updateQty, setPage, onOpenModal}) {
+    const [cat, setCat]         = useState("All");
+    const [query, setQuery]     = useState("");
+    const [vegOnly, setVegOnly] = useState(false);
+    const [priceFilter, setPriceFilter] = useState("all");
+    const [filterOpen, setFilterOpen] = useState(false);
+    const [dbDishes, setDbDishes] = useState([]);
+    const categories            = ["All", ...Object.keys(menuData)];
+    const cartCount             = Object.values(cart).reduce((s,{qty})=>s+qty,0);
+    const cartTotal             = Object.values(cart).reduce((s,{item,qty})=>s+getPrice(item)*qty,0);
+
+    useEffect(()=>{
+      supabase.from("menu_items").select("*").eq("active",true).then(({data})=>{
+        if(data) setDbDishes(data.map(d=>({ name:d.name, desc:d.description||"", price:`$${d.price}`, img:d.image_url||FALLBACK, tag:d.tag||"", rating:d.rating||4.5, reviews:d.reviews_count||0, is_veg:d.is_veg, category:d.category })));
+      });
+    },[]);
+
+    const hardcodedDishes = Object.values(menuData).flat();
+    const allDishes = [...hardcodedDishes, ...dbDishes];
+    const VEG_TAGS = ["Veg","veg"];
+    const VEG_KEYWORDS = ["vegetarian","veg","mushroom","tomato","bruschetta","panna cotta","cheese","apple","mango","tarte"];
+
+    let filtered = cat==="All" ? allDishes : [...(menuData[cat]||[]), ...dbDishes.filter(d=>d.category===cat)];
+    if(query.trim()) filtered = filtered.filter(d => d.name.toLowerCase().includes(query.toLowerCase()) || d.desc.toLowerCase().includes(query.toLowerCase()));
+    if(vegOnly) filtered = filtered.filter(d => d.is_veg || VEG_TAGS.includes(d.tag) || VEG_KEYWORDS.some(k=>d.name.toLowerCase().includes(k)||d.desc.toLowerCase().includes(k)));
+    if(priceFilter==="low")  filtered = filtered.filter(d => getPrice(d) < 1500);
+    if(priceFilter==="mid")  filtered = filtered.filter(d => getPrice(d) >= 1500 && getPrice(d) <= 3500);
+    if(priceFilter==="high") filtered = filtered.filter(d => getPrice(d) > 3500);
+
+    return (
+      <div style={{paddingTop:"80px",minHeight:"100vh"}}>
+        <PageBanner tag="OUR OFFERINGS" title="The Menu" />
+        <div style={{background:"#f9f8f5",padding:"60px 60px 140px"}}>
+          {/* Search bar */}
+          <div className="search-wrap">
+            <input className="search-input" value={query} onChange={e=>setQuery(e.target.value)} placeholder="🔍  Search dishes — e.g. steak, chocolate, lobster..." />
+            {query && <button className="search-clear" onClick={()=>setQuery("")}>✕</button>}
+          </div>
+
+          {/* Category tabs */}
+          <div style={{display:"flex",justifyContent:"center",marginBottom:"24px"}}>
+            <div style={{display:"flex",border:"1px solid #e0d9ce",overflow:"hidden",borderRadius:"4px",flexWrap:"wrap"}}>
+              {categories.map((c,i)=>(
+                <button key={c} onClick={()=>setCat(c)} style={{padding:"13px 26px",border:"none",borderRight:i<categories.length-1?"1px solid #e0d9ce":"none",background:cat===c?DARK:"transparent",color:cat===c?"#fff":"#888",letterSpacing:"2px",fontSize:"10px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",transition:"all 0.25s"}}>{c}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Price + Veg filter */}
+          <div style={{display:"flex",justifyContent:"center",gap:"12px",marginBottom:"36px",alignItems:"center",flexWrap:"wrap"}}>
+            <div style={{position:"relative"}}>
+              <button onClick={()=>setFilterOpen(o=>!o)} style={{display:"flex",alignItems:"center",gap:"6px",padding:"10px 18px",border:`1px solid ${priceFilter!=="all"?"#c0392b":"#e0d9ce"}`,borderRadius:"4px",background:priceFilter!=="all"?DARK:"#fff",color:priceFilter!=="all"?"#fff":"#888",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",letterSpacing:"1px"}}>
+                💰 {priceFilter==="all"?"Price":"Price: "+{"low":"<₹1500","mid":"₹1500–₹3500","high":"₹3500+"}[priceFilter]} {filterOpen?"▲":"▼"}
+              </button>
+              {filterOpen && (
+                <div style={{position:"absolute",top:"44px",left:0,zIndex:100,background:"#fff",border:"1px solid #e0d9ce",borderRadius:"6px",boxShadow:"0 8px 24px rgba(0,0,0,0.1)",padding:"12px",minWidth:"180px"}}>
+                  {[["all","All Prices"],["low","Under ₹1500"],["mid","₹1500 – ₹3500"],["high","Above ₹3500"]].map(([v,l])=>(
+                    <button key={v} onClick={()=>{setPriceFilter(v);setFilterOpen(false);}} style={{display:"block",width:"100%",textAlign:"left",padding:"10px 14px",border:"none",background:priceFilter===v?"#fdf3f2":"transparent",color:priceFilter===v?DARK:"#555",fontFamily:"sans-serif",fontSize:"12px",fontWeight:priceFilter===v?"700":"400",borderRadius:"4px"}}>{l}</button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button onClick={()=>setVegOnly(v=>!v)} style={{padding:"10px 16px",border:`1px solid ${vegOnly?"#3a7a3a":"#e0d9ce"}`,borderRadius:"4px",background:vegOnly?"#f0faf0":"#fff",color:vegOnly?"#3a7a3a":"#888",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",letterSpacing:"1px"}}>🌿 Veg Only</button>
+            {(priceFilter!=="all"||vegOnly) && <button onClick={()=>{setPriceFilter("all");setVegOnly(false);}} style={{padding:"10px 14px",border:"1px solid #e0d9ce",borderRadius:"4px",background:"#fff",color:"#e05555",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700"}}>✕ Clear</button>}
+          </div>
+
+          <p style={{textAlign:"center",color:"#aaa",fontFamily:"sans-serif",fontSize:"12px",marginBottom:"36px"}}>
+            {filtered.length} dish{filtered.length!==1?"es":""} {query?`for "${query}"`:""}
+          </p>
+
+          {filtered.length > 0 ? (
+            <div className="menu-grid">
+              {filtered.map((item,i)=>(
+                <DishCard key={item.name} item={item} cart={cart} addToCart={addToCart} updateQty={updateQty} onOpenModal={onOpenModal} delay={i*0.06} />
+              ))}
+            </div>
+          ) : (
+            <div style={{textAlign:"center",padding:"60px",color:"#aaa",fontFamily:"sans-serif"}}>
+              <div style={{fontSize:"48px",marginBottom:"16px"}}>🍽️</div>
+              <p style={{fontSize:"15px"}}>No dishes match your filters.</p>
+              <button onClick={()=>{setQuery("");setCat("All");setVegOnly(false);setPriceFilter("all");}} style={{marginTop:"20px",padding:"10px 28px",background:GOLD,color:"#fff",border:"none",borderRadius:"3px",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",letterSpacing:"2px"}}>Clear Filters</button>
+            </div>
+          )}
+        </div>
+        {cartCount > 0 && (
+          <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:150,background:MID,padding:"14px 60px",display:"flex",alignItems:"center",justifyContent:"space-between",boxShadow:"0 -4px 24px rgba(0,0,0,0.2)"}}>
+            <div style={{color:"#fff",fontFamily:"sans-serif"}}>
+              <span style={{fontSize:"13px",opacity:0.7}}>{cartCount} item{cartCount!==1?"s":""} in cart</span>
+              <span style={{fontSize:"18px",fontWeight:"700",color:GOLD,marginLeft:"16px"}}>₹{Math.round(cartTotal)}</span>
+            </div>
+            <button onClick={()=>setPage("cart")} style={{padding:"11px 32px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"2px"}}>View Cart & Checkout →</button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  /* ── ORDER TRACKING ── */
+  function OrderTracking({form, total, payLabel, setPage, clearCart}) {
+    const [stage, setStage] = useState(0);
+    const stages = [
+      { icon:"✅", title:"Order Placed",        sub:"We've received your order",        done:true  },
+      { icon:"🍳", title:"Being Prepared",       sub:"Our chefs are cooking your meal",  done:false },
+      { icon:"🛵", title:"Out for Delivery",     sub:"On the way to your address",       done:false },
+      { icon:"🏠", title:"Delivered!",           sub:"Enjoy your meal — bon appétit!",   done:false },
+    ];
+    useEffect(()=>{
+      if(stage < 3) {
+        const t = setTimeout(()=>setStage(s=>s+1), stage===0?4000:stage===1?7000:10000);
+        return ()=>clearTimeout(t);
+      }
+    },[stage]);
+    return (
+      <div style={{paddingTop:"80px",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+        <PageBanner tag="ORDER PLACED" title="Tracking Your Order" />
+        <div style={{flex:1,background:"#f9f8f5",padding:"60px"}}>
+          <div style={{maxWidth:"680px",margin:"0 auto"}}>
+            {/* Greeting */}
+            <div style={{background:"#fff",borderRadius:"6px",padding:"28px 32px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",marginBottom:"24px",textAlign:"center"}}>
+              <div style={{fontSize:"52px",marginBottom:"12px"}}>🎉</div>
+              <h2 style={{fontSize:"26px",fontWeight:"300",color:MID,marginBottom:"8px"}}>Order Confirmed, {form.name}!</h2>
+              <p style={{fontFamily:"sans-serif",fontSize:"14px",color:"#888",lineHeight:1.8,marginBottom:"6px"}}>Delivering to: <strong style={{color:MID}}>{form.address}, {form.city} – {form.pincode}</strong></p>
+              <div style={{display:"inline-flex",alignItems:"center",gap:"8px",background:"#f0faf0",border:"1px solid #aadcaa",borderRadius:"6px",padding:"8px 18px",margin:"10px 0"}}>
+                <span style={{fontSize:"15px"}}>✅</span><span style={{fontFamily:"sans-serif",fontSize:"13px",color:"#3a7a3a",fontWeight:"600"}}>Payment via {payLabel}</span>
+              </div>
+              <div style={{fontSize:"22px",fontWeight:"700",color:GOLD,fontFamily:"sans-serif",marginTop:"6px"}}>Total: ₹{Math.round(total)}</div>
+            </div>
+
+            {/* Tracking timeline */}
+            <div style={{background:"#fff",borderRadius:"6px",padding:"32px 36px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",marginBottom:"24px"}}>
+              <h3 style={{fontSize:"15px",fontWeight:"700",color:MID,letterSpacing:"2px",textTransform:"uppercase",fontFamily:"sans-serif",marginBottom:"28px"}}>Live Tracking</h3>
+              {stages.map((s,i)=>{
+                const isDone    = i < stage;
+                const isActive  = i === stage;
+                const isPending = i > stage;
+                return (
+                  <div key={i} className="track-step">
+                    <div className="track-line-wrap">
+                      <div className={`track-dot ${isDone?"done":isActive?"active":"pending"}`}>{isDone?"✓":s.icon}</div>
+                      {i < stages.length-1 && <div className={`track-connector${isDone?" done":""}`} />}
+                    </div>
+                    <div className="track-info">
+                      <div className={`track-title ${isDone?"":isActive?"active":"pending"}`}>{s.title}</div>
+                      <div className="track-sub">{isActive?"In progress…":isDone?"Done ✓":s.sub}</div>
+                    </div>
+                  </div>
+                );
+              })}
+              {stage < 3
+                ? <p style={{fontFamily:"sans-serif",fontSize:"12px",color:"#aaa",marginTop:"8px"}}>🛵 Estimated delivery: 30–45 minutes</p>
+                : <p style={{fontFamily:"sans-serif",fontSize:"13px",color:"#3a7a3a",fontWeight:"600",marginTop:"8px"}}>🏠 Your order has been delivered! Enjoy!</p>
+              }
+            </div>
+
+            <div style={{display:"flex",gap:"14px"}}>
+              <button onClick={()=>window.print()} style={{flex:1,padding:"14px",background:"transparent",border:"1px solid #ccc",color:"#888",letterSpacing:"2px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px"}}>🖨 Print Receipt</button>
+              <button onClick={()=>{clearCart();setPage("menu");}} style={{flex:1,padding:"14px",background:"transparent",border:`1px solid ${GOLD}`,color:GOLD,letterSpacing:"2px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px"}}>Order Again</button>
+              <button onClick={()=>{clearCart();setPage("home");}} style={{flex:1,padding:"14px",background:GOLD,color:"#fff",border:"none",letterSpacing:"2px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px"}}>Back to Home</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── CART PAGE with PROMO CODE ── */
+  function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced, user}) {
+    const cartItems = Object.values(cart);
+    const subtotal  = cartItems.reduce((s,{item,qty})=>s+getPrice(item)*qty, 0);
+
+    const [form,     setForm]     = useState({name:"",phone:"",address:"",city:"",pincode:"",instructions:""});
+    const [errors,   setErrors]   = useState({});
+    const [payMethod,setPayMethod]= useState("cod");
+    const [payForm,  setPayForm]  = useState({});
+    const [payErrors,setPayErrors]= useState({});
+    const [ordered,  setOrdered]  = useState(false);
+    const [promoInput, setPromoInput] = useState("");
+    const [promo,      setPromo]      = useState(null);
+    const [promoErr,   setPromoErr]   = useState("");
+
+    const applyPromo = () => {
+      const code = promoInput.trim().toUpperCase();
+      if(PROMO_CODES[code]) {
+        setPromo({code, ...PROMO_CODES[code]});
+        setPromoErr("");
+        showToast(`${PROMO_CODES[code].label} applied! 🎉`, "success");
+      } else {
+        setPromoErr("Invalid promo code. Try RAHUL10, WELCOME20, FREESHIP or FEAST50.");
+        setPromo(null);
+      }
+    };
+
+    const discount = promo
+      ? promo.type==="percent" ? (subtotal * promo.value / 100)
+      : promo.type==="flat"    ? Math.min(promo.value, subtotal)
+      : DELIVERY_FEE
+      : 0;
+    const delivery   = promo?.type==="freeship" ? 0 : DELIVERY_FEE;
+    const total      = subtotal - (promo?.type==="flat"||promo?.type==="percent" ? discount : 0) + delivery;
+
+    const upd = k => e => setForm(f=>({...f,[k]:e.target.value}));
+    const validate = () => {
+      const e={};
+      if(!form.name.trim())    e.name="Required";
+      if(!form.phone.trim())   e.phone="Required";
+      if(!form.address.trim()) e.address="Required";
+      if(!form.city.trim())    e.city="Required";
+      if(!form.pincode.trim()) e.pincode="Required";
+      setErrors(e);
+      const pe={};
+      if(payMethod==="card"){
+        if(!(payForm.cardNum||"").replace(/\s/g,"").match(/^\d{16}$/)) pe.cardNum="Enter valid 16-digit number";
+        if(!(payForm.cardName||"").trim()) pe.cardName="Required";
+        if(!(payForm.expiry||"").match(/^\d{2}\s\/\s\d{2}$/)) pe.expiry="MM / YY";
+        if(!(payForm.cvv||"").match(/^\d{3,4}$/)) pe.cvv="3-4 digits";
+      }
+      if(payMethod==="upi" && !(payForm.upiId||"").includes("@")) pe.upiId="Enter valid UPI ID";
+      if(payMethod==="nb"  && !(payForm.bank||"")) pe.bank="Please select a bank";
+      if(payMethod==="wallet" && !(payForm.wallet||"")) pe.wallet="Please select a wallet";
+      setPayErrors(pe);
+      return Object.keys(e).length===0 && Object.keys(pe).length===0;
+    };
+
+    const iStyle = field => ({width:"100%",padding:"13px 15px",border:`1px solid ${errors[field]?"#e05555":"#e0d9ce"}`,background:"#fff",fontFamily:"sans-serif",fontSize:"14px",color:MID,borderRadius:"3px"});
+    const lStyle = {display:"block",fontSize:"10px",letterSpacing:"2px",color:"#999",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",marginBottom:"7px"};
+    const payLabel = {cod:"Cash on Delivery",card:"Credit / Debit Card",upi:"UPI Payment",nb:"Net Banking",wallet:"Mobile Wallet"}[payMethod];
+
+    if(ordered) return <OrderTracking form={form} total={total} payLabel={payLabel} setPage={setPage} clearCart={clearCart} />;
+
+    if(cartItems.length===0) return (
+      <div style={{paddingTop:"80px",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+        <PageBanner tag="YOUR ORDER" title="Cart" />
+        <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"80px",background:"#f9f8f5",flexDirection:"column",gap:"24px"}}>
+          <div style={{fontSize:"64px"}}>🛒</div>
+          <h2 style={{fontSize:"28px",fontWeight:"300",color:MID}}>Your cart is empty</h2>
+          <p style={{color:"#aaa",fontFamily:"sans-serif",fontSize:"14px"}}>Add some delicious dishes from our menu!</p>
+          <button onClick={()=>setPage("menu")} style={{padding:"14px 44px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Browse Menu</button>
+        </div>
+      </div>
+    );
+
+    return (
+      <div style={{paddingTop:"80px",minHeight:"100vh"}}>
+        <PageBanner tag="YOUR ORDER" title="Cart & Checkout" />
+        <div style={{background:"#f9f8f5",padding:"60px"}} className="cart-page-pad">
+          <div className="cart-grid" style={{maxWidth:"1100px",margin:"0 auto",display:"grid",gridTemplateColumns:"1fr 420px",gap:"40px",alignItems:"start"}}>
+            <div>
+              {/* Cart items */}
+              <div style={{background:"#fff",borderRadius:"6px",padding:"28px 32px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",marginBottom:"24px"}}>
+                <h3 style={{fontSize:"18px",fontWeight:"normal",marginBottom:"4px",color:MID}}>Your Items</h3>
+                <p style={{color:"#aaa",fontFamily:"sans-serif",fontSize:"12px",marginBottom:"20px"}}>{cartItems.length} item{cartItems.length!==1?"s":""} selected</p>
+                {cartItems.map(({item,qty})=>(
+                  <div key={item.name} className="cart-item">
+                    <img src={item.img} alt={item.name} onError={e=>e.target.src=FALLBACK} />
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:"15px",color:MID,marginBottom:"4px"}}>{item.name}</div>
+                      <Stars rating={item.rating} reviews={item.reviews} />
+                      <div style={{display:"flex",alignItems:"center",gap:"10px",marginTop:"8px"}}>
+                        <div className="qty-control" style={{maxWidth:"110px"}}>
+                          <button className="qty-btn" onClick={()=>updateQty(item.name,-1)}>−</button>
+                          <span className="qty-num">{qty}</span>
+                          <button className="qty-btn" onClick={()=>updateQty(item.name,1)}>+</button>
+                        </div>
+                        <span style={{color:"#ccc",fontSize:"12px",fontFamily:"sans-serif"}}>× {item.price}</span>
+                      </div>
+                    </div>
+                    <div style={{textAlign:"right",display:"flex",flexDirection:"column",alignItems:"flex-end",gap:"10px"}}>
+                      <div style={{fontSize:"18px",color:GOLD,fontFamily:"sans-serif",fontWeight:"700"}}>₹{Math.round(getPrice(item)*qty)}</div>
+                      <button className="del-btn-full" onClick={()=>updateQty(item.name,-qty)}>🗑 Delete</button>
+                    </div>
+                  </div>
+                ))}
+                <div style={{display:"flex",gap:"10px",marginTop:"16px",flexWrap:"wrap"}}>
+                  <button onClick={()=>setPage("menu")} style={{background:"none",border:`1px solid ${GOLD}`,color:GOLD,padding:"9px 18px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",letterSpacing:"2px",textTransform:"uppercase",borderRadius:"3px"}}>← Back to Menu</button>
+                  <button onClick={()=>{ if(window.confirm("Cancel your entire order? All items will be removed from the cart.")) { clearCart(); setPage("menu"); } }} style={{background:"none",border:"1px solid #e05555",color:"#e05555",padding:"9px 18px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",letterSpacing:"2px",textTransform:"uppercase",borderRadius:"3px"}}>🗑 Cancel Order</button>
+                </div>
+              </div>
+
+              {/* Delivery details */}
+              <div style={{background:"#fff",borderRadius:"6px",padding:"28px 32px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",marginBottom:"24px"}}>
+                <h3 style={{fontSize:"18px",fontWeight:"normal",marginBottom:"4px",color:MID}}>Delivery Details</h3>
+                <p style={{color:"#aaa",fontFamily:"sans-serif",fontSize:"12px",marginBottom:"22px"}}>Where should we deliver your order?</p>
+                <div className="rf-grid2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"18px",marginBottom:"18px"}}>
+                  <div><label style={lStyle}>Full Name *</label><input value={form.name} onChange={upd("name")} placeholder="Your full name" style={iStyle("name")} />{errors.name&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.name}</span>}</div>
+                  <div><label style={lStyle}>Phone *</label><input type="tel" value={form.phone} onChange={upd("phone")} placeholder="+91 00000 00000" style={iStyle("phone")} />{errors.phone&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.phone}</span>}</div>
+                </div>
+                <div style={{marginBottom:"18px"}}>
+                  <label style={lStyle}>Full Address *</label>
+                  <textarea value={form.address} onChange={upd("address")} rows={3} placeholder="House/flat no., building name, street, area..." style={{...iStyle("address"),resize:"vertical",lineHeight:1.7}} />
+                  {errors.address&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.address}</span>}
+                </div>
+                <div className="rf-grid2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"18px",marginBottom:"18px"}}>
+                  <div><label style={lStyle}>City *</label><input value={form.city} onChange={upd("city")} placeholder="e.g. Vijayawada" style={iStyle("city")} />{errors.city&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.city}</span>}</div>
+                  <div><label style={lStyle}>Pincode *</label><input type="number" value={form.pincode} onChange={upd("pincode")} placeholder="e.g. 400001" style={iStyle("pincode")} />{errors.pincode&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.pincode}</span>}</div>
+                </div>
+                {form.pincode && form.pincode.length>=5 && (
+                  <div style={{display:"flex",alignItems:"center",gap:"10px",background:"#fdf9f2",border:`1px solid ${GOLD}44`,borderRadius:"4px",padding:"10px 14px",marginBottom:"18px"}}>
+                    <span style={{fontSize:"18px"}}>🛵</span>
+                    <span style={{fontFamily:"sans-serif",fontSize:"12px",color:"#666"}}>
+                      Estimated delivery to <strong style={{color:MID}}>{form.pincode}</strong>: <strong style={{color:GOLD}}>{25 + (parseInt(form.pincode.slice(-2))||0) % 25}–{40 + (parseInt(form.pincode.slice(-2))||0) % 25} minutes</strong>
+                    </span>
+                  </div>
+                )}
+                <div><label style={lStyle}>Delivery Instructions (optional)</label><textarea value={form.instructions} onChange={upd("instructions")} rows={2} placeholder="Landmark, floor number, gate code, etc..." style={{...iStyle("instructions"),resize:"vertical",lineHeight:1.7}} /></div>
+              </div>
+
+              {/* Payment */}
+              <PaymentSection payMethod={payMethod} setPayMethod={setPayMethod} payForm={payForm} setPayForm={setPayForm} payErrors={payErrors} />
+            </div>
+
+            {/* RIGHT — summary */}
+            <div style={{position:"sticky",top:"100px"}}>
+              <div className="summary-box">
+                <h3 style={{fontSize:"18px",fontWeight:"normal",marginBottom:"20px",color:MID,paddingBottom:"16px",borderBottom:"1px solid #f0ece4"}}>Order Summary</h3>
+                {cartItems.map(({item,qty})=>(
+                  <div key={item.name} className="summary-row">
+                    <span style={{fontSize:"13px"}}>{item.name} × {qty}</span>
+                    <span style={{color:MID,fontWeight:"600"}}>₹{Math.round(getPrice(item)*qty)}</span>
+                  </div>
+                ))}
+
+                {/* Promo code */}
+                <div style={{borderTop:"1px solid #f0ece4",marginTop:"8px",paddingTop:"14px",marginBottom:"4px"}}>
+                  <div style={{display:"flex",gap:"8px",marginBottom:"6px"}}>
+                    <input value={promoInput} onChange={e=>setPromoInput(e.target.value.toUpperCase())}
+                      placeholder="Promo code" maxLength={12}
+                      style={{flex:1,padding:"10px 12px",border:"1px solid #e0d9ce",borderRadius:"3px",fontFamily:"sans-serif",fontSize:"12px",color:MID,textTransform:"uppercase",letterSpacing:"1px"}}
+                      onKeyDown={e=>e.key==="Enter"&&applyPromo()} />
+                    <button onClick={applyPromo} style={{padding:"10px 14px",background:MID,color:"#fff",border:"none",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",letterSpacing:"1px",borderRadius:"3px"}}>Apply</button>
+                  </div>
+                  {promoErr && <p style={{fontFamily:"sans-serif",fontSize:"11px",color:"#e05555",marginBottom:"6px"}}>{promoErr}</p>}
+                  {promo && <p style={{fontFamily:"sans-serif",fontSize:"11px",color:"#3a7a3a",marginBottom:"4px"}}>✅ <strong>{promo.code}</strong> — {promo.label}</p>}
+                  <p style={{fontFamily:"sans-serif",fontSize:"10px",color:"#ccc"}}>Try: RAHUL10 · WELCOME20 · FREESHIP · FEAST50</p>
+                </div>
+
+                <div style={{borderTop:"1px solid #f0ece4",paddingTop:"8px"}}>
+                  <div className="summary-row"><span>Subtotal</span><span style={{color:MID}}>₹{Math.round(subtotal)}</span></div>
+                  {promo && (promo.type==="percent"||promo.type==="flat") && (
+                    <div className="summary-row"><span style={{color:"#3a7a3a"}}>Discount ({promo.label})</span><span style={{color:"#3a7a3a",fontWeight:"700"}}>−₹{Math.round(discount)}</span></div>
+                  )}
+                  <div className="summary-row">
+                    <span>Delivery {promo?.type==="freeship"?"(FREE)":""}</span>
+                    <span style={{color:MID,textDecoration:promo?.type==="freeship"?"line-through":"none"}}>₹{DELIVERY_FEE}</span>
+                  </div>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 0 8px",borderTop:"2px solid #f0ece4",marginTop:"8px"}}>
+                    <span style={{fontSize:"14px",fontWeight:"700",color:MID,fontFamily:"sans-serif"}}>Total Amount</span>
+                    <span style={{fontSize:"22px",fontWeight:"700",color:GOLD}}>₹{Math.round(total)}</span>
+                  </div>
+                </div>
+
+                {/* Payment display */}
+                <div style={{background:"#f9f8f5",border:"1px solid #f0ece4",borderRadius:"5px",padding:"10px 14px",marginBottom:"14px",display:"flex",alignItems:"center",gap:"10px"}}>
+                  <span style={{fontSize:"18px"}}>{{"cod":"💵","card":"💳","upi":"📱","nb":"🏦","wallet":"👛"}[payMethod]}</span>
+                  <div style={{fontFamily:"sans-serif"}}>
+                    <div style={{fontSize:"11px",color:"#aaa",letterSpacing:"1px",textTransform:"uppercase"}}>Payment via</div>
+                    <div style={{fontSize:"13px",fontWeight:"700",color:MID}}>{payLabel}</div>
+                  </div>
+                </div>
+
+                <button onClick={()=>{if(validate()){
+                  const orderData = {items:cartItems.map(({item,qty})=>({name:item.name,qty,price:item.price})), total, payLabel, address:`${form.address}, ${form.city} – ${form.pincode}`};
+                  const itemsText = cartItems.map(({item,qty})=>`${item.name} x${qty} — ₹${Math.round(getPrice(item)*qty)}`).join('\n');
+                  const now = new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'});
+                  // Admin notification
+                  emailjs.send("service_jpem2rb","template_uq7eflu",{
+                    customer_name: form.name,
+                    customer_phone: form.phone,
+                    customer_address: orderData.address,
+                    order_items: itemsText,
+                    order_total: `₹${Math.round(total)}`,
+                    payment_method: payLabel,
+                    order_time: now
+                  }).catch(()=>{});
+                  // Customer notification
+                  emailjs.send("service_jpem2rb","template_xn0ebyn",{
+                    customer_name: form.name,
+                    customer_email: user?.email||"",
+                    customer_address: orderData.address,
+                    order_items: itemsText,
+                    order_total: `₹${Math.round(total)}`,
+                    payment_method: payLabel
+                  }).catch(()=>{});
+                  setOrdered(true); onOrderPlaced(orderData);
+                }}}
+                  style={{width:"100%",padding:"16px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"12px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px"}}>
+                  {payMethod==="cod"?`Place Order · ₹${Math.round(total)}`:`Pay ₹${Math.round(total)} Now`}
+                </button>
+                <p style={{textAlign:"center",color:"#ccc",fontFamily:"sans-serif",fontSize:"11px",marginTop:"10px"}}>🔒 Secure checkout · 🛵 30–45 min delivery</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── ANIMATED COUNTER ── */
+  function Counter({end, suffix=""}) {
+    const [val,setVal]=useState(0);
+    const ref=useRef(null);
+    const started=useRef(false);
+    useEffect(()=>{
+      const obs=new IntersectionObserver(([entry])=>{
+        if(entry.isIntersecting && !started.current){
+          started.current=true;
+          const duration=1400, steps=40, inc=end/steps;
+          let cur=0,i=0;
+          const t=setInterval(()=>{ i++; cur+=inc; setVal(i>=steps?end:Math.round(cur)); if(i>=steps) clearInterval(t); },duration/steps);
+        }
+      },{threshold:0.4});
+      if(ref.current) obs.observe(ref.current);
+      return ()=>obs.disconnect();
+    },[]);
+    return <div ref={ref}>{val}{suffix}</div>;
+  }
+
+  /* ── ABOUT ── */
+  function AboutPage() {
+    return (
+      <div style={{paddingTop:"80px",minHeight:"100vh"}}>
+        <PageBanner tag="OUR STORY" title="About Us" />
+        <section style={{padding:"90px",background:"#f9f8f5",display:"flex",gap:"80px",alignItems:"flex-start",flexWrap:"wrap"}}>
+          <div style={{flex:1,minWidth:"280px"}}>
+            <p style={{color:GOLD,letterSpacing:"5px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"600",marginBottom:"16px"}}>✦ OUR PHILOSOPHY ✦</p>
+            <h2 style={{fontSize:"40px",fontWeight:"300",margin:"0 0 28px",lineHeight:1.25}}>Crafted with<br/><span style={{color:GOLD}}>Passion</span></h2>
+            <p style={{color:"#666",fontSize:"15px",lineHeight:2,fontFamily:"sans-serif",marginBottom:"20px"}}>At Rahul Foods, we believe that dining is the highest art form. Every plate is a canvas where we blend time-honoured tradition with bold innovation.</p>
+            <p style={{color:"#666",fontSize:"15px",lineHeight:2,fontFamily:"sans-serif",marginBottom:"20px"}}>Our chefs personally source the finest local and imported ingredients, ensuring each dish meets our uncompromising standards of excellence.</p>
+            <p style={{color:"#666",fontSize:"15px",lineHeight:2,fontFamily:"sans-serif"}}>Founded in 2011, Rahul Foods has grown into one of the city's most celebrated dining destinations.</p>
+          </div>
+          <div className="rf-grid2" style={{flex:1,minWidth:"280px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"20px"}}>
+            {[[15,"+","Years of Excellence"],[50,"+","Signature Dishes"],[10000,"+","Happy Guests"],[5," ★","Average Rating"]].map(([num,suffix,label])=>(
+              <div key={label} style={{padding:"36px 24px",textAlign:"center",border:`1px solid ${GOLD}44`,background:"#fff",boxShadow:"0 2px 12px rgba(0,0,0,0.04)"}}>
+                <div style={{fontSize:"38px",color:GOLD,marginBottom:"10px",fontWeight:"300"}}><Counter end={num} suffix={suffix} /></div>
+                <div style={{color:"#aaa",fontSize:"10px",letterSpacing:"3px",fontFamily:"sans-serif",fontWeight:"600",textTransform:"uppercase"}}>{label}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+        <div style={{height:"1px",background:`linear-gradient(to right,transparent,${GOLD},transparent)`}} />
+        <section style={{padding:"90px 60px",background:`linear-gradient(135deg,${DARK},${MID})`}}>
+          <div style={{textAlign:"center",marginBottom:"56px"}}>
+            <p style={{color:GOLD,letterSpacing:"5px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"600",marginBottom:"14px"}}>✦ WHAT WE STAND FOR ✦</p>
+            <h2 style={{fontSize:"40px",fontWeight:"300",color:"#fff",margin:0}}>Our Values</h2>
+          </div>
+          <div className="rf-grid3" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"28px",maxWidth:"960px",margin:"0 auto"}}>
+            {[["🌾","Quality","We source only the finest ingredients from local farms and trusted importers."],["🔥","Craft","Every dish is prepared with meticulous attention to technique and presentation."],["🤝","Hospitality","From arrival to farewell, we create an experience that exceeds every expectation."]].map(([icon,title,desc])=>(
+              <div key={title} style={{padding:"44px 30px",border:"1px solid rgba(200,169,110,0.2)",background:"rgba(255,255,255,0.03)",textAlign:"center"}}>
+                <div style={{fontSize:"38px",marginBottom:"18px"}}>{icon}</div>
+                <h3 style={{color:GOLD,fontSize:"13px",letterSpacing:"3px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",marginBottom:"16px"}}>{title}</h3>
+                <p style={{color:"rgba(255,255,255,0.45)",fontFamily:"sans-serif",fontSize:"13px",lineHeight:2}}>{desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  /* ── FAQ ACCORDION ── */
+  function FaqAccordion() {
+    const [open,setOpen]=useState(null);
+    const faqs = [
+      {q:"What are your delivery hours?", a:"We deliver every day from 11 AM to 11:30 PM. Orders placed after 11 PM will be processed the next morning."},
+      {q:"How long does delivery take?", a:"Most orders arrive within 30–45 minutes depending on your location and order volume."},
+      {q:"Do you offer vegetarian or vegan options?", a:"Yes! Look for the 'Veg' tag in our menu. We're happy to customize dishes for dietary needs — just add a note at checkout."},
+      {q:"What is your refund / cancellation policy?", a:"Orders can be cancelled within 5 minutes of placing them from the cart page. Once preparation begins, refunds are evaluated case-by-case — contact us via WhatsApp."},
+      {q:"Can I make a reservation for a large group?", a:"For groups of 8 or more, please call us directly at +91 70757 51105 so we can arrange the best seating for you."},
+    ];
+    return (
+      <div style={{maxWidth:"760px",margin:"0 auto"}}>
+        {faqs.map((f,i)=>(
+          <div key={i} className="faq-item">
+            <button className="faq-question" onClick={()=>setOpen(open===i?null:i)}>
+              {f.q}
+              <span className={`faq-icon${open===i?" open":""}`}>+</span>
+            </button>
+            {open===i && <div className="faq-answer">{f.a}</div>}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  /* ── CONTACT ── */
+  function ContactPage({setPage}) {
+    return (
+      <div style={{paddingTop:"80px",minHeight:"100vh"}}>
+        <PageBanner tag="VISIT US" title="Contact" />
+        <section style={{padding:"90px 60px",background:"#f9f8f5"}}>
+          <div className="rf-grid2" style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:"24px",maxWidth:"900px",margin:"0 auto 64px"}}>
+            {[["📍","Location","Kanuru, Vijayawada\nAndhra Pradesh, India"],["🕐","Hours","Monday – Friday: 12 PM – 10 PM\nSaturday – Sunday: 11:30 AM – 11 PM"],["📞","Phone","+91 70757 51105"],["✉️","Email","rahultalasila9@gmail.com"]].map(([icon,label,val])=>(
+              <div key={label} style={{background:"#fff",padding:"36px 32px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",display:"flex",gap:"20px",alignItems:"flex-start"}}>
+                <div style={{fontSize:"28px",flexShrink:0}}>{icon}</div>
+                <div>
+                  <div style={{fontSize:"10px",letterSpacing:"3px",color:GOLD,fontFamily:"sans-serif",fontWeight:"700",marginBottom:"10px",textTransform:"uppercase"}}>{label}</div>
+                  <div style={{color:"#555",fontFamily:"sans-serif",fontSize:"13px",lineHeight:1.9,whiteSpace:"pre-line"}}>{val}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Map embed */}
+          <div style={{maxWidth:"900px",margin:"0 auto 64px",borderRadius:"6px",overflow:"hidden",boxShadow:"0 2px 16px rgba(0,0,0,0.05)"}}>
+            <iframe
+              title="Rahul Foods location"
+              src="https://maps.google.com/maps?q=Kanuru,Vijayawada,Andhra+Pradesh,India&z=14&output=embed"
+              width="100%" height="320" style={{border:0,display:"block"}} loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade" />
+          </div>
+
+          <div style={{textAlign:"center",marginBottom:"40px"}}>
+            <button onClick={()=>setPage("reserve")} style={{padding:"15px 52px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Reserve a Table</button>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <div style={{height:"1px",background:"#eee"}} />
+        <section style={{padding:"90px 60px",background:"#fff"}}>
+          <div style={{textAlign:"center",marginBottom:"52px"}}>
+            <p style={{color:GOLD,letterSpacing:"5px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"600",marginBottom:"14px"}}>✦ GOT QUESTIONS? ✦</p>
+            <h2 style={{fontSize:"42px",fontWeight:"300",margin:"0 0 20px"}}>Frequently Asked Questions</h2>
+            <div style={{width:"60px",height:"1px",background:GOLD,margin:"0 auto"}} />
+          </div>
+          <FaqAccordion />
+        </section>
+      </div>
+    );
+  }
+
+  /* ── RESERVE ── */
+  function ReservePage({setPage}) {
+    const [form,setForm]=useState({name:"",email:"",phone:"",date:"",time:"",guests:"2",requests:""});
+    const [submitted,setSubmitted]=useState(false);
+    const [errors,setErrors]=useState({});
+    const upd=k=>e=>setForm(f=>({...f,[k]:e.target.value}));
+    const validate=()=>{const e={};if(!form.name.trim())e.name="Required";if(!form.email.trim())e.email="Required";if(!form.date)e.date="Required";if(!form.time)e.time="Select a time";setErrors(e);return Object.keys(e).length===0;};
+    const iS=field=>({width:"100%",padding:"14px 16px",border:`1px solid ${errors[field]?"#e05555":"#e0d9ce"}`,background:"#fff",fontFamily:"sans-serif",fontSize:"14px",color:MID});
+    const lS={display:"block",fontSize:"10px",letterSpacing:"2.5px",color:"#999",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",marginBottom:"8px"};
+    if(submitted) return (
+      <div style={{paddingTop:"80px",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+        <PageBanner tag="RESERVATION" title="Reserve a Table" />
+        <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"80px",background:"#f9f8f5"}}>
+          <div style={{textAlign:"center",maxWidth:"540px"}}>
+            <div style={{width:"72px",height:"72px",borderRadius:"50%",background:GOLD,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 28px",fontSize:"32px",color:"#fff"}}>✓</div>
+            <h2 style={{fontSize:"36px",fontWeight:"300",marginBottom:"18px",color:MID}}>Reservation Confirmed!</h2>
+            <p style={{color:"#888",fontFamily:"sans-serif",fontSize:"15px",lineHeight:2,marginBottom:"36px"}}>Thank you, <strong style={{color:MID}}>{form.name}</strong>. We look forward to welcoming you on <strong style={{color:MID}}>{form.date}</strong> at <strong style={{color:MID}}>{form.time}</strong>.</p>
+            <button onClick={()=>setPage("home")} style={{padding:"14px 44px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Back to Home</button>
+          </div>
+        </div>
+      </div>
+    );
+    return (
+      <div style={{paddingTop:"80px",minHeight:"100vh"}}>
+        <PageBanner tag="RESERVATION" title="Reserve a Table" />
+        <section style={{padding:"80px 60px 100px",background:"#f9f8f5"}}>
+          <div style={{maxWidth:"700px",margin:"0 auto"}}>
+            <p style={{textAlign:"center",color:"#aaa",fontFamily:"sans-serif",fontSize:"13px",marginBottom:"52px",fontStyle:"italic"}}>For same-day bookings or groups of 8+, please call +91 70757 51105</p>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"24px",marginBottom:"24px"}}>
+              <div><label style={lS}>Full Name *</label><input value={form.name} onChange={upd("name")} placeholder="Your full name" style={iS("name")} />{errors.name&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.name}</span>}</div>
+              <div><label style={lS}>Email *</label><input type="email" value={form.email} onChange={upd("email")} placeholder="your@email.com" style={iS("email")} />{errors.email&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.email}</span>}</div>
+              <div><label style={lS}>Phone</label><input type="tel" value={form.phone} onChange={upd("phone")} placeholder="+91 00000 00000" style={iS("phone")} /></div>
+              <div><label style={lS}>Guests *</label><select value={form.guests} onChange={upd("guests")} style={{...iS("guests"),cursor:"pointer"}}>{["1","2","3","4","5","6","7","8"].map(n=><option key={n} value={n}>{n} Guest{n!=="1"?"s":""}</option>)}</select></div>
+              <div><label style={lS}>Date *</label><input type="date" value={form.date} onChange={upd("date")} min={new Date().toISOString().split("T")[0]} style={iS("date")} />{errors.date&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.date}</span>}</div>
+              <div><label style={lS}>Time *</label><select value={form.time} onChange={upd("time")} style={{...iS("time"),cursor:"pointer"}}><option value="">Select a time</option>{["12:00 PM","12:30 PM","1:00 PM","1:30 PM","2:00 PM","7:00 PM","7:30 PM","8:00 PM","8:30 PM","9:00 PM","10:00 PM"].map(t=><option key={t} value={t}>{t}</option>)}</select>{errors.time&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.time}</span>}</div>
+            </div>
+            <div style={{marginBottom:"40px"}}><label style={lS}>Special Requests</label><textarea value={form.requests} onChange={upd("requests")} rows={4} placeholder="Dietary requirements, allergies, occasion details..." style={{...iS("requests"),resize:"vertical",lineHeight:1.8}} /></div>
+            <div style={{textAlign:"center"}}><button onClick={()=>{if(validate())setSubmitted(true);}} style={{padding:"16px 64px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Confirm Reservation</button></div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  /* ── MY ORDERS ── */
+  function MyOrdersPage({user, setPage}) {
+    const [orders,setOrders]=useState([]);
+    const [loading,setLoading]=useState(true);
+
+    useEffect(()=>{
+      if(!user) { setLoading(false); return; }
+      supabase.from("orders").select("*").order("created_at",{ascending:false}).then(({data,error})=>{
+        if(!error && data) {
+          setOrders(data.map(o=>({ items:o.items, total:o.total, payLabel:o.pay_label, address:o.address, date:o.created_at })));
+        }
+        setLoading(false);
+      });
+    },[user]);
+
+    if(!user) return (
+      <div style={{paddingTop:"80px",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+        <PageBanner tag="YOUR ACCOUNT" title="My Orders" />
+        <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"80px",background:"#f9f8f5",flexDirection:"column",gap:"24px"}}>
+          <div style={{fontSize:"64px"}}>🔒</div>
+          <h2 style={{fontSize:"28px",fontWeight:"300",color:MID}}>Sign in to view your orders</h2>
+          <button onClick={()=>setPage("home")} style={{padding:"14px 44px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Back to Home</button>
+        </div>
+      </div>
+    );
+    if(loading) return (
+      <div style={{paddingTop:"80px",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+        <PageBanner tag="YOUR ACCOUNT" title="My Orders" />
+        <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"80px",background:"#f9f8f5"}}>
+          <p style={{color:"#aaa",fontFamily:"sans-serif"}}>Loading your orders…</p>
+        </div>
+      </div>
+    );
+
+    if(orders.length===0) return (
+      <div style={{paddingTop:"80px",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+        <PageBanner tag="YOUR ACCOUNT" title="My Orders" />
+        <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"80px",background:"#f9f8f5",flexDirection:"column",gap:"24px"}}>
+          <div style={{fontSize:"64px"}}>📋</div>
+          <h2 style={{fontSize:"28px",fontWeight:"300",color:MID}}>No orders yet</h2>
+          <button onClick={()=>setPage("menu")} style={{padding:"14px 44px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Browse Menu</button>
+        </div>
+      </div>
+    );
+    return (
+      <div style={{paddingTop:"80px",minHeight:"100vh"}}>
+        <PageBanner tag="YOUR ACCOUNT" title="My Orders" />
+        <div style={{background:"#f9f8f5",padding:"60px",minHeight:"60vh"}}>
+          <div style={{maxWidth:"700px",margin:"0 auto"}}>
+            {orders.map((o,i)=>(
+              <div key={i} style={{background:"#fff",borderRadius:"6px",padding:"24px 28px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",marginBottom:"18px"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px",flexWrap:"wrap",gap:"8px"}}>
+                  <div style={{fontFamily:"sans-serif",fontSize:"12px",color:"#aaa"}}>{new Date(o.date).toLocaleString()}</div>
+                  <div style={{fontFamily:"sans-serif",fontSize:"11px",color:"#3a7a3a",background:"#f0faf0",border:"1px solid #aadcaa",borderRadius:"4px",padding:"4px 10px",fontWeight:"700"}}>{o.payLabel}</div>
+                </div>
+                {o.items.map((it,j)=>(
+                  <div key={j} style={{display:"flex",justifyContent:"space-between",fontFamily:"sans-serif",fontSize:"13px",color:"#555",padding:"4px 0"}}>
+                    <span>{it.name} × {it.qty}</span><span>{it.price}</span>
+                  </div>
+                ))}
+                <div style={{display:"flex",justifyContent:"space-between",marginTop:"10px",paddingTop:"10px",borderTop:"1px solid #f0ece4",fontFamily:"sans-serif"}}>
+                  <span style={{fontSize:"13px",fontWeight:"700",color:MID}}>Total</span>
+                  <span style={{fontSize:"15px",fontWeight:"700",color:GOLD}}>₹{Math.round(o.total)}</span>
+                </div>
+                <div style={{fontFamily:"sans-serif",fontSize:"11px",color:"#aaa",marginTop:"8px"}}>📍 {o.address}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const ADMIN_EMAIL = "rahultalasila9@gmail.com";
+
+  function AdminPage({user, setPage}) {
+    const [tab, setTab]         = useState("orders");
+    const [orders, setOrders]   = useState([]);
+    const [ordersLoading, setOrdersLoading] = useState(true);
+    const [menuItems, setMenuItems] = useState([]);
+    const [menuLoading, setMenuLoading] = useState(true);
+    const CATS = Object.keys(menuData);
+    const emptyForm = {name:"",category:"Starters",description:"",price:"",image_url:"",tag:"",is_veg:false};
+    const [form, setForm]       = useState(emptyForm);
+    const [editId, setEditId]   = useState(null);
+    const [saving, setSaving]   = useState(false);
+    const [showForm, setShowForm] = useState(false);
+
+    const loadOrders = () => {
+      setOrdersLoading(true);
+      supabase.from("orders").select("*").order("created_at",{ascending:false}).then(({data})=>{ if(data) setOrders(data); setOrdersLoading(false); });
+    };
+    const loadMenu = () => {
+      setMenuLoading(true);
+      supabase.from("menu_items").select("*").order("created_at",{ascending:true}).then(({data})=>{ if(data) setMenuItems(data); setMenuLoading(false); });
+    };
+    useEffect(()=>{ loadOrders(); loadMenu(); },[]);
+
+    const markDelivered = async (id) => { await supabase.from("orders").update({status:"delivered"}).eq("id",id); loadOrders(); };
+
+    const saveItem = async () => {
+      if(!form.name.trim()||!form.price) return;
+      setSaving(true);
+      const payload = { name:form.name.trim(), category:form.category, description:form.description.trim(), price:parseFloat(form.price), image_url:form.image_url.trim()||null, tag:form.tag.trim()||null, is_veg:form.is_veg, active:true };
+      if(editId) await supabase.from("menu_items").update(payload).eq("id",editId);
+      else await supabase.from("menu_items").insert(payload);
+      setSaving(false); setForm(emptyForm); setEditId(null); setShowForm(false); loadMenu();
+    };
+
+    const deleteItem = async (id) => { if(window.confirm("Delete this dish?")) { await supabase.from("menu_items").delete().eq("id",id); loadMenu(); } };
+    const toggleActive = async (id, active) => { await supabase.from("menu_items").update({active:!active}).eq("id",id); loadMenu(); };
+    const startEdit = (item) => { setForm({name:item.name,category:item.category,description:item.description||"",price:String(item.price),image_url:item.image_url||"",tag:item.tag||"",is_veg:item.is_veg||false}); setEditId(item.id); setShowForm(true); };
+
+    const iStyle = {width:"100%",padding:"10px 12px",border:"1px solid #e0d9ce",borderRadius:"4px",fontFamily:"sans-serif",fontSize:"13px",color:MID,marginBottom:"12px"};
+
+    if(!user || user.email !== ADMIN_EMAIL) return (
+      <div style={{paddingTop:"80px",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+        <PageBanner tag="ADMIN" title="Dashboard" />
+        <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"80px",background:"#f9f8f5",flexDirection:"column",gap:"24px"}}>
+          <div style={{fontSize:"64px"}}>🔒</div>
+          <h2 style={{fontSize:"28px",fontWeight:"300",color:MID}}>Access denied</h2>
+          <button onClick={()=>setPage("home")} style={{padding:"14px 44px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Back to Home</button>
+        </div>
+      </div>
+    );
+
+    return (
+      <div style={{paddingTop:"80px",minHeight:"100vh"}}>
+        <PageBanner tag="ADMIN" title="Dashboard" />
+        {/* Tabs */}
+        <div style={{background:"#fff",borderBottom:"1px solid #f0ece4",display:"flex",justifyContent:"center",gap:"0"}}>
+          {[["orders","📋 Orders"],["menu","🍽️ Menu Management"]].map(([t,l])=>(
+            <button key={t} onClick={()=>setTab(t)} style={{padding:"16px 36px",border:"none",background:"none",fontFamily:"sans-serif",fontSize:"13px",fontWeight:tab===t?"700":"400",color:tab===t?DARK:"#aaa",borderBottom:tab===t?`3px solid ${DARK}`:"3px solid transparent",transition:"all 0.2s"}}>{l}</button>
+          ))}
+        </div>
+
+        <div style={{background:"#f9f8f5",padding:"40px 60px",minHeight:"60vh"}}>
+          <div style={{maxWidth:"900px",margin:"0 auto"}}>
+
+            {/* ORDERS TAB */}
+            {tab==="orders" && <>
+              {ordersLoading && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>Loading orders…</p>}
+              {!ordersLoading && orders.length===0 && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>No orders yet.</p>}
+              {orders.map((o)=>(
+                <div key={o.id} style={{background:"#fff",borderRadius:"6px",padding:"24px 28px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",marginBottom:"18px"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px",flexWrap:"wrap",gap:"8px"}}>
+                    <div style={{fontFamily:"sans-serif",fontSize:"12px",color:"#aaa"}}>{new Date(o.created_at).toLocaleString()}</div>
+                    <div style={{fontFamily:"sans-serif",fontSize:"11px",color:o.status==="delivered"?"#3a7a3a":"#a86a1c",background:o.status==="delivered"?"#f0faf0":"#fff6e8",border:`1px solid ${o.status==="delivered"?"#aadcaa":"#f0d9a8"}`,borderRadius:"4px",padding:"4px 10px",fontWeight:"700",textTransform:"uppercase"}}>{o.status||"placed"}</div>
+                  </div>
+                  {o.items.map((it,j)=>(<div key={j} style={{display:"flex",justifyContent:"space-between",fontFamily:"sans-serif",fontSize:"13px",color:"#555",padding:"4px 0"}}><span>{it.name} × {it.qty}</span><span>{it.price}</span></div>))}
+                  <div style={{display:"flex",justifyContent:"space-between",marginTop:"10px",paddingTop:"10px",borderTop:"1px solid #f0ece4",fontFamily:"sans-serif"}}>
+                    <span style={{fontSize:"13px",fontWeight:"700",color:MID}}>Total</span>
+                    <span style={{fontSize:"15px",fontWeight:"700",color:GOLD}}>₹{Math.round(o.total)}</span>
+                  </div>
+                  <div style={{fontFamily:"sans-serif",fontSize:"11px",color:"#aaa",marginTop:"8px"}}>📍 {o.address} · {o.pay_label}</div>
+                  {o.status!=="delivered" && <button onClick={()=>markDelivered(o.id)} style={{marginTop:"14px",padding:"10px 24px",background:MID,color:"#fff",border:"none",letterSpacing:"2px",fontSize:"10px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Mark Delivered</button>}
+                </div>
+              ))}
+            </>}
+
+            {/* MENU TAB */}
+            {tab==="menu" && <>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"24px",flexWrap:"wrap",gap:"12px"}}>
+                <p style={{fontFamily:"sans-serif",fontSize:"13px",color:"#666"}}>{menuItems.length} custom dish{menuItems.length!==1?"es":""} added</p>
+                <button onClick={()=>{setForm(emptyForm);setEditId(null);setShowForm(s=>!s);}} style={{padding:"11px 24px",background:DARK,color:"#fff",border:"none",borderRadius:"4px",fontFamily:"sans-serif",fontSize:"12px",fontWeight:"700",letterSpacing:"1px"}}>
+                  {showForm?"✕ Cancel":"+ Add New Dish"}
+                </button>
+              </div>
+
+              {/* Add/Edit Form */}
+              {showForm && (
+                <div style={{background:"#fff",borderRadius:"6px",padding:"28px",boxShadow:"0 2px 16px rgba(0,0,0,0.07)",marginBottom:"28px"}}>
+                  <h3 style={{fontFamily:"sans-serif",fontSize:"14px",fontWeight:"700",color:MID,marginBottom:"20px",textTransform:"uppercase",letterSpacing:"1px"}}>{editId?"Edit Dish":"Add New Dish"}</h3>
+                  <div className="rf-grid2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"12px"}}>
+                    <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>DISH NAME *</label><input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="e.g. Butter Chicken" style={iStyle} /></div>
+                    <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>CATEGORY *</label>
+                      <select value={form.category} onChange={e=>setForm(f=>({...f,category:e.target.value}))} style={iStyle}>
+                        {CATS.map(c=><option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </div>
+                    <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>PRICE ($) *</label><input type="number" value={form.price} onChange={e=>setForm(f=>({...f,price:e.target.value}))} placeholder="e.g. 18" style={iStyle} /></div>
+                    <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>TAG (optional)</label><input value={form.tag} onChange={e=>setForm(f=>({...f,tag:e.target.value}))} placeholder="e.g. Chef's Pick, Best Seller" style={iStyle} /></div>
+                  </div>
+                  <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>DESCRIPTION</label><textarea value={form.description} onChange={e=>setForm(f=>({...f,description:e.target.value}))} rows={2} placeholder="Short description of the dish…" style={{...iStyle,resize:"vertical"}} /></div>
+                  <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>IMAGE URL (optional)</label><input value={form.image_url} onChange={e=>setForm(f=>({...f,image_url:e.target.value}))} placeholder="https://..." style={iStyle} /></div>
+                  <label style={{display:"flex",alignItems:"center",gap:"10px",fontFamily:"sans-serif",fontSize:"13px",color:MID,marginBottom:"20px",cursor:"pointer"}}>
+                    <input type="checkbox" checked={form.is_veg} onChange={e=>setForm(f=>({...f,is_veg:e.target.checked}))} />
+                    🌿 Vegetarian dish
+                  </label>
+                  <button onClick={saveItem} disabled={saving} style={{padding:"12px 32px",background:GOLD,color:"#fff",border:"none",borderRadius:"4px",fontFamily:"sans-serif",fontSize:"12px",fontWeight:"700",letterSpacing:"1px"}}>
+                    {saving?"Saving…":editId?"Update Dish":"Add Dish"}
+                  </button>
+                </div>
+              )}
+
+              {/* Menu items list */}
+              {menuLoading && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>Loading menu…</p>}
+              {!menuLoading && menuItems.length===0 && <p style={{color:"#aaa",fontFamily:"sans-serif",textAlign:"center",padding:"40px"}}>No custom dishes yet. Click "Add New Dish" to get started.</p>}
+              {menuItems.map(item=>(
+                <div key={item.id} style={{background:"#fff",borderRadius:"6px",padding:"18px 24px",boxShadow:"0 2px 12px rgba(0,0,0,0.05)",marginBottom:"12px",display:"flex",alignItems:"center",gap:"16px",flexWrap:"wrap"}}>
+                  {item.image_url && <img src={item.image_url} alt={item.name} style={{width:"60px",height:"60px",objectFit:"cover",borderRadius:"4px",flexShrink:0}} onError={e=>e.target.style.display="none"} />}
+                  <div style={{flex:1,minWidth:"180px"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"4px",flexWrap:"wrap"}}>
+                      <span style={{fontFamily:"sans-serif",fontSize:"14px",fontWeight:"700",color:MID}}>{item.name}</span>
+                      {item.tag && <span style={{fontSize:"9px",background:GOLD,color:"#fff",padding:"2px 8px",borderRadius:"2px",fontFamily:"sans-serif",fontWeight:"700"}}>{item.tag}</span>}
+                      {item.is_veg && <span style={{fontSize:"9px",background:"#f0faf0",color:"#3a7a3a",padding:"2px 8px",borderRadius:"2px",fontFamily:"sans-serif",fontWeight:"700",border:"1px solid #aadcaa"}}>VEG</span>}
+                      <span style={{fontSize:"9px",background:item.active?"#f0faf0":"#fff0f0",color:item.active?"#3a7a3a":"#e05555",padding:"2px 8px",borderRadius:"2px",fontFamily:"sans-serif",fontWeight:"700",border:`1px solid ${item.active?"#aadcaa":"#f0aaaa"}`}}>{item.active?"ACTIVE":"HIDDEN"}</span>
+                    </div>
+                    <div style={{fontFamily:"sans-serif",fontSize:"12px",color:"#aaa"}}>{item.category} · ${item.price}</div>
+                    {item.description && <div style={{fontFamily:"sans-serif",fontSize:"11px",color:"#bbb",marginTop:"2px"}}>{item.description}</div>}
+                  </div>
+                  <div style={{display:"flex",gap:"8px",flexShrink:0}}>
+                    <button onClick={()=>startEdit(item)} style={{padding:"8px 14px",border:"1px solid #e0d9ce",borderRadius:"4px",background:"#fff",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",color:MID}}>✏️ Edit</button>
+                    <button onClick={()=>toggleActive(item.id,item.active)} style={{padding:"8px 14px",border:"1px solid #e0d9ce",borderRadius:"4px",background:"#fff",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",color:"#888"}}>{item.active?"Hide":"Show"}</button>
+                    <button onClick={()=>deleteItem(item.id)} style={{padding:"8px 14px",border:"1px solid #fcc",borderRadius:"4px",background:"#fff5f5",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",color:"#e05555"}}>🗑</button>
+                  </div>
+                </div>
+              ))}
+            </>}
+
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── MAIN APP ── */
+  function RahulFoods() {
+    const [page,setPage]         = useState("home");
+    const [scrolled,setScrolled] = useState(false);
+    const [cart,setCart]         = useState({});
+    const [toast,setToast]       = useState(null);
+    const [modalDish,setModalDish]= useState(null);
+    const [user,setUser]         = useState(null);
+    const [authMode,setAuthMode] = useState(null);
+    const [darkMode,setDarkMode] = useState(false);
+    const toastTimer = useRef(null);
+
+    useEffect(()=>{
+      const theme = localStorage.getItem("rf_theme");
+      if(theme==="dark") setDarkMode(true);
+
+      supabase.auth.getSession().then(({data:{session}})=>{
+        if(session?.user) setUser({ id:session.user.id, name: session.user.user_metadata?.name || session.user.email.split("@")[0], email: session.user.email });
+      });
+      const { data: listener } = supabase.auth.onAuthStateChange((_event, session)=>{
+        if(session?.user) setUser({ id:session.user.id, name: session.user.user_metadata?.name || session.user.email.split("@")[0], email: session.user.email });
+        else setUser(null);
+      });
+      return ()=>listener.subscription.unsubscribe();
+    },[]);
+
+    useEffect(()=>{
+      const root = document.getElementById("root");
+      root.classList.toggle("dark-mode", darkMode);
+      localStorage.setItem("rf_theme", darkMode?"dark":"light");
+    },[darkMode]);
+
+    const handleAuth = () => {
+      setAuthMode(null);
+      showToast(`Welcome!`);
+    };
+
+    const handleLogout = async () => {
+      await supabase.auth.signOut();
+      showToast("Signed out", "info");
+    };
+
+    useEffect(()=>{const fn=()=>setScrolled(window.scrollY>60);window.addEventListener("scroll",fn);return()=>window.removeEventListener("scroll",fn);},[]);
+    useEffect(()=>{window.scrollTo({top:0});setScrolled(false);},[page]);
+
+    const showToast = (msg, type="success") => {
+      clearTimeout(toastTimer.current);
+      setToast({msg,type});
+      toastTimer.current = setTimeout(()=>setToast(null), 2800);
+    };
+
+    const addToCart = item => {
+      setCart(c=>({...c,[item.name]:c[item.name]?{...c[item.name],qty:c[item.name].qty+1}:{item,qty:1}}));
+      showToast(`${item.name.length>30?item.name.slice(0,28)+"…":item.name} added to cart!`);
+    };
+
+    const updateQty = (name, delta) => setCart(c=>{
+      if(!c[name]) return c;
+      const nq=c[name].qty+delta;
+      if(nq<=0){const n={...c};delete n[name];return n;}
+      return {...c,[name]:{...c[name],qty:nq}};
+    });
+
+    const clearCart = () => setCart({});
+
+    const recordOrder = async (orderDetails) => {
+      const count = (parseInt(localStorage.getItem("rf_orderCount"))||0) + 1;
+      localStorage.setItem("rf_orderCount", count);
+      if(!user) return;
+      await supabase.from("orders").insert({
+        user_id: user.id,
+        items: orderDetails.items,
+        total: orderDetails.total,
+        pay_label: orderDetails.payLabel,
+        address: orderDetails.address,
+      });
+    };
+
+    const cartCount = Object.values(cart).reduce((s,{qty})=>s+qty,0);
+
+    return (
+      <div>
+        <Navbar page={page} setPage={setPage} scrolled={scrolled} cartCount={cartCount} user={user} onOpenAuth={setAuthMode} onLogout={handleLogout} />
+        <div key={page} className="page-animate">
+          {page==="home"    && <HomePage    setPage={setPage} cart={cart} addToCart={addToCart} updateQty={updateQty} onOpenModal={setModalDish} user={user} />}
+          {page==="menu"    && <MenuPage    setPage={setPage} cart={cart} addToCart={addToCart} updateQty={updateQty} onOpenModal={setModalDish} />}
+          {page==="cart"    && <CartPage    setPage={setPage} cart={cart} updateQty={updateQty} showToast={showToast} clearCart={clearCart} onOrderPlaced={recordOrder} user={user} />}
+          {page==="gallery" && <GalleryPage />}
+          {page==="about"   && <AboutPage />}
+          {page==="contact" && <ContactPage setPage={setPage} />}
+          {page==="reserve" && <ReservePage setPage={setPage} />}
+          {page==="orders"  && <MyOrdersPage user={user} setPage={setPage} />}
+          {page==="admin"   && <AdminPage user={user} setPage={setPage} />}
+        </div>
+        <Footer setPage={setPage} />
+
+        {/* Toast notification */}
+        <Toast toast={toast} />
+
+        {/* Dish detail modal */}
+        {modalDish && <DishModal dish={modalDish} cart={cart} addToCart={addToCart} updateQty={updateQty} onClose={()=>setModalDish(null)} user={user} />}
+
+        {/* Auth modal */}
+        {authMode && <AuthModal mode={authMode} setMode={setAuthMode} onClose={()=>setAuthMode(null)} onAuth={handleAuth} />}
+
+        {/* Sticky mobile reserve bar */}
+        {page!=="reserve" && page!=="cart" && (
+          <div className="sticky-reserve">
+            <span style={{color:"#fff",fontFamily:"sans-serif",fontSize:"13px"}}>🍽️ Book your table now</span>
+            <button onClick={()=>setPage("reserve")} style={{padding:"10px 22px",background:GOLD,color:"#fff",border:"none",letterSpacing:"2px",fontSize:"10px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px"}}>Reserve</button>
+          </div>
+        )}
+
+        {/* Dark mode toggle */}
+        <button className="theme-toggle" onClick={()=>setDarkMode(d=>!d)} title="Toggle dark mode" aria-label="Toggle dark mode">
+          {darkMode ? "☀️" : "🌙"}
+        </button>
+
+        {/* WhatsApp floating button */}
+        <a href="https://wa.me/917075751105?text=Hello%21+I%27d+like+to+know+more+about+Rahul+Foods." target="_blank" rel="noopener noreferrer" className="whatsapp-btn" title="Chat with us on WhatsApp" aria-label="Chat with us on WhatsApp">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.528 5.845L0 24l6.335-1.506A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.37l-.36-.214-3.732.888.936-3.637-.235-.375A9.818 9.818 0 1112 21.818z"/>
+          </svg>
+        </a>
+      </div>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(<RahulFoods />);
+</script>
+</body>
+</html>
