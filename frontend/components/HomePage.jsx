@@ -3,6 +3,23 @@ function HomePage({setPage, cart, addToCart, updateQty, onOpenModal, user}) {
   const REWARD_TARGET = 5;
   const remaining = REWARD_TARGET - (orderCount % REWARD_TARGET);
 
+  const activeOrderId = localStorage.getItem("rf_activeOrderId");
+  const [activeStatus, setActiveStatus] = useState(null);
+  const statusMap = {placed:0, preparing:1, out_for_delivery:2, delivered:3};
+  const statusLabels = ["Order Placed ✅","Being Prepared 🍳","Out for Delivery 🛵","Delivered! 🏠"];
+  const statusColors = ["#a86a1c","#a86a1c","#1c6aa8","#3a7a3a"];
+  const statusBg     = ["#fff6e8","#fff6e8","#e8f2ff","#f0faf0"];
+  useEffect(()=>{
+    if(!activeOrderId) return;
+    const poll = async () => {
+      const {data} = await supabase.from("orders").select("status").eq("id", activeOrderId).single();
+      if(data?.status) setActiveStatus(data.status);
+    };
+    poll();
+    const iv = setInterval(poll, 15000);
+    return ()=>clearInterval(iv);
+  },[activeOrderId]);
+
   const [couponIdx,setCouponIdx]=useState(0);
   const coupons = Object.entries(PROMO_CODES);
   useEffect(()=>{
@@ -13,6 +30,18 @@ function HomePage({setPage, cart, addToCart, updateQty, onOpenModal, user}) {
 
   return (
     <>
+      {activeOrderId && activeStatus && activeStatus!=="delivered" && (
+        <div style={{background:"#1c1c1c",padding:"14px 24px",paddingTop:user?"14px":"84px",textAlign:"center",fontFamily:"sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"16px",flexWrap:"wrap"}}>
+          <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+            <span style={{width:"8px",height:"8px",borderRadius:"50%",background:"#e05555",display:"inline-block",animation:"pulseDot 1.2s infinite"}} />
+            <span style={{fontSize:"12px",color:"rgba(255,255,255,0.6)",letterSpacing:"2px",textTransform:"uppercase",fontWeight:"700"}}>Live Order</span>
+          </div>
+          <div style={{background:statusBg[statusMap[activeStatus]],border:`1px solid`,borderColor:statusColors[statusMap[activeStatus]]+"44",borderRadius:"20px",padding:"5px 16px"}}>
+            <span style={{fontSize:"13px",fontWeight:"700",color:statusColors[statusMap[activeStatus]]}}>{statusLabels[statusMap[activeStatus]]}</span>
+          </div>
+          <button onClick={()=>setPage("orders")} style={{background:"none",border:`1px solid ${GOLD}`,color:GOLD,padding:"5px 14px",borderRadius:"20px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",letterSpacing:"1px",textTransform:"uppercase"}}>Track →</button>
+        </div>
+      )}
       {user && (
         <div style={{background:"linear-gradient(135deg,#1f4e3f,#2e7d5b)",padding:"14px 24px",paddingTop:"84px",textAlign:"center",fontFamily:"sans-serif"}}>
           {orderCount===0
