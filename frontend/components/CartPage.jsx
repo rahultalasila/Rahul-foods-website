@@ -167,6 +167,15 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
   const total    = subtotal - (promo?.type==="flat"||promo?.type==="percent" ? discount : 0) + delivery;
 
   const upd = k => e => setForm(f=>({...f,[k]:e.target.value}));
+
+  const isVijayawada = (city, pincode) => {
+    const cityOk = city.trim().toLowerCase().includes("vijayawada");
+    const pinOk  = pincode.trim().startsWith("520");
+    return cityOk || pinOk;
+  };
+  const outsideArea = (form.city.trim() || form.pincode.trim()) &&
+    !isVijayawada(form.city, form.pincode);
+
   const validate = () => {
     const e={};
     if(!form.name.trim())    e.name="Required";
@@ -174,6 +183,10 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
     if(!form.address.trim()) e.address="Required";
     if(!form.city.trim())    e.city="Required";
     if(!form.pincode.trim()) e.pincode="Required";
+    if(form.city.trim() && form.pincode.trim() && !isVijayawada(form.city, form.pincode)) {
+      e.city="We only deliver in Vijayawada";
+      e.pincode="Vijayawada pincodes start with 520";
+    }
     setErrors(e);
     const pe={};
     if(payMethod==="card"){
@@ -257,9 +270,18 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
               </div>
               <div className="rf-grid2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"18px",marginBottom:"18px"}}>
                 <div><label style={lStyle}>City *</label><input value={form.city} onChange={upd("city")} placeholder="e.g. Vijayawada" style={iStyle("city")} />{errors.city&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.city}</span>}</div>
-                <div><label style={lStyle}>Pincode *</label><input type="number" value={form.pincode} onChange={upd("pincode")} placeholder="e.g. 400001" style={iStyle("pincode")} />{errors.pincode&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.pincode}</span>}</div>
+                <div><label style={lStyle}>Pincode *</label><input type="number" value={form.pincode} onChange={upd("pincode")} placeholder="e.g. 520001" style={iStyle("pincode")} />{errors.pincode&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.pincode}</span>}</div>
               </div>
-              {form.pincode && form.pincode.length>=5 && (
+              {outsideArea && (
+                <div style={{display:"flex",alignItems:"flex-start",gap:"12px",background:"#fff5f5",border:"1px solid #fcc",borderRadius:"6px",padding:"14px 16px",marginBottom:"18px"}}>
+                  <span style={{fontSize:"20px",flexShrink:0}}>🚫</span>
+                  <div style={{fontFamily:"sans-serif"}}>
+                    <div style={{fontSize:"13px",fontWeight:"700",color:"#e05555",marginBottom:"4px"}}>Outside delivery area</div>
+                    <div style={{fontSize:"12px",color:"#888",lineHeight:1.7}}>Sorry, we currently deliver only within <strong>Vijayawada</strong> (pincodes 520001–520015). For orders outside this area, please call us at <strong>+91 70757 51105</strong>.</div>
+                  </div>
+                </div>
+              )}
+              {form.pincode && form.pincode.length>=5 && !outsideArea && (
                 <div style={{display:"flex",alignItems:"center",gap:"10px",background:"#fdf9f2",border:`1px solid ${GOLD}44`,borderRadius:"4px",padding:"10px 14px",marginBottom:"18px"}}>
                   <span style={{fontSize:"18px"}}>🛵</span>
                   <span style={{fontFamily:"sans-serif",fontSize:"12px",color:"#666"}}>
@@ -315,14 +337,14 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
                   <div style={{fontSize:"13px",fontWeight:"700",color:MID}}>{payLabel}</div>
                 </div>
               </div>
-              <button onClick={()=>{if(validate()){
+              <button disabled={outsideArea} onClick={()=>{if(validate()){
                 const orderData = {items:cartItems.map(({item,qty})=>({name:item.name,qty,price:item.price})), total, payLabel, address:`${form.address}, ${form.city} – ${form.pincode}`};
                 const itemsText = cartItems.map(({item,qty})=>(item.name+" x"+qty+" - Rs."+Math.round(getPrice(item)*qty))).join(", ");
                 sendOrderEmails(form, orderData, itemsText, total, payLabel, user?.email||"");
                 setOrdered(true);
                 onOrderPlaced(orderData).then(id=>{ if(id) setOrderId(id); });
               }}}
-                style={{width:"100%",padding:"16px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"12px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px"}}>
+                style={{width:"100%",padding:"16px",background:outsideArea?"#ccc":GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"12px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px",cursor:outsideArea?"not-allowed":"pointer"}}>
                 {payMethod==="cod"?`Place Order · ₹${Math.round(total)}`:`Pay ₹${Math.round(total)} Now`}
               </button>
               <p style={{textAlign:"center",color:"#ccc",fontFamily:"sans-serif",fontSize:"11px",marginTop:"10px"}}>🔒 Secure checkout · 🛵 30–45 min delivery</p>
