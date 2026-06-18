@@ -46,7 +46,7 @@ function Footer({setPage}) {
         ))}
       </div>
       <div style={{height:"1px",background:"rgba(255,255,255,0.06)",marginBottom:"20px"}} />
-      <div style={{color:"rgba(255,255,255,0.15)",fontSize:"11px",letterSpacing:"2px",textAlign:"center"}}>© 2026 RAHUL FOODS · ALL RIGHTS RESERVED · MUMBAI, INDIA</div>
+      <div style={{color:"rgba(255,255,255,0.15)",fontSize:"11px",letterSpacing:"2px",textAlign:"center"}}>© 2026 RAHUL FOODS · ALL RIGHTS RESERVED · VIJAYAWADA, INDIA</div>
     </footer>
   );
 }
