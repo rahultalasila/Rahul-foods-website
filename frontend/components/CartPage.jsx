@@ -168,6 +168,15 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
 
   const upd = k => e => setForm(f=>({...f,[k]:e.target.value}));
 
+  const PINCODE_AREAS = {
+    "520001":"Governorpet","520002":"Suryaraopet","520003":"Patamata",
+    "520004":"Labbipet","520005":"Moghalrajpuram","520006":"Bhavanipuram",
+    "520007":"Kanuru","520008":"Auto Nagar","520009":"Krishnalanka",
+    "520010":"Vijayawada","520011":"Penamaluru","520012":"Gandhinagar",
+    "520013":"Bandar Road","520014":"Vijayawada West","520015":"Ramavarappadu",
+  };
+  const detectedArea = PINCODE_AREAS[form.pincode.trim()] || null;
+
   const isVijayawada = (city, pincode) => {
     const cityOk = city.trim().toLowerCase().includes("vijayawada");
     const pinOk  = pincode.trim().startsWith("520");
@@ -279,6 +288,12 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
                     <div style={{fontSize:"13px",fontWeight:"700",color:"#e05555",marginBottom:"4px"}}>Outside delivery area</div>
                     <div style={{fontSize:"12px",color:"#888",lineHeight:1.7}}>Sorry, we currently deliver only within <strong>Vijayawada</strong> (pincodes 520001–520015). For orders outside this area, please call us at <strong>+91 70757 51105</strong>.</div>
                   </div>
+                </div>
+              )}
+              {detectedArea && (
+                <div style={{display:"flex",alignItems:"center",gap:"10px",background:"#f0faf0",border:"1px solid #aadcaa",borderRadius:"4px",padding:"10px 14px",marginBottom:"18px"}}>
+                  <span style={{fontSize:"18px"}}>📍</span>
+                  <span style={{fontFamily:"sans-serif",fontSize:"13px",color:"#3a7a3a",fontWeight:"600"}}>{detectedArea}, Vijayawada — We deliver here! ✓</span>
                 </div>
               )}
               {form.pincode && form.pincode.length>=5 && !outsideArea && (
