@@ -20,13 +20,6 @@ function HomePage({setPage, cart, addToCart, updateQty, onOpenModal, user}) {
     return ()=>clearInterval(iv);
   },[activeOrderId]);
 
-  const [couponIdx,setCouponIdx]=useState(0);
-  const coupons = Object.entries(PROMO_CODES);
-  useEffect(()=>{
-    const t = setInterval(()=>setCouponIdx(i=>(i+1)%coupons.length), 4000);
-    return ()=>clearInterval(t);
-  },[]);
-  const [code,promoInfo] = coupons[couponIdx];
 
   return (
     <>
@@ -80,12 +73,6 @@ function HomePage({setPage, cart, addToCart, updateQty, onOpenModal, user}) {
           </div>
         </div>
       </section>
-      <div style={{height:"1px",background:`linear-gradient(to right,transparent,${GOLD},transparent)`}} />
-      <div style={{background:MID,padding:"10px 24px",textAlign:"center",fontFamily:"sans-serif",overflow:"hidden"}}>
-        <span key={code} style={{display:"inline-block",fontSize:"12px",color:"#fff",letterSpacing:"1px",animation:"pageFadeIn 0.5s ease"}}>
-          🏷️ Use code <strong style={{color:GOLD}}>{code}</strong> for {promoInfo.label} on your order!
-        </span>
-      </div>
       <div style={{background:"#fff",padding:"28px 60px",display:"flex",justifyContent:"center",gap:"70px",flexWrap:"wrap"}}>
         {[["🍴","Fine Dining"],["🛵","Fast Delivery"],["👨‍🍳","Michelin-Trained Chefs"],["🍷","Curated Wine List"]].map(([icon,label])=>(
           <div key={label} style={{display:"flex",alignItems:"center",gap:"10px"}}>
