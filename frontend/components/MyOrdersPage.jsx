@@ -30,7 +30,9 @@ function LiveTrackingCard({orderId}) {
   },[timeLeft, stage, cancelled]);
 
   const cancelOrder = async () => {
+    const {data} = await supabase.from("orders").select("total").eq("id", orderId).single();
     await supabase.from("orders").update({status:"cancelled"}).eq("id", orderId);
+    sendCancellationEmail("Customer", data?.total || 0, orderId);
     localStorage.removeItem("rf_activeOrderId");
     setCancelled(true);
   };

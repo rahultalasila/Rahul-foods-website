@@ -33,6 +33,7 @@ function OrderTracking({form, total, payLabel, setPage, clearCart, orderId}) {
     if(!orderId || stage > 0) return;
     setCancelling(true);
     await supabase.from("orders").update({status:"cancelled"}).eq("id", orderId);
+    sendCancellationEmail(form.name, total, orderId);
     localStorage.removeItem("rf_activeOrderId");
     setCancelling(false);
     setCancelled(true);

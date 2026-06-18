@@ -1,3 +1,22 @@
+function sendCancellationEmail(customerName, total, orderId) {
+  const now = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+  fetch("https://api.emailjs.com/api/v1.0/email/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      service_id: "service_jpem2rb",
+      user_id: "F3yhH_TVKN_Sw1io8",
+      template_id: "template_cancel",
+      template_params: {
+        customer_name: customerName || "Customer",
+        order_total: `₹${Math.round(total)}`,
+        cancel_time: now,
+        order_id: orderId || "N/A",
+      }
+    })
+  }).catch(() => {});
+}
+
 function sendOrderEmails(form, orderData, itemsText, total, payLabel, userEmail) {
   const now = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
   const payload = {
