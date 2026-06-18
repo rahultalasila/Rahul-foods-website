@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rahul Foods — Fine Indian Cuisine</title>
+  <meta name="description" content="Rahul Foods — authentic fine Indian dining and delivery in Vijayawada. Explore our menu, reserve a table, and order online." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles/main.css" />
+
+  <!-- React & Babel (CDN) — Babel pinned to 7.23.10 to use classic JSX transform -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.23.10/babel.min.js"></script>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Utilities (plain JS, no JSX) — loaded first so components can reference these globals -->
+  <script src="utils/constants.js"></script>
+  <script src="utils/supabase.js"></script>
+  <script src="utils/email.js"></script>
+
+  <!-- Components (JSX, loaded in dependency order via Babel standalone) -->
+  <script type="text/babel" src="components/SmartImg.jsx"></script>
+  <script type="text/babel" src="components/Stars.jsx"></script>
+  <script type="text/babel" src="components/Toast.jsx"></script>
+  <script type="text/babel" src="components/DishModal.jsx"></script>
+  <script type="text/babel" src="components/Navbar.jsx"></script>
+  <script type="text/babel" src="components/AuthModal.jsx"></script>
+  <script type="text/babel" src="components/Footer.jsx"></script>
+  <script type="text/babel" src="components/DishCard.jsx"></script>
+  <script type="text/babel" src="components/GalleryPage.jsx"></script>
+  <script type="text/babel" src="components/PaymentSection.jsx"></script>
+  <script type="text/babel" src="components/HomePage.jsx"></script>
+  <script type="text/babel" src="components/MenuPage.jsx"></script>
+  <script type="text/babel" src="components/CartPage.jsx"></script>
+  <script type="text/babel" src="components/AboutPage.jsx"></script>
+  <script type="text/babel" src="components/ContactPage.jsx"></script>
+  <script type="text/babel" src="components/ReservePage.jsx"></script>
+  <script type="text/babel" src="components/MyOrdersPage.jsx"></script>
+  <script type="text/babel" src="components/AdminPage.jsx"></script>
+
+  <!-- Main app — mounts RahulFoods into #root -->
+  <script type="text/babel" src="App.jsx"></script>
+</body>
+</html>
