@@ -7,8 +7,9 @@ function Footer({setPage}) {
   ];
   const [email,setEmail]=useState("");
   const [subscribed,setSubscribed]=useState(false);
-  const subscribe = () => {
+  const subscribe = async () => {
     if(!email.trim() || !/^\S+@\S+\.\S+$/.test(email)) return;
+    await supabase.from("newsletter_subscribers").insert({email:email.trim()});
     setSubscribed(true); setEmail("");
   };
   return (

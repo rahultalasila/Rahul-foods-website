@@ -1,4 +1,16 @@
 function ContactPage({setPage}) {
+  const [cf,setCf]=useState({name:"",email:"",phone:"",message:""});
+  const [cfSent,setCfSent]=useState(false);
+  const [cfSending,setCfSending]=useState(false);
+  const upd=k=>e=>setCf(f=>({...f,[k]:e.target.value}));
+  const sendMsg=async()=>{
+    if(!cf.name.trim()||!cf.message.trim())return;
+    setCfSending(true);
+    await supabase.from("contact_messages").insert({name:cf.name.trim(),email:cf.email.trim()||null,phone:cf.phone.trim()||null,message:cf.message.trim()});
+    setCfSending(false);setCfSent(true);
+  };
+  const iS={width:"100%",padding:"12px 14px",border:"1px solid #e0d9ce",fontFamily:"sans-serif",fontSize:"13px",color:MID,boxSizing:"border-box"};
+  const lS={display:"block",fontSize:"10px",letterSpacing:"2.5px",color:"#999",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",marginBottom:"8px"};
   return (
     <div style={{paddingTop:"80px",minHeight:"100vh"}}>
       <PageBanner tag="VISIT US" title="Contact" />
@@ -27,6 +39,31 @@ function ContactPage({setPage}) {
       </section>
       <div style={{height:"1px",background:"#eee"}} />
       <section style={{padding:"90px 60px",background:"#fff"}}>
+        <div style={{maxWidth:"700px",margin:"0 auto 80px"}}>
+          <div style={{textAlign:"center",marginBottom:"52px"}}>
+            <p style={{color:GOLD,letterSpacing:"5px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"600",marginBottom:"14px"}}>✦ SEND A MESSAGE ✦</p>
+            <h2 style={{fontSize:"42px",fontWeight:"300",margin:"0 0 20px"}}>Get in Touch</h2>
+            <div style={{width:"60px",height:"1px",background:GOLD,margin:"0 auto"}} />
+          </div>
+          {cfSent ? (
+            <div style={{textAlign:"center",padding:"40px"}}>
+              <div style={{fontSize:"48px",marginBottom:"16px"}}>✅</div>
+              <h3 style={{fontFamily:"sans-serif",fontSize:"22px",fontWeight:"300",color:MID,marginBottom:"10px"}}>Message Sent!</h3>
+              <p style={{fontFamily:"sans-serif",fontSize:"14px",color:"#888"}}>We'll get back to you shortly.</p>
+            </div>
+          ) : (
+            <div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"20px",marginBottom:"20px"}}>
+                <div><label style={lS}>Your Name *</label><input value={cf.name} onChange={upd("name")} placeholder="Full name" style={iS} /></div>
+                <div><label style={lS}>Email</label><input type="email" value={cf.email} onChange={upd("email")} placeholder="your@email.com" style={iS} /></div>
+                <div style={{gridColumn:"1/-1"}}><label style={lS}>Phone</label><input type="tel" value={cf.phone} onChange={upd("phone")} placeholder="+91 00000 00000" style={iS} /></div>
+              </div>
+              <div style={{marginBottom:"28px"}}><label style={lS}>Message *</label><textarea value={cf.message} onChange={upd("message")} rows={5} placeholder="How can we help you?" style={{...iS,resize:"vertical",lineHeight:1.8}} /></div>
+              <div style={{textAlign:"center"}}><button onClick={sendMsg} disabled={cfSending} style={{padding:"14px 52px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>{cfSending?"Sending…":"Send Message"}</button></div>
+            </div>
+          )}
+        </div>
+        <div style={{height:"1px",background:"#eee",marginBottom:"80px"}} />
         <div style={{textAlign:"center",marginBottom:"52px"}}>
           <p style={{color:GOLD,letterSpacing:"5px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"600",marginBottom:"14px"}}>✦ GOT QUESTIONS? ✦</p>
           <h2 style={{fontSize:"42px",fontWeight:"300",margin:"0 0 20px"}}>Frequently Asked Questions</h2>

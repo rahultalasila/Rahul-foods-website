@@ -3,6 +3,7 @@ function ReservePage({setPage}) {
   const [submitted,setSubmitted]=useState(false);
   const [errors,setErrors]=useState({});
   const upd=k=>e=>setForm(f=>({...f,[k]:e.target.value}));
+  const [submitting,setSubmitting]=useState(false);
   const validate=()=>{const e={};if(!form.name.trim())e.name="Required";if(!form.email.trim())e.email="Required";if(!form.date)e.date="Required";if(!form.time)e.time="Select a time";setErrors(e);return Object.keys(e).length===0;};
   const iS=field=>({width:"100%",padding:"14px 16px",border:`1px solid ${errors[field]?"#e05555":"#e0d9ce"}`,background:"#fff",fontFamily:"sans-serif",fontSize:"14px",color:MID});
   const lS={display:"block",fontSize:"10px",letterSpacing:"2.5px",color:"#999",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",marginBottom:"8px"};
@@ -36,7 +37,7 @@ function ReservePage({setPage}) {
             <div><label style={lS}>Time *</label><select value={form.time} onChange={upd("time")} style={{...iS("time"),cursor:"pointer"}}><option value="">Select a time</option>{["12:00 PM","12:30 PM","1:00 PM","1:30 PM","2:00 PM","7:00 PM","7:30 PM","8:00 PM","8:30 PM","9:00 PM","10:00 PM"].map(t=><option key={t} value={t}>{t}</option>)}</select>{errors.time&&<span style={{color:"#e05555",fontSize:"11px",fontFamily:"sans-serif"}}>{errors.time}</span>}</div>
           </div>
           <div style={{marginBottom:"40px"}}><label style={lS}>Special Requests</label><textarea value={form.requests} onChange={upd("requests")} rows={4} placeholder="Dietary requirements, allergies, occasion details..." style={{...iS("requests"),resize:"vertical",lineHeight:1.8}} /></div>
-          <div style={{textAlign:"center"}}><button onClick={()=>{if(validate())setSubmitted(true);}} style={{padding:"16px 64px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Confirm Reservation</button></div>
+          <div style={{textAlign:"center"}}><button onClick={async()=>{if(!validate())return;setSubmitting(true);await supabase.from("reservations").insert({name:form.name.trim(),email:form.email.trim(),phone:form.phone.trim()||null,date:form.date,time:form.time,guests:parseInt(form.guests),requests:form.requests.trim()||null});setSubmitting(false);setSubmitted(true);}} disabled={submitting} style={{padding:"16px 64px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>{submitting?"Confirming…":"Confirm Reservation"}</button></div>
         </div>
       </section>
     </div>

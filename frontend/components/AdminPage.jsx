@@ -4,6 +4,12 @@ function AdminPage({user, setPage}) {
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [menuItems, setMenuItems] = useState([]);
   const [menuLoading, setMenuLoading] = useState(true);
+  const [reservations, setReservations] = useState([]);
+  const [resLoading, setResLoading] = useState(true);
+  const [messages, setMessages] = useState([]);
+  const [msgLoading, setMsgLoading] = useState(true);
+  const [subscribers, setSubscribers] = useState([]);
+  const [subLoading, setSubLoading] = useState(true);
   const CATS = Object.keys(menuData);
   const emptyForm = {name:"",category:"Starters",description:"",price:"",image_url:"",tag:"",is_veg:false};
   const [form, setForm]       = useState(emptyForm);
@@ -19,7 +25,10 @@ function AdminPage({user, setPage}) {
     setMenuLoading(true);
     supabase.from("menu_items").select("*").order("created_at",{ascending:true}).then(({data})=>{ if(data) setMenuItems(data); setMenuLoading(false); });
   };
-  useEffect(()=>{ loadOrders(); loadMenu(); },[]);
+  const loadReservations = () => { setResLoading(true); supabase.from("reservations").select("*").order("created_at",{ascending:false}).then(({data})=>{ if(data) setReservations(data); setResLoading(false); }); };
+  const loadMessages = () => { setMsgLoading(true); supabase.from("contact_messages").select("*").order("created_at",{ascending:false}).then(({data})=>{ if(data) setMessages(data); setMsgLoading(false); }); };
+  const loadSubscribers = () => { setSubLoading(true); supabase.from("newsletter_subscribers").select("*").order("created_at",{ascending:false}).then(({data})=>{ if(data) setSubscribers(data); setSubLoading(false); }); };
+  useEffect(()=>{ loadOrders(); loadMenu(); loadReservations(); loadMessages(); loadSubscribers(); },[]);
 
   const markDelivered = async (id) => { await supabase.from("orders").update({status:"delivered"}).eq("id",id); loadOrders(); };
 
@@ -53,7 +62,7 @@ function AdminPage({user, setPage}) {
     <div style={{paddingTop:"80px",minHeight:"100vh"}}>
       <PageBanner tag="ADMIN" title="Dashboard" />
       <div style={{background:"#fff",borderBottom:"1px solid #f0ece4",display:"flex",justifyContent:"center",gap:"0"}}>
-        {[["orders","📋 Orders"],["menu","🍽️ Menu Management"]].map(([t,l])=>(
+        {[["orders","📋 Orders"],["menu","🍽️ Menu"],["reservations","📅 Reservations"],["messages","✉️ Messages"],["subscribers","📧 Subscribers"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)} style={{padding:"16px 36px",border:"none",background:"none",fontFamily:"sans-serif",fontSize:"13px",fontWeight:tab===t?"700":"400",color:tab===t?DARK:"#aaa",borderBottom:tab===t?`3px solid ${DARK}`:"3px solid transparent",transition:"all 0.2s"}}>{l}</button>
         ))}
       </div>
@@ -77,6 +86,57 @@ function AdminPage({user, setPage}) {
                 {o.status!=="delivered" && <button onClick={()=>markDelivered(o.id)} style={{marginTop:"14px",padding:"10px 24px",background:MID,color:"#fff",border:"none",letterSpacing:"2px",fontSize:"10px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Mark Delivered</button>}
               </div>
             ))}
+          </>}
+
+          {tab==="reservations" && <>
+            {resLoading && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>Loading…</p>}
+            {!resLoading && reservations.length===0 && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>No reservations yet.</p>}
+            {reservations.map(r=>(
+              <div key={r.id} style={{background:"#fff",borderRadius:"6px",padding:"22px 28px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",marginBottom:"14px"}}>
+                <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:"8px",marginBottom:"10px"}}>
+                  <span style={{fontFamily:"sans-serif",fontWeight:"700",fontSize:"15px",color:MID}}>{r.name}</span>
+                  <span style={{fontFamily:"sans-serif",fontSize:"11px",color:"#aaa"}}>{new Date(r.created_at).toLocaleString()}</span>
+                </div>
+                <div style={{display:"flex",gap:"24px",flexWrap:"wrap",fontFamily:"sans-serif",fontSize:"13px",color:"#555"}}>
+                  <span>📅 {r.date} at {r.time}</span>
+                  <span>👥 {r.guests} guest{r.guests!==1?"s":""}</span>
+                  {r.email&&<span>✉️ {r.email}</span>}
+                  {r.phone&&<span>📞 {r.phone}</span>}
+                </div>
+                {r.requests&&<div style={{marginTop:"8px",fontFamily:"sans-serif",fontSize:"12px",color:"#888",fontStyle:"italic"}}>"{r.requests}"</div>}
+              </div>
+            ))}
+          </>}
+
+          {tab==="messages" && <>
+            {msgLoading && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>Loading…</p>}
+            {!msgLoading && messages.length===0 && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>No messages yet.</p>}
+            {messages.map(m=>(
+              <div key={m.id} style={{background:"#fff",borderRadius:"6px",padding:"22px 28px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",marginBottom:"14px"}}>
+                <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:"8px",marginBottom:"8px"}}>
+                  <span style={{fontFamily:"sans-serif",fontWeight:"700",fontSize:"15px",color:MID}}>{m.name}</span>
+                  <span style={{fontFamily:"sans-serif",fontSize:"11px",color:"#aaa"}}>{new Date(m.created_at).toLocaleString()}</span>
+                </div>
+                <div style={{display:"flex",gap:"20px",flexWrap:"wrap",fontFamily:"sans-serif",fontSize:"12px",color:"#888",marginBottom:"10px"}}>
+                  {m.email&&<span>✉️ {m.email}</span>}
+                  {m.phone&&<span>📞 {m.phone}</span>}
+                </div>
+                <div style={{fontFamily:"sans-serif",fontSize:"13px",color:"#555",lineHeight:1.7}}>{m.message}</div>
+              </div>
+            ))}
+          </>}
+
+          {tab==="subscribers" && <>
+            {subLoading && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>Loading…</p>}
+            {!subLoading && <p style={{fontFamily:"sans-serif",fontSize:"13px",color:"#666",marginBottom:"20px"}}>{subscribers.length} subscriber{subscribers.length!==1?"s":""}</p>}
+            <div style={{background:"#fff",borderRadius:"6px",padding:"24px 28px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)"}}>
+              {subscribers.map((s,i)=>(
+                <div key={s.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 0",borderBottom:i<subscribers.length-1?"1px solid #f0ece4":"none",fontFamily:"sans-serif"}}>
+                  <span style={{fontSize:"13px",color:MID}}>{s.email}</span>
+                  <span style={{fontSize:"11px",color:"#aaa"}}>{new Date(s.created_at).toLocaleDateString()}</span>
+                </div>
+              ))}
+            </div>
           </>}
 
           {tab==="menu" && <>
