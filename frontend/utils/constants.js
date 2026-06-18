@@ -1,6 +1,7 @@
 const { useState, useEffect, useRef, useCallback } = React;
 const GOLD = "#c8a96e", DARK = "#c0392b", MID = "#1c1c1c";
 const DELIVERY_FEE = 99;
+const CANCEL_WINDOW = 180;
 const IMG = id => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=700&q=80`;
 const FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='300'%3E%3Crect width='500' height='300' fill='%23f0ece4'/%3E%3Ctext x='50%25' y='50%25' font-size='48' text-anchor='middle' dy='.3em'%3E%F0%9F%8D%BD%3C/text%3E%3C/svg%3E";
 

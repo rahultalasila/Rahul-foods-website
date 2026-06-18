@@ -1,5 +1,8 @@
 function OrderTracking({form, total, payLabel, setPage, clearCart, orderId}) {
   const [stage, setStage] = useState(0);
+  const [cancelled, setCancelled] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(CANCEL_WINDOW);
+  const [cancelling, setCancelling] = useState(false);
   const stages = [
     { icon:"✅", title:"Order Placed",    sub:"We've received your order"       },
     { icon:"🍳", title:"Being Prepared",  sub:"Our chefs are cooking your meal" },
@@ -7,16 +10,52 @@ function OrderTracking({form, total, payLabel, setPage, clearCart, orderId}) {
     { icon:"🏠", title:"Delivered!",      sub:"Enjoy your meal — bon appétit!"  },
   ];
   const statusMap = {placed:0, preparing:1, out_for_delivery:2, delivered:3};
+
   useEffect(()=>{
     if(!orderId) return;
     const poll = async () => {
       const {data} = await supabase.from("orders").select("status").eq("id", orderId).single();
+      if(data?.status === "cancelled") { setCancelled(true); return; }
       if(data?.status !== undefined) setStage(statusMap[data.status] ?? 0);
     };
     poll();
     const iv = setInterval(poll, 15000);
     return ()=>clearInterval(iv);
   },[orderId]);
+
+  useEffect(()=>{
+    if(timeLeft <= 0 || stage > 0 || cancelled) return;
+    const t = setTimeout(()=>setTimeLeft(s=>s-1), 1000);
+    return ()=>clearTimeout(t);
+  },[timeLeft, stage, cancelled]);
+
+  const cancelOrder = async () => {
+    if(!orderId || stage > 0) return;
+    setCancelling(true);
+    await supabase.from("orders").update({status:"cancelled"}).eq("id", orderId);
+    localStorage.removeItem("rf_activeOrderId");
+    setCancelling(false);
+    setCancelled(true);
+  };
+
+  const canCancel = orderId && timeLeft > 0 && stage === 0 && !cancelled;
+  const mins = String(Math.floor(timeLeft/60)).padStart(2,"0");
+  const secs = String(timeLeft%60).padStart(2,"0");
+
+  if(cancelled) return (
+    <div style={{paddingTop:"80px",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+      <PageBanner tag="ORDER CANCELLED" title="Order Cancelled" />
+      <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"60px",background:"#f9f8f5",flexDirection:"column",gap:"20px",textAlign:"center"}}>
+        <div style={{fontSize:"64px"}}>❌</div>
+        <h2 style={{fontSize:"28px",fontWeight:"300",color:MID}}>Your order has been cancelled</h2>
+        <p style={{fontFamily:"sans-serif",fontSize:"14px",color:"#888",maxWidth:"400px",lineHeight:1.8}}>No charges have been made. We hope to serve you again soon!</p>
+        <div style={{display:"flex",gap:"14px",flexWrap:"wrap",justifyContent:"center"}}>
+          <button onClick={()=>{clearCart();setPage("menu");}} style={{padding:"14px 36px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Order Again</button>
+          <button onClick={()=>{clearCart();setPage("home");}} style={{padding:"14px 36px",background:"transparent",border:"1px solid #ccc",color:"#888",letterSpacing:"3px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Back to Home</button>
+        </div>
+      </div>
+    </div>
+  );
   return (
     <div style={{paddingTop:"80px",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
       <PageBanner tag="ORDER PLACED" title="Tracking Your Order" />
@@ -52,6 +91,22 @@ function OrderTracking({form, total, payLabel, setPage, clearCart, orderId}) {
               ? <p style={{fontFamily:"sans-serif",fontSize:"12px",color:"#aaa",marginTop:"8px"}}>🛵 Estimated delivery: 30–45 minutes</p>
               : <p style={{fontFamily:"sans-serif",fontSize:"13px",color:"#3a7a3a",fontWeight:"600",marginTop:"8px"}}>🏠 Your order has been delivered! Enjoy!</p>
             }
+            {canCancel && (
+              <div style={{marginTop:"20px",padding:"16px 20px",background:"#fff5f5",border:"1px solid #fcc",borderRadius:"6px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:"12px"}}>
+                <div style={{fontFamily:"sans-serif"}}>
+                  <div style={{fontSize:"12px",color:"#e05555",fontWeight:"700",marginBottom:"2px"}}>⏱ Cancel window closes in</div>
+                  <div style={{fontSize:"22px",fontWeight:"700",color:MID,fontVariantNumeric:"tabular-nums"}}>{mins}:{secs}</div>
+                </div>
+                <button onClick={cancelOrder} disabled={cancelling} style={{padding:"10px 24px",background:"#e05555",color:"#fff",border:"none",borderRadius:"4px",fontFamily:"sans-serif",fontSize:"12px",fontWeight:"700",letterSpacing:"1px",textTransform:"uppercase"}}>
+                  {cancelling?"Cancelling…":"Cancel Order"}
+                </button>
+              </div>
+            )}
+            {!canCancel && stage === 0 && !cancelled && timeLeft <= 0 && (
+              <div style={{marginTop:"16px",padding:"12px 16px",background:"#f9f8f5",border:"1px solid #e0d9ce",borderRadius:"6px",fontFamily:"sans-serif",fontSize:"12px",color:"#aaa",textAlign:"center"}}>
+                ⏱ Cancellation window has closed. Contact us to make changes.
+              </div>
+            )}
           </div>
           <div style={{display:"flex",gap:"14px"}}>
             <button onClick={()=>window.print()} style={{flex:1,padding:"14px",background:"transparent",border:"1px solid #ccc",color:"#888",letterSpacing:"2px",fontSize:"11px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px"}}>🖨 Print Receipt</button>

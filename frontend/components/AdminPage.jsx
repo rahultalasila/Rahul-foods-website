@@ -77,7 +77,7 @@ function AdminPage({user, setPage}) {
               <div key={o.id} style={{background:"#fff",borderRadius:"6px",padding:"24px 28px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",marginBottom:"18px"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px",flexWrap:"wrap",gap:"8px"}}>
                   <div style={{fontFamily:"sans-serif",fontSize:"12px",color:"#aaa"}}>{new Date(o.created_at).toLocaleString()}</div>
-                  <div style={{fontFamily:"sans-serif",fontSize:"11px",color:o.status==="delivered"?"#3a7a3a":"#a86a1c",background:o.status==="delivered"?"#f0faf0":"#fff6e8",border:`1px solid ${o.status==="delivered"?"#aadcaa":"#f0d9a8"}`,borderRadius:"4px",padding:"4px 10px",fontWeight:"700",textTransform:"uppercase"}}>{o.status||"placed"}</div>
+                  {(()=>{const s=o.status||"placed";const si={placed:{c:"#a86a1c",bg:"#fff6e8",b:"#f0d9a8"},preparing:{c:"#a86a1c",bg:"#fff6e8",b:"#f0d9a8"},out_for_delivery:{c:"#1c6aa8",bg:"#e8f2ff",b:"#a8cff0"},delivered:{c:"#3a7a3a",bg:"#f0faf0",b:"#aadcaa"},cancelled:{c:"#e05555",bg:"#fff5f5",b:"#fcc"}}[s]||{c:"#aaa",bg:"#f9f8f5",b:"#eee"};return <div style={{fontFamily:"sans-serif",fontSize:"11px",color:si.c,background:si.bg,border:`1px solid ${si.b}`,borderRadius:"4px",padding:"4px 10px",fontWeight:"700",textTransform:"uppercase"}}>{s.replace("_"," ")}</div>;})()}
                 </div>
                 {o.items.map((it,j)=>(<div key={j} style={{display:"flex",justifyContent:"space-between",fontFamily:"sans-serif",fontSize:"13px",color:"#555",padding:"4px 0"}}><span>{it.name} × {it.qty}</span><span>{it.price}</span></div>))}
                 <div style={{display:"flex",justifyContent:"space-between",marginTop:"10px",paddingTop:"10px",borderTop:"1px solid #f0ece4",fontFamily:"sans-serif"}}>
@@ -85,7 +85,7 @@ function AdminPage({user, setPage}) {
                   <span style={{fontSize:"15px",fontWeight:"700",color:GOLD}}>₹{Math.round(o.total)}</span>
                 </div>
                 <div style={{fontFamily:"sans-serif",fontSize:"11px",color:"#aaa",marginTop:"8px"}}>📍 {o.address} · {o.pay_label}</div>
-                {STATUS_NEXT[o.status||"placed"] && <button onClick={()=>updateStatus(o.id, STATUS_NEXT[o.status||"placed"])} style={{marginTop:"14px",padding:"10px 24px",background:MID,color:"#fff",border:"none",letterSpacing:"2px",fontSize:"10px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>{STATUS_LABEL[o.status||"placed"]}</button>}
+                {o.status!=="cancelled" && STATUS_NEXT[o.status||"placed"] && <button onClick={()=>updateStatus(o.id, STATUS_NEXT[o.status||"placed"])} style={{marginTop:"14px",padding:"10px 24px",background:MID,color:"#fff",border:"none",letterSpacing:"2px",fontSize:"10px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>{STATUS_LABEL[o.status||"placed"]}</button>}
               </div>
             ))}
           </>}
