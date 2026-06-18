@@ -174,12 +174,13 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
     "520007":"Kanuru","520008":"Auto Nagar","520009":"Krishnalanka",
     "520010":"Vijayawada","520011":"Penamaluru","520012":"Gandhinagar",
     "520013":"Bandar Road","520014":"Vijayawada West","520015":"Ramavarappadu",
+    "521137":"Poranki","521139":"Penamaluru","521101":"Ganguru",
   };
   const detectedArea = PINCODE_AREAS[form.pincode.trim()] || null;
 
   const isVijayawada = (city, pincode) => {
     const cityOk = city.trim().toLowerCase().includes("vijayawada");
-    const pinOk  = pincode.trim().startsWith("520");
+    const pinOk  = pincode.trim() in PINCODE_AREAS;
     return cityOk || pinOk;
   };
   const outsideArea = (form.city.trim() || form.pincode.trim()) &&
