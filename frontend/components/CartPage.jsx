@@ -34,6 +34,7 @@ function OrderTracking({form, total, payLabel, setPage, clearCart, orderId}) {
     setCancelling(true);
     await supabase.from("orders").update({status:"cancelled"}).eq("id", orderId);
     sendCancellationEmail(form.name, total, orderId);
+    sendCancellationSMS(form.phone, form.name);
     localStorage.removeItem("rf_activeOrderId");
     setCancelling(false);
     setCancelled(true);
@@ -357,6 +358,7 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
                 const orderData = {items:cartItems.map(({item,qty})=>({name:item.name,qty,price:item.price})), total, payLabel, address:`${form.address}, ${form.city} – ${form.pincode}`};
                 const itemsText = cartItems.map(({item,qty})=>(item.name+" x"+qty+" - Rs."+Math.round(getPrice(item)*qty))).join(", ");
                 sendOrderEmails(form, orderData, itemsText, total, payLabel, user?.email||"");
+                sendOrderSMS(form.phone, form.name, total, itemsText);
                 setOrdered(true);
                 onOrderPlaced(orderData).then(id=>{ if(id) setOrderId(id); });
               }}}
