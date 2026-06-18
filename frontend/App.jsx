@@ -67,6 +67,7 @@ function RahulFoods() {
       address: orderDetails.address,
       status: "placed",
     }).select("id").single();
+    if(data?.id) localStorage.setItem("rf_activeOrderId", data.id);
     return data?.id || null;
   };
 
