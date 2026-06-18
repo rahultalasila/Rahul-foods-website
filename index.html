@@ -13,20 +13,6 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script>
-    window.sendEmail = function(templateId, params) {
-      return fetch("https://api.emailjs.com/api/v1.0/email/send", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-          service_id: "service_jpem2rb",
-          template_id: templateId,
-          user_id: "F3yhH_TVKN_Sw1io8",
-          template_params: params
-        })
-      });
-    };
-  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -1299,24 +1285,6 @@
                   const orderData = {items:cartItems.map(({item,qty})=>({name:item.name,qty,price:item.price})), total, payLabel, address:`${form.address}, ${form.city} – ${form.pincode}`};
                   const itemsText = cartItems.map(({item,qty})=>(item.name+" x"+qty+" - Rs."+Math.round(getPrice(item)*qty))).join(", ");
                   const now = new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'});
-                  // Email notifications
-                  window.sendEmail("template_uq7eflu",{
-                    customer_name: form.name,
-                    customer_phone: form.phone,
-                    customer_address: orderData.address,
-                    order_items: itemsText,
-                    order_total: `₹${Math.round(total)}`,
-                    payment_method: payLabel,
-                    order_time: now
-                  }).catch(()=>{});
-                  window.sendEmail("template_xn0ebyn",{
-                    customer_name: form.name,
-                    customer_email: user?.email||"",
-                    customer_address: orderData.address,
-                    order_items: itemsText,
-                    order_total: `₹${Math.round(total)}`,
-                    payment_method: payLabel
-                  }).catch(()=>{});
                   setOrdered(true); onOrderPlaced(orderData);
                 }}}
                   style={{width:"100%",padding:"16px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"12px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px"}}>
