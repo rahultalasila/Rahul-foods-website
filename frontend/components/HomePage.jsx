@@ -31,7 +31,7 @@ function HomePage({setPage, cart, addToCart, updateQty, onOpenModal, user}) {
   return (
     <>
       {activeOrderId && activeStatus && activeStatus!=="delivered" && (
-        <div style={{background:"#1c1c1c",padding:"14px 24px",paddingTop:user?"14px":"84px",textAlign:"center",fontFamily:"sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"16px",flexWrap:"wrap"}}>
+        <div style={{background:"#1c1c1c",padding:"14px 24px",paddingTop:"84px",textAlign:"center",fontFamily:"sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"16px",flexWrap:"wrap"}}>
           <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
             <span style={{width:"8px",height:"8px",borderRadius:"50%",background:"#e05555",display:"inline-block",animation:"pulseDot 1.2s infinite"}} />
             <span style={{fontSize:"12px",color:"rgba(255,255,255,0.6)",letterSpacing:"2px",textTransform:"uppercase",fontWeight:"700"}}>Live Order</span>
@@ -43,7 +43,7 @@ function HomePage({setPage, cart, addToCart, updateQty, onOpenModal, user}) {
         </div>
       )}
       {user && (
-        <div style={{background:"linear-gradient(135deg,#1f4e3f,#2e7d5b)",padding:"14px 24px",paddingTop:"84px",textAlign:"center",fontFamily:"sans-serif"}}>
+        <div style={{background:"linear-gradient(135deg,#1f4e3f,#2e7d5b)",padding:"14px 24px",paddingTop:(activeOrderId&&activeStatus&&activeStatus!=="delivered")?"14px":"84px",textAlign:"center",fontFamily:"sans-serif"}}>
           {orderCount===0
             ? <span style={{fontSize:"13px",fontWeight:"700",color:"#fff"}}>🎁 Welcome, {user.name}! Order {REWARD_TARGET} times to earn a free dessert.</span>
             : remaining===REWARD_TARGET
