@@ -134,15 +134,26 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
   const [promoInput, setPromoInput] = useState("");
   const [promo,      setPromo]      = useState(null);
   const [promoErr,   setPromoErr]   = useState("");
+  const [promoCodes, setPromoCodes] = useState(PROMO_CODES);
+
+  useEffect(()=>{
+    supabase.from("promo_codes").select("*").eq("active",true).then(({data})=>{
+      if(data && data.length>0) {
+        const codes={};
+        data.forEach(p=>codes[p.code]={type:p.type,value:p.value,label:p.label});
+        setPromoCodes(codes);
+      }
+    });
+  },[]);
 
   const applyPromo = () => {
     const code = promoInput.trim().toUpperCase();
-    if(PROMO_CODES[code]) {
-      setPromo({code, ...PROMO_CODES[code]});
+    if(promoCodes[code]) {
+      setPromo({code, ...promoCodes[code]});
       setPromoErr("");
-      showToast(`${PROMO_CODES[code].label} applied! 🎉`, "success");
+      showToast(`${promoCodes[code].label} applied! 🎉`, "success");
     } else {
-      setPromoErr("Invalid promo code. Try RAHUL10, WELCOME20, FREESHIP or FEAST50.");
+      setPromoErr("Invalid promo code.");
       setPromo(null);
     }
   };

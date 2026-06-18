@@ -87,6 +87,7 @@ function RahulFoods() {
         {page==="orders"  && <MyOrdersPage user={user} setPage={setPage} />}
         {page==="admin"   && <AdminPage user={user} setPage={setPage} />}
         {page==="offers"  && <OffersPage setPage={setPage} />}
+        {page==="reviews" && <ReviewsPage setPage={setPage} />}
       </div>
       <Footer setPage={setPage} />
 

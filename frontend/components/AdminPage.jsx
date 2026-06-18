@@ -10,6 +10,12 @@ function AdminPage({user, setPage}) {
   const [msgLoading, setMsgLoading] = useState(true);
   const [subscribers, setSubscribers] = useState([]);
   const [subLoading, setSubLoading] = useState(true);
+  const [reviews, setReviews] = useState([]);
+  const [revLoading, setRevLoading] = useState(true);
+  const [promos, setPromos] = useState([]);
+  const [promoLoading, setPromoLoading] = useState(true);
+  const [promoForm, setPromoForm] = useState({code:"",type:"percent",value:"",label:""});
+  const [promoSaving, setPromoSaving] = useState(false);
   const CATS = Object.keys(menuData);
   const emptyForm = {name:"",category:"Starters",description:"",price:"",image_url:"",tag:"",is_veg:false};
   const [form, setForm]       = useState(emptyForm);
@@ -28,7 +34,20 @@ function AdminPage({user, setPage}) {
   const loadReservations = () => { setResLoading(true); supabase.from("reservations").select("*").order("created_at",{ascending:false}).then(({data})=>{ if(data) setReservations(data); setResLoading(false); }); };
   const loadMessages = () => { setMsgLoading(true); supabase.from("contact_messages").select("*").order("created_at",{ascending:false}).then(({data})=>{ if(data) setMessages(data); setMsgLoading(false); }); };
   const loadSubscribers = () => { setSubLoading(true); supabase.from("newsletter_subscribers").select("*").order("created_at",{ascending:false}).then(({data})=>{ if(data) setSubscribers(data); setSubLoading(false); }); };
-  useEffect(()=>{ loadOrders(); loadMenu(); loadReservations(); loadMessages(); loadSubscribers(); },[]);
+  const loadReviews = () => { setRevLoading(true); supabase.from("reviews").select("*").order("created_at",{ascending:false}).then(({data})=>{ if(data) setReviews(data); setRevLoading(false); }); };
+  const loadPromos = () => { setPromoLoading(true); supabase.from("promo_codes").select("*").order("created_at",{ascending:true}).then(({data})=>{ if(data) setPromos(data); setPromoLoading(false); }); };
+  const deleteReview = async (id) => { if(window.confirm("Delete this review?")) { await supabase.from("reviews").delete().eq("id",id); loadReviews(); } };
+  const savePromo = async () => {
+    if(!promoForm.code.trim()||!promoForm.value) return;
+    setPromoSaving(true);
+    const auto = promoForm.type==="percent"?`${promoForm.value}% off`:promoForm.type==="flat"?`₹${promoForm.value} flat off`:"Free delivery";
+    await supabase.from("promo_codes").insert({code:promoForm.code.trim().toUpperCase(),type:promoForm.type,value:parseFloat(promoForm.value),label:promoForm.label.trim()||auto,active:true});
+    setPromoForm({code:"",type:"percent",value:"",label:""});
+    setPromoSaving(false); loadPromos();
+  };
+  const togglePromo = async (id,active) => { await supabase.from("promo_codes").update({active:!active}).eq("id",id); loadPromos(); };
+  const deletePromo = async (id) => { if(window.confirm("Delete this promo code?")) { await supabase.from("promo_codes").delete().eq("id",id); loadPromos(); } };
+  useEffect(()=>{ loadOrders(); loadMenu(); loadReservations(); loadMessages(); loadSubscribers(); loadReviews(); loadPromos(); },[]);
 
   const updateStatus = async (id, status) => { await supabase.from("orders").update({status}).eq("id",id); loadOrders(); };
   const STATUS_NEXT = {placed:"preparing", preparing:"out_for_delivery", out_for_delivery:"delivered"};
@@ -64,7 +83,7 @@ function AdminPage({user, setPage}) {
     <div style={{paddingTop:"80px",minHeight:"100vh"}}>
       <PageBanner tag="ADMIN" title="Dashboard" />
       <div style={{background:"#fff",borderBottom:"1px solid #f0ece4",display:"flex",justifyContent:"center",gap:"0"}}>
-        {[["orders","📋 Orders"],["menu","🍽️ Menu"],["reservations","📅 Reservations"],["messages","✉️ Messages"],["subscribers","📧 Subscribers"]].map(([t,l])=>(
+        {[["orders","📋 Orders"],["menu","🍽️ Menu"],["reservations","📅 Reservations"],["messages","✉️ Messages"],["subscribers","📧 Subscribers"],["reviews","⭐ Reviews"],["promos","🏷️ Promo Codes"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)} style={{padding:"16px 36px",border:"none",background:"none",fontFamily:"sans-serif",fontSize:"13px",fontWeight:tab===t?"700":"400",color:tab===t?DARK:"#aaa",borderBottom:tab===t?`3px solid ${DARK}`:"3px solid transparent",transition:"all 0.2s"}}>{l}</button>
         ))}
       </div>
@@ -86,6 +105,62 @@ function AdminPage({user, setPage}) {
                 </div>
                 <div style={{fontFamily:"sans-serif",fontSize:"11px",color:"#aaa",marginTop:"8px"}}>📍 {o.address} · {o.pay_label}</div>
                 {o.status!=="cancelled" && STATUS_NEXT[o.status||"placed"] && <button onClick={()=>updateStatus(o.id, STATUS_NEXT[o.status||"placed"])} style={{marginTop:"14px",padding:"10px 24px",background:MID,color:"#fff",border:"none",letterSpacing:"2px",fontSize:"10px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>{STATUS_LABEL[o.status||"placed"]}</button>}
+              </div>
+            ))}
+          </>}
+
+          {tab==="reviews" && <>
+            {revLoading && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>Loading…</p>}
+            {!revLoading && <p style={{fontFamily:"sans-serif",fontSize:"13px",color:"#666",marginBottom:"20px"}}>{reviews.length} review{reviews.length!==1?"s":""}</p>}
+            {reviews.map(r=>(
+              <div key={r.id} style={{background:"#fff",borderRadius:"6px",padding:"20px 24px",boxShadow:"0 2px 12px rgba(0,0,0,0.05)",marginBottom:"12px",display:"flex",gap:"16px",alignItems:"flex-start"}}>
+                <div style={{flex:1}}>
+                  <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:"6px",marginBottom:"6px"}}>
+                    <div style={{display:"flex",gap:"10px",alignItems:"center",flexWrap:"wrap"}}>
+                      <span style={{fontFamily:"sans-serif",fontSize:"13px",fontWeight:"700",color:MID}}>{r.user_name}</span>
+                      <span style={{fontFamily:"sans-serif",fontSize:"11px",color:"#aaa"}}>on {r.dish_name}</span>
+                      <span style={{color:"#f5b400",fontSize:"12px"}}>{"★".repeat(r.rating)}{"☆".repeat(5-r.rating)}</span>
+                    </div>
+                    <span style={{fontFamily:"sans-serif",fontSize:"11px",color:"#ccc"}}>{new Date(r.created_at).toLocaleString()}</span>
+                  </div>
+                  <p style={{fontFamily:"sans-serif",fontSize:"13px",color:"#555",lineHeight:1.7,margin:0}}>{r.comment}</p>
+                </div>
+                <button onClick={()=>deleteReview(r.id)} style={{padding:"7px 12px",border:"1px solid #fcc",borderRadius:"4px",background:"#fff5f5",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",color:"#e05555",flexShrink:0}}>🗑</button>
+              </div>
+            ))}
+          </>}
+
+          {tab==="promos" && <>
+            <div style={{background:"#fff",borderRadius:"6px",padding:"24px 28px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",marginBottom:"24px"}}>
+              <h3 style={{fontFamily:"sans-serif",fontSize:"13px",fontWeight:"700",color:MID,marginBottom:"18px",textTransform:"uppercase",letterSpacing:"1px"}}>Add New Promo Code</h3>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"12px",marginBottom:"12px"}}>
+                <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>CODE *</label><input value={promoForm.code} onChange={e=>setPromoForm(f=>({...f,code:e.target.value.toUpperCase()}))} placeholder="e.g. SAVE20" style={iStyle} /></div>
+                <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>TYPE *</label>
+                  <select value={promoForm.type} onChange={e=>setPromoForm(f=>({...f,type:e.target.value}))} style={iStyle}>
+                    <option value="percent">Percentage off</option>
+                    <option value="flat">Flat amount off</option>
+                    <option value="freeship">Free delivery</option>
+                  </select>
+                </div>
+                <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>VALUE * {promoForm.type==="percent"?"(%)":promoForm.type==="flat"?"(₹)":"(ignored)"}</label><input type="number" value={promoForm.value} onChange={e=>setPromoForm(f=>({...f,value:e.target.value}))} placeholder={promoForm.type==="percent"?"e.g. 15":promoForm.type==="flat"?"e.g. 200":"0"} disabled={promoForm.type==="freeship"} style={{...iStyle,opacity:promoForm.type==="freeship"?0.5:1}} /></div>
+                <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>LABEL (optional)</label><input value={promoForm.label} onChange={e=>setPromoForm(f=>({...f,label:e.target.value}))} placeholder="Auto-generated if empty" style={iStyle} /></div>
+              </div>
+              <button onClick={savePromo} disabled={promoSaving} style={{padding:"11px 28px",background:GOLD,color:"#fff",border:"none",borderRadius:"4px",fontFamily:"sans-serif",fontSize:"12px",fontWeight:"700",letterSpacing:"1px"}}>{promoSaving?"Saving…":"Add Promo Code"}</button>
+            </div>
+            {promoLoading && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>Loading…</p>}
+            {promos.map(p=>(
+              <div key={p.id} style={{background:"#fff",borderRadius:"6px",padding:"18px 24px",boxShadow:"0 2px 12px rgba(0,0,0,0.05)",marginBottom:"12px",display:"flex",alignItems:"center",gap:"16px",flexWrap:"wrap"}}>
+                <div style={{flex:1}}>
+                  <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"4px",flexWrap:"wrap"}}>
+                    <span style={{fontFamily:"monospace",fontSize:"15px",fontWeight:"700",color:MID,letterSpacing:"1px"}}>{p.code}</span>
+                    <span style={{fontSize:"9px",background:p.active?"#f0faf0":"#fff0f0",color:p.active?"#3a7a3a":"#e05555",padding:"2px 8px",borderRadius:"2px",fontFamily:"sans-serif",fontWeight:"700",border:`1px solid ${p.active?"#aadcaa":"#f0aaaa"}`}}>{p.active?"ACTIVE":"DISABLED"}</span>
+                  </div>
+                  <span style={{fontFamily:"sans-serif",fontSize:"12px",color:"#888"}}>{p.label} · {p.type==="percent"?`${p.value}% off`:p.type==="flat"?`₹${p.value} off`:"Free delivery"}</span>
+                </div>
+                <div style={{display:"flex",gap:"8px"}}>
+                  <button onClick={()=>togglePromo(p.id,p.active)} style={{padding:"8px 14px",border:"1px solid #e0d9ce",borderRadius:"4px",background:"#fff",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",color:"#888"}}>{p.active?"Disable":"Enable"}</button>
+                  <button onClick={()=>deletePromo(p.id)} style={{padding:"8px 12px",border:"1px solid #fcc",borderRadius:"4px",background:"#fff5f5",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",color:"#e05555"}}>🗑</button>
+                </div>
               </div>
             ))}
           </>}

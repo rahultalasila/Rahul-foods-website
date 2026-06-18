@@ -1,17 +1,32 @@
+const OFFER_COLORS = ["#c8a96e","#e07b54","#5a9e6f","#7b68c8","#e05555","#3a7a3a"];
+const OFFER_ICONS  = ["🎉","👋","🛵","🍽️","🏷️","✨"];
+
 function OffersPage({setPage}) {
   const [copied, setCopied] = useState(null);
+  const [offers, setOffers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(()=>{
+    supabase.from("promo_codes").select("*").eq("active",true).order("created_at",{ascending:true}).then(({data})=>{
+      if(data && data.length>0) {
+        setOffers(data.map((p,i)=>({
+          code: p.code,
+          label: p.label,
+          color: OFFER_COLORS[i % OFFER_COLORS.length],
+          icon: OFFER_ICONS[i % OFFER_ICONS.length],
+          desc: p.type==="percent"?`Get ${p.value}% off on your entire order!`:p.type==="flat"?`Save ₹${p.value} flat on your order!`:"Free delivery on your order!",
+          min: p.type==="flat"?"Minimum order may apply.":"No minimum order.",
+        })));
+      }
+      setLoading(false);
+    });
+  },[]);
+
   const copy = (code) => {
     navigator.clipboard.writeText(code).catch(()=>{});
     setCopied(code);
     setTimeout(()=>setCopied(null), 2000);
   };
-
-  const offers = [
-    { code:"RAHUL10",   label:"10% Off",         color:"#c8a96e", desc:"Get 10% off on your entire order. Perfect for your first try!", min:"No minimum order.", icon:"🎉" },
-    { code:"WELCOME20", label:"20% Off",          color:"#e07b54", desc:"Welcome discount for new customers — 20% off sitewide!", min:"Valid for new users only.", icon:"👋" },
-    { code:"FREESHIP",  label:"Free Delivery",    color:"#5a9e6f", desc:"Waive the ₹99 delivery fee completely. Order as much as you like!", min:"No minimum order.", icon:"🛵" },
-    { code:"FEAST50",   label:"Flat ₹500 Off",    color:"#7b68c8", desc:"Save ₹500 flat on large orders. Great for group meals!", min:"Minimum order ₹1500.", icon:"🍽️" },
-  ];
 
   return (
     <div style={{paddingTop:"80px",minHeight:"100vh"}}>
@@ -19,6 +34,8 @@ function OffersPage({setPage}) {
       <section style={{padding:"80px 60px",background:"#f9f8f5"}}>
         <div style={{maxWidth:"900px",margin:"0 auto"}}>
           <p style={{textAlign:"center",color:"#aaa",fontFamily:"sans-serif",fontSize:"13px",marginBottom:"56px",fontStyle:"italic"}}>Copy a code and paste it at checkout to save on your order</p>
+          {loading && <p style={{textAlign:"center",color:"#aaa",fontFamily:"sans-serif"}}>Loading offers…</p>}
+          {!loading && offers.length===0 && <p style={{textAlign:"center",color:"#aaa",fontFamily:"sans-serif",padding:"40px"}}>No active offers right now. Check back soon!</p>}
           <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:"28px"}}>
             {offers.map(o=>(
               <div key={o.code} style={{background:"#fff",borderRadius:"8px",boxShadow:"0 2px 20px rgba(0,0,0,0.07)",overflow:"hidden"}}>
