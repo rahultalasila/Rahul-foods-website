@@ -30,7 +30,9 @@ function AdminPage({user, setPage}) {
   const loadSubscribers = () => { setSubLoading(true); supabase.from("newsletter_subscribers").select("*").order("created_at",{ascending:false}).then(({data})=>{ if(data) setSubscribers(data); setSubLoading(false); }); };
   useEffect(()=>{ loadOrders(); loadMenu(); loadReservations(); loadMessages(); loadSubscribers(); },[]);
 
-  const markDelivered = async (id) => { await supabase.from("orders").update({status:"delivered"}).eq("id",id); loadOrders(); };
+  const updateStatus = async (id, status) => { await supabase.from("orders").update({status}).eq("id",id); loadOrders(); };
+  const STATUS_NEXT = {placed:"preparing", preparing:"out_for_delivery", out_for_delivery:"delivered"};
+  const STATUS_LABEL = {placed:"Mark Preparing 🍳", preparing:"Mark Out for Delivery 🛵", out_for_delivery:"Mark Delivered 🏠"};
 
   const saveItem = async () => {
     if(!form.name.trim()||!form.price) return;
@@ -83,7 +85,7 @@ function AdminPage({user, setPage}) {
                   <span style={{fontSize:"15px",fontWeight:"700",color:GOLD}}>₹{Math.round(o.total)}</span>
                 </div>
                 <div style={{fontFamily:"sans-serif",fontSize:"11px",color:"#aaa",marginTop:"8px"}}>📍 {o.address} · {o.pay_label}</div>
-                {o.status!=="delivered" && <button onClick={()=>markDelivered(o.id)} style={{marginTop:"14px",padding:"10px 24px",background:MID,color:"#fff",border:"none",letterSpacing:"2px",fontSize:"10px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>Mark Delivered</button>}
+                {STATUS_NEXT[o.status||"placed"] && <button onClick={()=>updateStatus(o.id, STATUS_NEXT[o.status||"placed"])} style={{marginTop:"14px",padding:"10px 24px",background:MID,color:"#fff",border:"none",letterSpacing:"2px",fontSize:"10px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>{STATUS_LABEL[o.status||"placed"]}</button>}
               </div>
             ))}
           </>}

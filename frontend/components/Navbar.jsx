@@ -9,7 +9,7 @@ function Navbar({page, setPage, scrolled, cartCount, user, onOpenAuth, onLogout}
       <button onClick={()=>go("home")} style={{background:"none",border:"none",fontSize:"18px",fontWeight:"bold",letterSpacing:"4px",color:(light&&!mobileOpen)?"#fff":MID,fontFamily:"Georgia,serif",transition:"color 0.35s"}}>RAHUL FOODS</button>
 
       <div className="navbar-links">
-        {[["home","Home"],["menu","Menu"],["gallery","Gallery"],["about","About"],["contact","Contact"]].map(([id,label])=>(
+        {[["home","Home"],["menu","Menu"],["offers","Offers 🏷️"],["gallery","Gallery"],["about","About"],["contact","Contact"]].map(([id,label])=>(
           <button key={id} onClick={()=>go(id)} style={{background:"none",border:"none",color:page===id?GOLD:(light?"rgba(255,255,255,0.85)":"#555"),fontSize:"11px",letterSpacing:"2px",fontFamily:"sans-serif",fontWeight:page===id?"700":"600",textTransform:"uppercase",transition:"color 0.2s",borderBottom:page===id?`2px solid ${GOLD}`:"2px solid transparent",paddingBottom:"3px"}}>{label}</button>
         ))}
         <button onClick={()=>go("reserve")} style={{padding:"9px 16px",border:`1px solid ${light?"rgba(200,169,110,0.8)":GOLD}`,background:"transparent",color:light?"rgba(200,169,110,0.9)":GOLD,fontSize:"10px",letterSpacing:"2px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",transition:"all 0.25s"}}>Reserve</button>
@@ -38,7 +38,7 @@ function Navbar({page, setPage, scrolled, cartCount, user, onOpenAuth, onLogout}
       </div>
 
       <div className={`navbar-mobile-menu${mobileOpen?" open":""}`} style={{flexDirection:"column",width:"100%",paddingTop:"18px",gap:"4px"}}>
-        {[["home","Home"],["menu","Menu"],["gallery","Gallery"],["about","About"],["contact","Contact"],["reserve","Reserve"]].map(([id,label])=>(
+        {[["home","Home"],["menu","Menu"],["offers","Offers 🏷️"],["gallery","Gallery"],["about","About"],["contact","Contact"],["reserve","Reserve"]].map(([id,label])=>(
           <button key={id} onClick={()=>go(id)} style={{background:"none",border:"none",textAlign:"left",padding:"12px 4px",color:page===id?GOLD:"#555",fontSize:"13px",letterSpacing:"2px",fontFamily:"sans-serif",fontWeight:page===id?"700":"600",textTransform:"uppercase",borderBottom:"1px solid #f0ece4"}}>{label}</button>
         ))}
         {user ? (

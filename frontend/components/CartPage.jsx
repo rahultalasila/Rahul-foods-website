@@ -1,17 +1,22 @@
-function OrderTracking({form, total, payLabel, setPage, clearCart}) {
+function OrderTracking({form, total, payLabel, setPage, clearCart, orderId}) {
   const [stage, setStage] = useState(0);
   const stages = [
-    { icon:"✅", title:"Order Placed",    sub:"We've received your order",       done:true  },
-    { icon:"🍳", title:"Being Prepared",  sub:"Our chefs are cooking your meal", done:false },
-    { icon:"🛵", title:"Out for Delivery",sub:"On the way to your address",      done:false },
-    { icon:"🏠", title:"Delivered!",      sub:"Enjoy your meal — bon appétit!",  done:false },
+    { icon:"✅", title:"Order Placed",    sub:"We've received your order"       },
+    { icon:"🍳", title:"Being Prepared",  sub:"Our chefs are cooking your meal" },
+    { icon:"🛵", title:"Out for Delivery",sub:"On the way to your address"      },
+    { icon:"🏠", title:"Delivered!",      sub:"Enjoy your meal — bon appétit!"  },
   ];
+  const statusMap = {placed:0, preparing:1, out_for_delivery:2, delivered:3};
   useEffect(()=>{
-    if(stage < 3) {
-      const t = setTimeout(()=>setStage(s=>s+1), stage===0?4000:stage===1?7000:10000);
-      return ()=>clearTimeout(t);
-    }
-  },[stage]);
+    if(!orderId) return;
+    const poll = async () => {
+      const {data} = await supabase.from("orders").select("status").eq("id", orderId).single();
+      if(data?.status !== undefined) setStage(statusMap[data.status] ?? 0);
+    };
+    poll();
+    const iv = setInterval(poll, 15000);
+    return ()=>clearInterval(iv);
+  },[orderId]);
   return (
     <div style={{paddingTop:"80px",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
       <PageBanner tag="ORDER PLACED" title="Tracking Your Order" />
@@ -69,6 +74,7 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
   const [payForm,  setPayForm]  = useState({});
   const [payErrors,setPayErrors]= useState({});
   const [ordered,  setOrdered]  = useState(false);
+  const [orderId,  setOrderId]  = useState(null);
   const [promoInput, setPromoInput] = useState("");
   const [promo,      setPromo]      = useState(null);
   const [promoErr,   setPromoErr]   = useState("");
@@ -120,7 +126,7 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
   const lStyle = {display:"block",fontSize:"10px",letterSpacing:"2px",color:"#999",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",marginBottom:"7px"};
   const payLabel = {cod:"Cash on Delivery",card:"Credit / Debit Card",upi:"UPI Payment",nb:"Net Banking",wallet:"Mobile Wallet"}[payMethod];
 
-  if(ordered) return <OrderTracking form={form} total={total} payLabel={payLabel} setPage={setPage} clearCart={clearCart} />;
+  if(ordered) return <OrderTracking form={form} total={total} payLabel={payLabel} setPage={setPage} clearCart={clearCart} orderId={orderId} />;
 
   if(cartItems.length===0) return (
     <div style={{paddingTop:"80px",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
@@ -246,7 +252,8 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
                 const orderData = {items:cartItems.map(({item,qty})=>({name:item.name,qty,price:item.price})), total, payLabel, address:`${form.address}, ${form.city} – ${form.pincode}`};
                 const itemsText = cartItems.map(({item,qty})=>(item.name+" x"+qty+" - Rs."+Math.round(getPrice(item)*qty))).join(", ");
                 sendOrderEmails(form, orderData, itemsText, total, payLabel, user?.email||"");
-                setOrdered(true); onOrderPlaced(orderData);
+                setOrdered(true);
+                onOrderPlaced(orderData).then(id=>{ if(id) setOrderId(id); });
               }}}
                 style={{width:"100%",padding:"16px",background:GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"12px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px"}}>
                 {payMethod==="cod"?`Place Order · ₹${Math.round(total)}`:`Pay ₹${Math.round(total)} Now`}

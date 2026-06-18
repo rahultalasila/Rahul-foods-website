@@ -58,14 +58,16 @@ function RahulFoods() {
   const recordOrder = async (orderDetails) => {
     const count = (parseInt(localStorage.getItem("rf_orderCount"))||0) + 1;
     localStorage.setItem("rf_orderCount", count);
-    if(!user) return;
-    await supabase.from("orders").insert({
+    if(!user) return null;
+    const {data} = await supabase.from("orders").insert({
       user_id: user.id,
       items: orderDetails.items,
       total: orderDetails.total,
       pay_label: orderDetails.payLabel,
       address: orderDetails.address,
-    });
+      status: "placed",
+    }).select("id").single();
+    return data?.id || null;
   };
 
   const cartCount = Object.values(cart).reduce((s,{qty})=>s+qty,0);
@@ -83,6 +85,7 @@ function RahulFoods() {
         {page==="reserve" && <ReservePage setPage={setPage} />}
         {page==="orders"  && <MyOrdersPage user={user} setPage={setPage} />}
         {page==="admin"   && <AdminPage user={user} setPage={setPage} />}
+        {page==="offers"  && <OffersPage setPage={setPage} />}
       </div>
       <Footer setPage={setPage} />
 
