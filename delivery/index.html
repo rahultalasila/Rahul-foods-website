@@ -168,7 +168,8 @@
       const [tab, setTab] = useState("active");
 
       const loadOrders = async () => {
-        const { data } = await sb.from("orders").select("*").eq("assigned_to", rider.id).order("created_at", { ascending: false });
+        const { data, error } = await sb.from("orders").select("*").eq("assigned_to", rider.id).order("created_at", { ascending: false });
+        console.log("Rider ID:", rider.id, "Orders:", data, "Error:", error);
         if (data) setOrders(data);
         setLoading(false);
       };
