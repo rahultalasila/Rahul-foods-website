@@ -1,4 +1,4 @@
-function OrderTracking({form, total, payLabel, setPage, clearCart, orderId}) {
+function OrderTracking({form, total, payLabel, setPage, clearCart, orderId, estimate}) {
   const [stage, setStage] = useState(0);
   const [cancelled, setCancelled] = useState(false);
   const [timeLeft, setTimeLeft] = useState(CANCEL_WINDOW);
@@ -90,7 +90,7 @@ function OrderTracking({form, total, payLabel, setPage, clearCart, orderId}) {
               );
             })}
             {stage < 3
-              ? <p style={{fontFamily:"sans-serif",fontSize:"12px",color:"#aaa",marginTop:"8px"}}>🛵 Estimated delivery: 30–45 minutes</p>
+              ? <p style={{fontFamily:"sans-serif",fontSize:"12px",color:"#aaa",marginTop:"8px"}}>🛵 Estimated delivery: {estimate || "35–45"} minutes</p>
               : <p style={{fontFamily:"sans-serif",fontSize:"13px",color:"#3a7a3a",fontWeight:"600",marginTop:"8px"}}>🏠 Your order has been delivered! Enjoy!</p>
             }
             {canCancel && (
@@ -132,6 +132,15 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
   const [payErrors,setPayErrors]= useState({});
   const [ordered,  setOrdered]  = useState(false);
   const [orderId,  setOrderId]  = useState(null);
+  const [estimate, setEstimate] = useState(null);
+
+  useEffect(()=>{
+    supabase.from("orders").select("id",{count:"exact"}).in("status",["placed","preparing"]).then(({count})=>{
+      const load = Math.min(count||0, 4);
+      const base = 35 + load * 5;
+      setEstimate(`${base}–${base+10}`);
+    });
+  },[]);
   const [promoInput, setPromoInput] = useState("");
   const [promo,      setPromo]      = useState(null);
   const [promoErr,   setPromoErr]   = useState("");
@@ -217,7 +226,7 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
   const lStyle = {display:"block",fontSize:"10px",letterSpacing:"2px",color:"#999",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",marginBottom:"7px"};
   const payLabel = {cod:"Cash on Delivery",card:"Credit / Debit Card",upi:"UPI Payment",nb:"Net Banking",wallet:"Mobile Wallet"}[payMethod];
 
-  if(ordered) return <OrderTracking form={form} total={total} payLabel={payLabel} setPage={setPage} clearCart={clearCart} orderId={orderId} />;
+  if(ordered) return <OrderTracking form={form} total={total} payLabel={payLabel} setPage={setPage} clearCart={clearCart} orderId={orderId} estimate={form.pincode.startsWith("521") ? (()=>{const b=(estimate||"35–45").split("–").map(Number);return `${b[0]+10}–${b[1]+10}`;})() : estimate} />;
 
   if(cartItems.length===0) return (
     <div style={{paddingTop:"80px",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
@@ -302,7 +311,8 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
                 <div style={{display:"flex",alignItems:"center",gap:"10px",background:"#fdf9f2",border:`1px solid ${GOLD}44`,borderRadius:"4px",padding:"10px 14px",marginBottom:"18px"}}>
                   <span style={{fontSize:"18px"}}>🛵</span>
                   <span style={{fontFamily:"sans-serif",fontSize:"12px",color:"#666"}}>
-                    Estimated delivery to <strong style={{color:MID}}>{form.pincode}</strong>: <strong style={{color:GOLD}}>{25 + (parseInt(form.pincode.slice(-2))||0) % 25}–{40 + (parseInt(form.pincode.slice(-2))||0) % 25} minutes</strong>
+                    Estimated delivery to <strong style={{color:MID}}>{detectedArea||form.pincode}</strong>:{" "}
+                    <strong style={{color:GOLD}}>{form.pincode.startsWith("521") ? (()=>{const b=(estimate||"35–45").split("–").map(Number);return `${b[0]+10}–${b[1]+10}`;})() : estimate||"35–45"} minutes</strong>
                   </span>
                 </div>
               )}
@@ -365,7 +375,7 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
                 style={{width:"100%",padding:"16px",background:outsideArea?"#ccc":GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"12px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px",cursor:outsideArea?"not-allowed":"pointer"}}>
                 {payMethod==="cod"?`Place Order · ₹${Math.round(total)}`:`Pay ₹${Math.round(total)} Now`}
               </button>
-              <p style={{textAlign:"center",color:"#ccc",fontFamily:"sans-serif",fontSize:"11px",marginTop:"10px"}}>🔒 Secure checkout · 🛵 30–45 min delivery</p>
+              <p style={{textAlign:"center",color:"#ccc",fontFamily:"sans-serif",fontSize:"11px",marginTop:"10px"}}>🔒 Secure checkout · 🛵 {estimate||"35–45"} min delivery</p>
             </div>
           </div>
         </div>
