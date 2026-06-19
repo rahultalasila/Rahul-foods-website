@@ -65,6 +65,7 @@ function RahulFoods() {
       total: orderDetails.total,
       pay_label: orderDetails.payLabel,
       address: orderDetails.address,
+      phone: orderDetails.phone,
       status: "placed",
     }).select("id").single();
     if(data?.id) localStorage.setItem("rf_activeOrderId", data.id);

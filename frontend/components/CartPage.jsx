@@ -380,7 +380,7 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
                 </div>
               )}
               <button disabled={outsideArea||!kitchenOpen} onClick={()=>{if(validate()){
-                const orderData = {items:cartItems.map(({item,qty})=>({name:item.name,qty,price:item.price})), total, payLabel, address:`${form.address}, ${form.city} – ${form.pincode}`};
+                const orderData = {items:cartItems.map(({item,qty})=>({name:item.name,qty,price:item.price})), total, payLabel, address:`${form.address}, ${form.city} – ${form.pincode}`, phone:form.phone};
                 const itemsText = cartItems.map(({item,qty})=>(item.name+" x"+qty+" - Rs."+Math.round(getPrice(item)*qty))).join(", ");
                 sendOrderEmails(form, orderData, itemsText, total, payLabel, user?.email||"");
                 sendOrderSMS(form.phone, form.name, total, itemsText);

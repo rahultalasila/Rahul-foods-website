@@ -18,6 +18,10 @@ function AdminPage({user, setPage}) {
   const [promoSaving, setPromoSaving] = useState(false);
   const [orderingEnabled, setOrderingEnabled] = useState(true);
   const [togglingOrdering, setTogglingOrdering] = useState(false);
+  const [riders, setRiders] = useState([]);
+  const [ridersLoading, setRidersLoading] = useState(true);
+  const [riderForm, setRiderForm] = useState({name:"",phone:"",pin:"1234"});
+  const [riderSaving, setRiderSaving] = useState(false);
   const CATS = Object.keys(menuData);
   const emptyForm = {name:"",category:"Starters",description:"",price:"",image_url:"",tag:"",is_veg:false};
   const [form, setForm]       = useState(emptyForm);
@@ -38,6 +42,14 @@ function AdminPage({user, setPage}) {
   const loadSubscribers = () => { setSubLoading(true); supabase.from("newsletter_subscribers").select("*").order("created_at",{ascending:false}).then(({data})=>{ if(data) setSubscribers(data); setSubLoading(false); }); };
   const loadReviews = () => { setRevLoading(true); supabase.from("reviews").select("*").order("created_at",{ascending:false}).then(({data})=>{ if(data) setReviews(data); setRevLoading(false); }); };
   const loadPromos = () => { setPromoLoading(true); supabase.from("promo_codes").select("*").order("created_at",{ascending:true}).then(({data})=>{ if(data) setPromos(data); setPromoLoading(false); }); };
+  const loadRiders = () => { setRidersLoading(true); supabase.from("delivery_boys").select("*").order("created_at",{ascending:true}).then(({data})=>{ if(data) setRiders(data); setRidersLoading(false); }); };
+  const saveRider = async () => {
+    if(!riderForm.name.trim()||!riderForm.phone.trim()||!riderForm.pin.trim()) return;
+    setRiderSaving(true);
+    await supabase.from("delivery_boys").insert({name:riderForm.name.trim(),phone:riderForm.phone.replace(/\D/g,"").slice(-10),pin:riderForm.pin.trim()});
+    setRiderForm({name:"",phone:"",pin:"1234"}); setRiderSaving(false); loadRiders();
+  };
+  const deleteRider = async (id) => { if(window.confirm("Remove this delivery boy?")) { await supabase.from("delivery_boys").delete().eq("id",id); loadRiders(); } };
   const deleteReview = async (id) => { if(window.confirm("Delete this review?")) { await supabase.from("reviews").delete().eq("id",id); loadReviews(); } };
   const savePromo = async () => {
     if(!promoForm.code.trim()||!promoForm.value) return;
@@ -57,9 +69,22 @@ function AdminPage({user, setPage}) {
     setOrderingEnabled(newVal);
     setTogglingOrdering(false);
   };
-  useEffect(()=>{ loadOrders(); loadMenu(); loadReservations(); loadMessages(); loadSubscribers(); loadReviews(); loadPromos(); loadOrderingStatus(); },[]);
+  useEffect(()=>{ loadOrders(); loadMenu(); loadReservations(); loadMessages(); loadSubscribers(); loadReviews(); loadPromos(); loadOrderingStatus(); loadRiders(); },[]);
 
-  const updateStatus = async (id, status) => { await supabase.from("orders").update({status}).eq("id",id); loadOrders(); };
+  const updateStatus = async (id, status) => {
+    const update = {status};
+    if(status === "out_for_delivery") {
+      const {data:onlineRiders} = await supabase.from("delivery_boys").select("*").eq("is_online",true);
+      if(onlineRiders && onlineRiders.length > 0) {
+        const {data:busyOrders} = await supabase.from("orders").select("assigned_to").eq("status","out_for_delivery").not("assigned_to","is",null);
+        const busyIds = (busyOrders||[]).map(o=>o.assigned_to);
+        const freeRider = onlineRiders.find(r=>!busyIds.includes(r.id)) || onlineRiders[0];
+        update.assigned_to = freeRider.id;
+      }
+    }
+    if(status === "delivered") { update.assigned_to = null; }
+    await supabase.from("orders").update(update).eq("id",id); loadOrders();
+  };
   const STATUS_NEXT = {placed:"preparing", preparing:"out_for_delivery", out_for_delivery:"delivered"};
   const STATUS_LABEL = {placed:"Mark Preparing 🍳", preparing:"Mark Out for Delivery 🛵", out_for_delivery:"Mark Delivered 🏠"};
 
@@ -93,7 +118,7 @@ function AdminPage({user, setPage}) {
     <div style={{paddingTop:"80px",minHeight:"100vh"}}>
       <PageBanner tag="ADMIN" title="Dashboard" />
       <div style={{background:"#fff",borderBottom:"1px solid #f0ece4",display:"flex",justifyContent:"center",gap:"0"}}>
-        {[["orders","📋 Orders"],["menu","🍽️ Menu"],["reservations","📅 Reservations"],["messages","✉️ Messages"],["subscribers","📧 Subscribers"],["reviews","⭐ Reviews"],["promos","🏷️ Promo Codes"]].map(([t,l])=>(
+        {[["orders","📋 Orders"],["riders","🛵 Delivery"],["menu","🍽️ Menu"],["reservations","📅 Reservations"],["messages","✉️ Messages"],["subscribers","📧 Subscribers"],["reviews","⭐ Reviews"],["promos","🏷️ Promo Codes"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)} style={{padding:"16px 36px",border:"none",background:"none",fontFamily:"sans-serif",fontSize:"13px",fontWeight:tab===t?"700":"400",color:tab===t?DARK:"#aaa",borderBottom:tab===t?`3px solid ${DARK}`:"3px solid transparent",transition:"all 0.2s"}}>{l}</button>
         ))}
       </div>
@@ -155,7 +180,39 @@ function AdminPage({user, setPage}) {
                   <span style={{fontSize:"15px",fontWeight:"700",color:GOLD}}>₹{Math.round(o.total)}</span>
                 </div>
                 <div style={{fontFamily:"sans-serif",fontSize:"11px",color:"#aaa",marginTop:"8px"}}>📍 {o.address} · {o.pay_label}</div>
+                {o.assigned_to && (()=>{const r=riders.find(x=>x.id===o.assigned_to); return r ? <div style={{fontFamily:"sans-serif",fontSize:"11px",color:"#1c6aa8",marginTop:"4px"}}>🛵 Assigned to: <strong>{r.name}</strong> ({r.phone})</div> : null;})()}
                 {o.status!=="cancelled" && STATUS_NEXT[o.status||"placed"] && <button onClick={()=>updateStatus(o.id, STATUS_NEXT[o.status||"placed"])} style={{marginTop:"14px",padding:"10px 24px",background:MID,color:"#fff",border:"none",letterSpacing:"2px",fontSize:"10px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase"}}>{STATUS_LABEL[o.status||"placed"]}</button>}
+              </div>
+            ))}
+          </>}
+
+          {tab==="riders" && <>
+            <div style={{background:"#fff",borderRadius:"6px",padding:"24px 28px",boxShadow:"0 2px 16px rgba(0,0,0,0.05)",marginBottom:"24px"}}>
+              <h3 style={{fontFamily:"sans-serif",fontSize:"13px",fontWeight:"700",color:MID,marginBottom:"18px",textTransform:"uppercase",letterSpacing:"1px"}}>Add Delivery Boy</h3>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"12px",marginBottom:"12px"}}>
+                <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>NAME *</label><input value={riderForm.name} onChange={e=>setRiderForm(f=>({...f,name:e.target.value}))} placeholder="e.g. Ravi" style={iStyle} /></div>
+                <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>PHONE *</label><input value={riderForm.phone} onChange={e=>setRiderForm(f=>({...f,phone:e.target.value}))} placeholder="10-digit number" style={iStyle} /></div>
+                <div><label style={{fontFamily:"sans-serif",fontSize:"10px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",display:"block",marginBottom:"4px"}}>PIN *</label><input value={riderForm.pin} onChange={e=>setRiderForm(f=>({...f,pin:e.target.value}))} placeholder="e.g. 1234" maxLength={6} style={iStyle} /></div>
+              </div>
+              <button onClick={saveRider} disabled={riderSaving} style={{padding:"10px 24px",background:MID,color:"#fff",border:"none",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",letterSpacing:"1px",borderRadius:"3px"}}>{riderSaving?"Saving…":"+ Add Delivery Boy"}</button>
+            </div>
+            {ridersLoading && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>Loading…</p>}
+            {!ridersLoading && <p style={{fontFamily:"sans-serif",fontSize:"13px",color:"#666",marginBottom:"20px"}}>{riders.length} delivery boy{riders.length!==1?"s":""}</p>}
+            {riders.map(r=>(
+              <div key={r.id} style={{background:"#fff",borderRadius:"6px",padding:"20px 24px",boxShadow:"0 2px 12px rgba(0,0,0,0.05)",marginBottom:"12px",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:"12px"}}>
+                <div style={{display:"flex",alignItems:"center",gap:"14px"}}>
+                  <div style={{width:"40px",height:"40px",borderRadius:"50%",background:r.is_online?"#f0faf0":"#f9f8f5",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"18px",border:`2px solid ${r.is_online?"#3a7a3a":"#e0d9ce"}`}}>🛵</div>
+                  <div>
+                    <div style={{fontFamily:"sans-serif",fontSize:"14px",fontWeight:"700",color:MID}}>{r.name}</div>
+                    <div style={{fontFamily:"sans-serif",fontSize:"12px",color:"#aaa"}}>📞 {r.phone} · PIN: {r.pin}</div>
+                  </div>
+                </div>
+                <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
+                  <span style={{fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",color:r.is_online?"#3a7a3a":"#e05555",background:r.is_online?"#f0faf0":"#fff5f5",padding:"5px 12px",borderRadius:"12px",border:`1px solid ${r.is_online?"#aadcaa":"#fcc"}`}}>
+                    {r.is_online?"🟢 Online":"🔴 Offline"}
+                  </span>
+                  <button onClick={()=>deleteRider(r.id)} style={{padding:"7px 12px",border:"1px solid #fcc",borderRadius:"4px",background:"#fff5f5",fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",color:"#e05555"}}>🗑</button>
+                </div>
               </div>
             ))}
           </>}

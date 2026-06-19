@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Rahul Foods — Delivery</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛵</text></svg>">
+  <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.23.10/babel.min.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background:#f5f5f5; color:#1a1a2e; min-height:100vh; }
+    :root { --gold:#c8a96e; --dark:#1a1a2e; --green:#3a7a3a; --red:#e05555; --blue:#1c6aa8; }
+    input, button { font-family:inherit; }
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const SUPABASE_URL = "https://nypgfysitvremxhbduip.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55cGdmeXNpdHZyZW14aGJkdWlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk3NTQ2OTgsImV4cCI6MjA2NTMzMDY5OH0.n31gW4CfPGmiRahNJxX9uQ4zaCl57tstmmcfY0vkVaM";
+    var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const GOLD = "#c8a96e";
+    const DARK = "#1a1a2e";
+
+    function LoginPage({ onLogin }) {
+      const [phone, setPhone] = useState("");
+      const [pin, setPin] = useState("");
+      const [error, setError] = useState("");
+      const [loading, setLoading] = useState(false);
+
+      const handleLogin = async () => {
+        if (!phone.trim() || !pin.trim()) { setError("Enter phone and PIN"); return; }
+        setLoading(true); setError("");
+        const cleanPhone = phone.replace(/\D/g, "").slice(-10);
+        const { data, error: err } = await sb.from("delivery_boys").select("*").eq("phone", cleanPhone).eq("pin", pin).single();
+        if (err || !data) { setError("Invalid phone or PIN"); setLoading(false); return; }
+        localStorage.setItem("rf_delivery_id", data.id);
+        localStorage.setItem("rf_delivery_name", data.name);
+        onLogin(data);
+        setLoading(false);
+      };
+
+      return (
+        <div style={{minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"24px",background:`linear-gradient(135deg, ${DARK} 0%, #2d2d4e 100%)`}}>
+          <div className="fade-in" style={{width:"100%",maxWidth:"380px"}}>
+            <div style={{textAlign:"center",marginBottom:"40px"}}>
+              <div style={{fontSize:"48px",marginBottom:"12px"}}>🛵</div>
+              <h1 style={{color:GOLD,fontSize:"22px",letterSpacing:"4px",fontWeight:"700",marginBottom:"6px"}}>RAHUL FOODS</h1>
+              <p style={{color:"rgba(255,255,255,0.4)",fontSize:"12px",letterSpacing:"3px",textTransform:"uppercase"}}>Delivery Partner Login</p>
+            </div>
+            <div style={{background:"#fff",borderRadius:"12px",padding:"28px 24px",boxShadow:"0 8px 32px rgba(0,0,0,0.3)"}}>
+              <div style={{marginBottom:"18px"}}>
+                <label style={{display:"block",fontSize:"11px",fontWeight:"700",color:"#999",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:"6px"}}>Phone Number</label>
+                <input type="tel" value={phone} onChange={e=>setPhone(e.target.value)} placeholder="Enter your phone"
+                  style={{width:"100%",padding:"14px 16px",border:"1px solid #e0e0e0",borderRadius:"8px",fontSize:"16px",color:DARK,outline:"none"}}
+                  onKeyDown={e=>e.key==="Enter"&&document.getElementById("pin-input").focus()} />
+              </div>
+              <div style={{marginBottom:"18px"}}>
+                <label style={{display:"block",fontSize:"11px",fontWeight:"700",color:"#999",letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:"6px"}}>PIN</label>
+                <input id="pin-input" type="password" inputMode="numeric" maxLength={6} value={pin} onChange={e=>setPin(e.target.value)} placeholder="Enter your PIN"
+                  style={{width:"100%",padding:"14px 16px",border:"1px solid #e0e0e0",borderRadius:"8px",fontSize:"16px",color:DARK,letterSpacing:"8px",textAlign:"center",outline:"none"}}
+                  onKeyDown={e=>e.key==="Enter"&&handleLogin()} />
+              </div>
+              {error && <p style={{color:"var(--red)",fontSize:"13px",fontWeight:"600",marginBottom:"14px",textAlign:"center"}}>{error}</p>}
+              <button onClick={handleLogin} disabled={loading}
+                style={{width:"100%",padding:"15px",background:GOLD,color:"#fff",border:"none",borderRadius:"8px",fontSize:"14px",fontWeight:"700",letterSpacing:"2px",textTransform:"uppercase",cursor:"pointer"}}>
+                {loading ? "Logging in…" : "Login"}
+              </button>
+            </div>
+            <p style={{textAlign:"center",marginTop:"20px",fontSize:"11px",color:"rgba(255,255,255,0.25)"}}>Contact restaurant if you don't have credentials</p>
+          </div>
+        </div>
+      );
+    }
+
+    function OrderCard({ order, onDeliver }) {
+      const [delivering, setDelivering] = useState(false);
+      const items = order.items || [];
+      const createdAt = new Date(order.created_at);
+      const elapsed = Math.floor((Date.now() - createdAt.getTime()) / 60000);
+
+      const markDelivered = async () => {
+        if (!window.confirm("Mark this order as delivered?")) return;
+        setDelivering(true);
+        await sb.from("orders").update({ status: "delivered", assigned_to: null }).eq("id", order.id);
+        onDeliver();
+      };
+
+      const address = order.address || "";
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+      const phone = order.items?.[0]?.phone || "";
+
+      return (
+        <div className="fade-in" style={{background:"#fff",borderRadius:"12px",padding:"20px",boxShadow:"0 2px 12px rgba(0,0,0,0.08)",marginBottom:"16px",border: order.status==="out_for_delivery"?"2px solid var(--blue)":"1px solid #eee"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"14px"}}>
+            <div>
+              <span style={{fontSize:"11px",fontWeight:"700",color: order.status==="out_for_delivery"?"var(--blue)":"var(--green)",background: order.status==="out_for_delivery"?"#e8f2ff":"#f0faf0",padding:"4px 10px",borderRadius:"4px",textTransform:"uppercase",letterSpacing:"1px"}}>
+                {order.status === "out_for_delivery" ? "🛵 In Transit" : order.status === "preparing" ? "🍳 Preparing" : order.status}
+              </span>
+            </div>
+            <span style={{fontSize:"11px",color:"#aaa"}}>{elapsed}m ago</span>
+          </div>
+
+          {/* Items */}
+          <div style={{marginBottom:"14px",padding:"12px",background:"#f9f8f5",borderRadius:"8px"}}>
+            {items.map((it,i) => (
+              <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:"13px",color:"#555",padding:"3px 0"}}>
+                <span>{it.name} × {it.qty}</span>
+                <span style={{fontWeight:"600"}}>{it.price}</span>
+              </div>
+            ))}
+            <div style={{display:"flex",justifyContent:"space-between",marginTop:"8px",paddingTop:"8px",borderTop:"1px solid #e8e4da",fontSize:"15px",fontWeight:"700"}}>
+              <span style={{color:DARK}}>Total</span>
+              <span style={{color:GOLD}}>₹{Math.round(order.total)}</span>
+            </div>
+          </div>
+
+          {/* Payment */}
+          <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"14px",padding:"10px 12px",background:"#fdf9f2",borderRadius:"6px",border:`1px solid ${GOLD}33`}}>
+            <span style={{fontSize:"18px"}}>{order.pay_label?.includes("Cash")?"💵":order.pay_label?.includes("Card")?"💳":"📱"}</span>
+            <span style={{fontSize:"13px",fontWeight:"700",color:DARK}}>{order.pay_label || "Cash on Delivery"}</span>
+            {order.pay_label?.includes("Cash") && <span style={{fontSize:"11px",color:"var(--red)",fontWeight:"700",marginLeft:"auto"}}>Collect ₹{Math.round(order.total)}</span>}
+          </div>
+
+          {/* Address */}
+          <div style={{marginBottom:"14px"}}>
+            <div style={{fontSize:"11px",fontWeight:"700",color:"#aaa",letterSpacing:"1px",textTransform:"uppercase",marginBottom:"6px"}}>📍 Delivery Address</div>
+            <p style={{fontSize:"14px",color:DARK,lineHeight:1.6,margin:0}}>{address}</p>
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{display:"flex",gap:"10px",flexWrap:"wrap"}}>
+            <a href={mapsUrl} target="_blank" rel="noopener noreferrer"
+              style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",padding:"12px",background:"#4285f4",color:"#fff",borderRadius:"8px",textDecoration:"none",fontSize:"13px",fontWeight:"700",letterSpacing:"1px",minWidth:"120px"}}>
+              📍 Navigate
+            </a>
+            {order.phone && (
+              <a href={`tel:${order.phone}`}
+                style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",padding:"12px",background:"var(--green)",color:"#fff",borderRadius:"8px",textDecoration:"none",fontSize:"13px",fontWeight:"700",letterSpacing:"1px",minWidth:"120px"}}>
+                📞 Call
+              </a>
+            )}
+          </div>
+          {order.status === "out_for_delivery" && (
+            <button onClick={markDelivered} disabled={delivering}
+              style={{width:"100%",marginTop:"10px",padding:"14px",background:delivering?"#aaa":GOLD,color:"#fff",border:"none",borderRadius:"8px",fontSize:"14px",fontWeight:"700",letterSpacing:"2px",textTransform:"uppercase",cursor:"pointer"}}>
+              {delivering ? "Updating…" : "✅ Mark Delivered"}
+            </button>
+          )}
+        </div>
+      );
+    }
+
+    function Dashboard({ rider, onLogout }) {
+      const [isOnline, setIsOnline] = useState(rider.is_online);
+      const [orders, setOrders] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [toggling, setToggling] = useState(false);
+      const [tab, setTab] = useState("active");
+
+      const loadOrders = async () => {
+        const { data } = await sb.from("orders").select("*").eq("assigned_to", rider.id).order("created_at", { ascending: false });
+        if (data) setOrders(data);
+        setLoading(false);
+      };
+
+      useEffect(() => {
+        loadOrders();
+        const iv = setInterval(loadOrders, 10000);
+        return () => clearInterval(iv);
+      }, []);
+
+      const toggleOnline = async () => {
+        setToggling(true);
+        const newVal = !isOnline;
+        await sb.from("delivery_boys").update({ is_online: newVal }).eq("id", rider.id);
+        setIsOnline(newVal);
+        setToggling(false);
+      };
+
+      const activeOrders = orders.filter(o => o.status === "out_for_delivery" || o.status === "preparing");
+      const completedOrders = orders.filter(o => o.status === "delivered");
+      const displayOrders = tab === "active" ? activeOrders : completedOrders;
+
+      const todayOrders = orders.filter(o => {
+        const d = new Date(o.created_at); const t = new Date(); t.setHours(0,0,0,0);
+        return d >= t;
+      });
+      const todayDelivered = todayOrders.filter(o => o.status === "delivered").length;
+      const todayEarnings = todayOrders.filter(o => o.status === "delivered").reduce((s,o) => s + o.total, 0);
+
+      return (
+        <div style={{minHeight:"100vh",background:"#f5f5f5"}}>
+          {/* Header */}
+          <div style={{background:DARK,padding:"16px 20px",position:"sticky",top:0,zIndex:10}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div>
+                <h1 style={{color:GOLD,fontSize:"14px",letterSpacing:"3px",fontWeight:"700",margin:0}}>RAHUL FOODS</h1>
+                <p style={{color:"rgba(255,255,255,0.5)",fontSize:"11px",margin:"2px 0 0"}}>Hi, {rider.name} 👋</p>
+              </div>
+              <div style={{display:"flex",gap:"10px",alignItems:"center"}}>
+                <button onClick={toggleOnline} disabled={toggling}
+                  style={{padding:"8px 16px",background: isOnline?"var(--green)":"var(--red)",color:"#fff",border:"none",borderRadius:"20px",fontSize:"11px",fontWeight:"700",letterSpacing:"1px",cursor:"pointer",display:"flex",alignItems:"center",gap:"6px"}}>
+                  <span style={{width:"8px",height:"8px",borderRadius:"50%",background:"#fff",display:"inline-block",animation: isOnline?"pulse 1.5s infinite":"none"}} />
+                  {toggling ? "…" : isOnline ? "ONLINE" : "OFFLINE"}
+                </button>
+                <button onClick={onLogout} style={{padding:"8px 12px",background:"none",border:"1px solid rgba(255,255,255,0.2)",color:"rgba(255,255,255,0.5)",borderRadius:"6px",fontSize:"11px",cursor:"pointer"}}>Logout</button>
+              </div>
+            </div>
+          </div>
+
+          {/* Offline Banner */}
+          {!isOnline && (
+            <div style={{background:"#fff3cd",padding:"12px 20px",textAlign:"center",fontSize:"13px",color:"#856404",fontWeight:"600"}}>
+              ⚠️ You're offline. Go online to receive orders.
+            </div>
+          )}
+
+          {/* Today's Stats */}
+          <div style={{padding:"16px 20px"}}>
+            <div style={{display:"flex",gap:"12px"}}>
+              <div style={{flex:1,background:"#fff",borderRadius:"10px",padding:"16px",textAlign:"center",boxShadow:"0 2px 8px rgba(0,0,0,0.06)"}}>
+                <div style={{fontSize:"24px",fontWeight:"700",color:GOLD}}>{todayDelivered}</div>
+                <div style={{fontSize:"11px",color:"#aaa",marginTop:"2px"}}>Deliveries Today</div>
+              </div>
+              <div style={{flex:1,background:"#fff",borderRadius:"10px",padding:"16px",textAlign:"center",boxShadow:"0 2px 8px rgba(0,0,0,0.06)"}}>
+                <div style={{fontSize:"24px",fontWeight:"700",color:"var(--green)"}}>₹{Math.round(todayEarnings)}</div>
+                <div style={{fontSize:"11px",color:"#aaa",marginTop:"2px"}}>Order Value</div>
+              </div>
+              <div style={{flex:1,background:"#fff",borderRadius:"10px",padding:"16px",textAlign:"center",boxShadow:"0 2px 8px rgba(0,0,0,0.06)"}}>
+                <div style={{fontSize:"24px",fontWeight:"700",color: activeOrders.length>0?"var(--blue)":"#ccc"}}>{activeOrders.length}</div>
+                <div style={{fontSize:"11px",color:"#aaa",marginTop:"2px"}}>Active Orders</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Tabs */}
+          <div style={{display:"flex",padding:"0 20px",gap:"0",marginBottom:"16px"}}>
+            {[["active", `Active (${activeOrders.length})`], ["completed", `Completed (${completedOrders.length})`]].map(([t, l]) => (
+              <button key={t} onClick={() => setTab(t)}
+                style={{flex:1,padding:"12px",background: tab===t?"#fff":"transparent",border: tab===t?"1px solid #e0e0e0":"1px solid transparent",borderBottom: tab===t?"none":"1px solid #e0e0e0",borderRadius: tab===t?"8px 8px 0 0":"0",fontSize:"13px",fontWeight: tab===t?"700":"400",color: tab===t?DARK:"#aaa",cursor:"pointer"}}>
+                {l}
+              </button>
+            ))}
+          </div>
+
+          {/* Orders */}
+          <div style={{padding:"0 20px 100px"}}>
+            {loading && <p style={{textAlign:"center",color:"#aaa",padding:"40px",fontSize:"14px"}}>Loading orders…</p>}
+
+            {!loading && displayOrders.length === 0 && (
+              <div style={{textAlign:"center",padding:"60px 20px"}}>
+                <div style={{fontSize:"48px",marginBottom:"12px"}}>{tab === "active" ? "☕" : "📋"}</div>
+                <p style={{fontSize:"16px",color:"#aaa",fontWeight:"500"}}>{tab === "active" ? "No active orders" : "No deliveries yet"}</p>
+                {tab === "active" && isOnline && <p style={{fontSize:"13px",color:"#ccc",marginTop:"6px"}}>New orders will appear here automatically</p>}
+              </div>
+            )}
+
+            {displayOrders.map(o => (
+              <OrderCard key={o.id} order={o} onDeliver={loadOrders} />
+            ))}
+          </div>
+
+          {/* Bottom update indicator */}
+          <div style={{position:"fixed",bottom:0,left:0,right:0,background:"#fff",borderTop:"1px solid #eee",padding:"8px",textAlign:"center"}}>
+            <span style={{fontSize:"11px",color:"#ccc"}}>Auto-refreshes every 10 seconds · {new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [rider, setRider] = useState(null);
+
+      useEffect(() => {
+        const id = localStorage.getItem("rf_delivery_id");
+        const name = localStorage.getItem("rf_delivery_name");
+        if (id && name) {
+          sb.from("delivery_boys").select("*").eq("id", id).single().then(({ data }) => {
+            if (data) setRider(data);
+            else { localStorage.removeItem("rf_delivery_id"); localStorage.removeItem("rf_delivery_name"); }
+          });
+        }
+      }, []);
+
+      const handleLogout = () => {
+        localStorage.removeItem("rf_delivery_id");
+        localStorage.removeItem("rf_delivery_name");
+        setRider(null);
+      };
+
+      if (!rider) return <LoginPage onLogin={setRider} />;
+      return <Dashboard rider={rider} onLogout={handleLogout} />;
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
