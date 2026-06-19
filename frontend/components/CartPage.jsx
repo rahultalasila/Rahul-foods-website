@@ -196,6 +196,10 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
   const outsideArea = (form.city.trim() || form.pincode.trim()) &&
     !isVijayawada(form.city, form.pincode);
 
+  const finalEstimate = form.pincode.startsWith("521")
+    ? (()=>{const b=(estimate||"35–45").split("–").map(Number);return `${b[0]+10}–${b[1]+10}`;})()
+    : (estimate||"35–45");
+
   const validate = () => {
     const e={};
     if(!form.name.trim())    e.name="Required";
@@ -226,7 +230,7 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
   const lStyle = {display:"block",fontSize:"10px",letterSpacing:"2px",color:"#999",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",marginBottom:"7px"};
   const payLabel = {cod:"Cash on Delivery",card:"Credit / Debit Card",upi:"UPI Payment",nb:"Net Banking",wallet:"Mobile Wallet"}[payMethod];
 
-  if(ordered) return <OrderTracking form={form} total={total} payLabel={payLabel} setPage={setPage} clearCart={clearCart} orderId={orderId} estimate={form.pincode.startsWith("521") ? (()=>{const b=(estimate||"35–45").split("–").map(Number);return `${b[0]+10}–${b[1]+10}`;})() : estimate} />;
+  if(ordered) return <OrderTracking form={form} total={total} payLabel={payLabel} setPage={setPage} clearCart={clearCart} orderId={orderId} estimate={finalEstimate} />;
 
   if(cartItems.length===0) return (
     <div style={{paddingTop:"80px",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
@@ -312,7 +316,7 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
                   <span style={{fontSize:"18px"}}>🛵</span>
                   <span style={{fontFamily:"sans-serif",fontSize:"12px",color:"#666"}}>
                     Estimated delivery to <strong style={{color:MID}}>{detectedArea||form.pincode}</strong>:{" "}
-                    <strong style={{color:GOLD}}>{form.pincode.startsWith("521") ? (()=>{const b=(estimate||"35–45").split("–").map(Number);return `${b[0]+10}–${b[1]+10}`;})() : estimate||"35–45"} minutes</strong>
+                    <strong style={{color:GOLD}}>{finalEstimate} minutes</strong>
                   </span>
                 </div>
               )}
@@ -375,7 +379,7 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
                 style={{width:"100%",padding:"16px",background:outsideArea?"#ccc":GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"12px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px",cursor:outsideArea?"not-allowed":"pointer"}}>
                 {payMethod==="cod"?`Place Order · ₹${Math.round(total)}`:`Pay ₹${Math.round(total)} Now`}
               </button>
-              <p style={{textAlign:"center",color:"#ccc",fontFamily:"sans-serif",fontSize:"11px",marginTop:"10px"}}>🔒 Secure checkout · 🛵 {estimate||"35–45"} min delivery</p>
+              <p style={{textAlign:"center",color:"#ccc",fontFamily:"sans-serif",fontSize:"11px",marginTop:"10px"}}>🔒 Secure checkout · 🛵 {finalEstimate} min delivery</p>
             </div>
           </div>
         </div>
