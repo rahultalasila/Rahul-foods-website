@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   if (!phone || !message) return res.status(400).json({ error: "Missing phone or message" });
 
   const key = process.env.FAST2SMS_KEY;
-  const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${key}&message=${encodeURIComponent(message)}&language=english&route=q&numbers=${phone}`;
+  const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${key}&variables_values=${encodeURIComponent(message)}&route=p&numbers=${phone}`;
 
   try {
     const resp = await fetch(url);
