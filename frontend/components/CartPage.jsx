@@ -133,12 +133,16 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
   const [ordered,  setOrdered]  = useState(false);
   const [orderId,  setOrderId]  = useState(null);
   const [estimate, setEstimate] = useState(null);
+  const [kitchenOpen, setKitchenOpen] = useState(true);
 
   useEffect(()=>{
     supabase.from("orders").select("id",{count:"exact"}).in("status",["placed","preparing"]).then(({count})=>{
       const load = Math.min(count||0, 4);
       const base = 35 + load * 5;
       setEstimate(`${base}–${base+10}`);
+    });
+    supabase.from("settings").select("value").eq("key","ordering_enabled").single().then(({data})=>{
+      if(data) setKitchenOpen(data.value==="true");
     });
   },[]);
   const [promoInput, setPromoInput] = useState("");
@@ -368,7 +372,14 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
                   <div style={{fontSize:"13px",fontWeight:"700",color:MID}}>{payLabel}</div>
                 </div>
               </div>
-              <button disabled={outsideArea} onClick={()=>{if(validate()){
+              {!kitchenOpen && (
+                <div style={{background:"#fff5f5",border:"1px solid #fcc",borderRadius:"6px",padding:"14px 16px",marginBottom:"14px",textAlign:"center"}}>
+                  <div style={{fontSize:"20px",marginBottom:"6px"}}>🔴</div>
+                  <div style={{fontFamily:"sans-serif",fontSize:"13px",fontWeight:"700",color:"#e05555",marginBottom:"4px"}}>Kitchen is Currently Closed</div>
+                  <div style={{fontFamily:"sans-serif",fontSize:"12px",color:"#888"}}>We're not accepting orders right now. Please try again later or call us at <strong>+91 70757 51105</strong>.</div>
+                </div>
+              )}
+              <button disabled={outsideArea||!kitchenOpen} onClick={()=>{if(validate()){
                 const orderData = {items:cartItems.map(({item,qty})=>({name:item.name,qty,price:item.price})), total, payLabel, address:`${form.address}, ${form.city} – ${form.pincode}`};
                 const itemsText = cartItems.map(({item,qty})=>(item.name+" x"+qty+" - Rs."+Math.round(getPrice(item)*qty))).join(", ");
                 sendOrderEmails(form, orderData, itemsText, total, payLabel, user?.email||"");
@@ -376,7 +387,7 @@ function CartPage({cart, updateQty, setPage, showToast, clearCart, onOrderPlaced
                 setOrdered(true);
                 onOrderPlaced(orderData).then(id=>{ if(id) setOrderId(id); });
               }}}
-                style={{width:"100%",padding:"16px",background:outsideArea?"#ccc":GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"12px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px",cursor:outsideArea?"not-allowed":"pointer"}}>
+                style={{width:"100%",padding:"16px",background:outsideArea||!kitchenOpen?"#ccc":GOLD,color:"#fff",border:"none",letterSpacing:"3px",fontSize:"12px",fontFamily:"sans-serif",fontWeight:"700",textTransform:"uppercase",borderRadius:"3px",cursor:outsideArea||!kitchenOpen?"not-allowed":"pointer"}}>
                 {payMethod==="cod"?`Place Order · ₹${Math.round(total)}`:`Pay ₹${Math.round(total)} Now`}
               </button>
               <p style={{textAlign:"center",color:"#ccc",fontFamily:"sans-serif",fontSize:"11px",marginTop:"10px"}}>🔒 Secure checkout · 🛵 {finalEstimate} min delivery</p>

@@ -16,6 +16,8 @@ function AdminPage({user, setPage}) {
   const [promoLoading, setPromoLoading] = useState(true);
   const [promoForm, setPromoForm] = useState({code:"",type:"percent",value:"",label:""});
   const [promoSaving, setPromoSaving] = useState(false);
+  const [orderingEnabled, setOrderingEnabled] = useState(true);
+  const [togglingOrdering, setTogglingOrdering] = useState(false);
   const CATS = Object.keys(menuData);
   const emptyForm = {name:"",category:"Starters",description:"",price:"",image_url:"",tag:"",is_veg:false};
   const [form, setForm]       = useState(emptyForm);
@@ -47,7 +49,15 @@ function AdminPage({user, setPage}) {
   };
   const togglePromo = async (id,active) => { await supabase.from("promo_codes").update({active:!active}).eq("id",id); loadPromos(); };
   const deletePromo = async (id) => { if(window.confirm("Delete this promo code?")) { await supabase.from("promo_codes").delete().eq("id",id); loadPromos(); } };
-  useEffect(()=>{ loadOrders(); loadMenu(); loadReservations(); loadMessages(); loadSubscribers(); loadReviews(); loadPromos(); },[]);
+  const loadOrderingStatus = () => { supabase.from("settings").select("value").eq("key","ordering_enabled").single().then(({data})=>{ if(data) setOrderingEnabled(data.value==="true"); }); };
+  const toggleOrdering = async () => {
+    setTogglingOrdering(true);
+    const newVal = !orderingEnabled;
+    await supabase.from("settings").update({value: newVal?"true":"false"}).eq("key","ordering_enabled");
+    setOrderingEnabled(newVal);
+    setTogglingOrdering(false);
+  };
+  useEffect(()=>{ loadOrders(); loadMenu(); loadReservations(); loadMessages(); loadSubscribers(); loadReviews(); loadPromos(); loadOrderingStatus(); },[]);
 
   const updateStatus = async (id, status) => { await supabase.from("orders").update({status}).eq("id",id); loadOrders(); };
   const STATUS_NEXT = {placed:"preparing", preparing:"out_for_delivery", out_for_delivery:"delivered"};
@@ -90,6 +100,47 @@ function AdminPage({user, setPage}) {
       <div style={{background:"#f9f8f5",padding:"40px 60px",minHeight:"60vh"}}>
         <div style={{maxWidth:"900px",margin:"0 auto"}}>
           {tab==="orders" && <>
+            {/* Pause ordering toggle */}
+            <div style={{background: orderingEnabled?"#f0faf0":"#fff5f5", border:`1px solid ${orderingEnabled?"#aadcaa":"#fcc"}`, borderRadius:"8px", padding:"18px 24px", marginBottom:"24px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:"12px"}}>
+              <div>
+                <div style={{fontFamily:"sans-serif", fontSize:"14px", fontWeight:"700", color: orderingEnabled?"#3a7a3a":"#e05555", marginBottom:"3px"}}>{orderingEnabled ? "✅ Kitchen is Open — Accepting Orders" : "🔴 Kitchen is Closed — Orders Paused"}</div>
+                <div style={{fontFamily:"sans-serif", fontSize:"12px", color:"#888"}}>{orderingEnabled ? "Customers can place orders right now." : "Customers will see a 'closed' message and cannot order."}</div>
+              </div>
+              <button onClick={toggleOrdering} disabled={togglingOrdering} style={{padding:"10px 24px", background: orderingEnabled?"#e05555":"#3a7a3a", color:"#fff", border:"none", borderRadius:"4px", fontFamily:"sans-serif", fontSize:"12px", fontWeight:"700", letterSpacing:"1px", textTransform:"uppercase", cursor:"pointer"}}>
+                {togglingOrdering ? "Saving…" : orderingEnabled ? "⏸ Pause Orders" : "▶ Resume Orders"}
+              </button>
+            </div>
+            {/* Daily summary */}
+            {(()=>{
+              const today = new Date(); today.setHours(0,0,0,0);
+              const todayOrders = orders.filter(o=>new Date(o.created_at)>=today);
+              const todayRevenue = todayOrders.filter(o=>o.status!=="cancelled").reduce((s,o)=>s+o.total,0);
+              const byStatus = todayOrders.reduce((acc,o)=>{ acc[o.status]=(acc[o.status]||0)+1; return acc; },{});
+              return todayOrders.length>0 && (
+                <div style={{background:"#fff",borderRadius:"8px",padding:"20px 24px",boxShadow:"0 2px 12px rgba(0,0,0,0.06)",marginBottom:"24px"}}>
+                  <div style={{fontFamily:"sans-serif",fontSize:"11px",fontWeight:"700",color:"#aaa",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"14px"}}>Today's Summary</div>
+                  <div style={{display:"flex",gap:"20px",flexWrap:"wrap"}}>
+                    <div style={{textAlign:"center",minWidth:"80px"}}>
+                      <div style={{fontSize:"28px",fontWeight:"700",color:GOLD,fontFamily:"sans-serif"}}>{todayOrders.length}</div>
+                      <div style={{fontSize:"11px",color:"#aaa",fontFamily:"sans-serif"}}>Total Orders</div>
+                    </div>
+                    <div style={{textAlign:"center",minWidth:"80px"}}>
+                      <div style={{fontSize:"28px",fontWeight:"700",color:"#3a7a3a",fontFamily:"sans-serif"}}>₹{Math.round(todayRevenue)}</div>
+                      <div style={{fontSize:"11px",color:"#aaa",fontFamily:"sans-serif"}}>Revenue</div>
+                    </div>
+                    <div style={{borderLeft:"1px solid #f0ece4",paddingLeft:"20px",display:"flex",gap:"14px",flexWrap:"wrap",alignItems:"center"}}>
+                      {Object.entries(byStatus).map(([s,c])=>{
+                        const colors={placed:"#a86a1c",preparing:"#a86a1c",out_for_delivery:"#1c6aa8",delivered:"#3a7a3a",cancelled:"#e05555"};
+                        return <div key={s} style={{textAlign:"center"}}>
+                          <div style={{fontSize:"18px",fontWeight:"700",color:colors[s]||"#888",fontFamily:"sans-serif"}}>{c}</div>
+                          <div style={{fontSize:"10px",color:"#aaa",fontFamily:"sans-serif",textTransform:"capitalize"}}>{s.replace("_"," ")}</div>
+                        </div>;
+                      })}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
             {ordersLoading && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>Loading orders…</p>}
             {!ordersLoading && orders.length===0 && <p style={{color:"#aaa",fontFamily:"sans-serif"}}>No orders yet.</p>}
             {orders.map((o)=>(
