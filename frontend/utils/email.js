@@ -1,4 +1,4 @@
-const FAST2SMS_KEY = "YOUR_FAST2SMS_API_KEY"; // replace after signing up at fast2sms.com
+const FAST2SMS_KEY = "lMPq5N3Db6yTZtAO0xSehQ9mEoW7FXRLfYazHGg8u1i2VIvcj4TgqyoUewOPviCt23daN6Gj0BK8HDub";
 
 function sendOrderSMS(phone, name, total, items) {
   const cleanPhone = phone.replace(/\D/g, "").slice(-10);
