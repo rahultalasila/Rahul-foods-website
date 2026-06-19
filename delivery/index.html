@@ -168,8 +168,10 @@
       const [tab, setTab] = useState("active");
 
       const loadOrders = async () => {
+        const { data: allOrders } = await sb.from("orders").select("id,status,assigned_to").order("created_at", { ascending: false }).limit(5);
+        console.log("ALL recent orders:", allOrders);
         const { data, error } = await sb.from("orders").select("*").eq("assigned_to", rider.id).order("created_at", { ascending: false });
-        console.log("Rider ID:", rider.id, "Orders:", data, "Error:", error);
+        console.log("Rider ID:", rider.id, "Matched orders:", data, "Error:", error);
         if (data) setOrders(data);
         setLoading(false);
       };
