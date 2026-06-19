@@ -1,19 +1,19 @@
-const FAST2SMS_KEY = "lMPq5N3Db6yTZtAO0xSehQ9mEoW7FXRLfYazHGg8u1i2VIvcj4TgqyoUewOPviCt23daN6Gj0BK8HDub";
-
-function sendOrderSMS(phone, name, total, items) {
+function sendSMS(phone, message) {
   const cleanPhone = phone.replace(/\D/g, "").slice(-10);
   if(cleanPhone.length !== 10) return;
-  const msg = `Hi ${name}! Your Rahul Foods order has been placed. Items: ${items}. Total: Rs.${Math.round(total)}. Track at rahul-foods-website.vercel.app. Call us: 7075751105`;
-  fetch(`https://www.fast2sms.com/dev/bulkV2?authorization=${FAST2SMS_KEY}&message=${encodeURIComponent(msg)}&language=english&route=q&numbers=${cleanPhone}`)
-    .catch(()=>{});
+  fetch("/api/send-sms", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({phone: cleanPhone, message})
+  }).catch(()=>{});
+}
+
+function sendOrderSMS(phone, name, total, items) {
+  sendSMS(phone, `Hi ${name}! Your Rahul Foods order has been placed. Items: ${items}. Total: Rs.${Math.round(total)}. Track at rahul-foods-website.vercel.app. Call us: 7075751105`);
 }
 
 function sendCancellationSMS(phone, name) {
-  const cleanPhone = phone.replace(/\D/g, "").slice(-10);
-  if(cleanPhone.length !== 10) return;
-  const msg = `Hi ${name}, your Rahul Foods order has been cancelled as per your request. We hope to serve you again soon! Call: 7075751105`;
-  fetch(`https://www.fast2sms.com/dev/bulkV2?authorization=${FAST2SMS_KEY}&message=${encodeURIComponent(msg)}&language=english&route=q&numbers=${cleanPhone}`)
-    .catch(()=>{});
+  sendSMS(phone, `Hi ${name}, your Rahul Foods order has been cancelled as per your request. We hope to serve you again soon! Call: 7075751105`);
 }
 
 function sendCancellationEmail(customerName, total, orderId) {
